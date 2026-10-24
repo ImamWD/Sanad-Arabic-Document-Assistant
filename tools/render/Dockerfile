@@ -7,6 +7,11 @@
 # for that same date, so every package version is fixed too.
 
 ARG DEBIAN_IMAGE=debian:trixie-20261020-slim
+# The uv release backend/Dockerfile uses; only mounted to install pypdfium2 below.
+ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.5
+
+FROM ${UV_IMAGE} AS uv
+
 FROM ${DEBIAN_IMAGE}
 
 ARG DEBIAN_SNAPSHOT=20261020T000000Z
@@ -40,5 +45,19 @@ RUN sed -i \
 # Chromium and LibreOffice both want a writable profile directory.
 ENV HOME=/tmp \
     LANG=C.UTF-8
+
+# pypdfium2 for scripts/check_eval.py (C1b). Debian doesn't package it. Same version as
+# backend/uv.lock, installed only from wheels with these hashes (manylinux aarch64, x86_64).
+RUN --mount=from=uv,source=/uv,target=/usr/local/bin/uv \
+    --mount=type=cache,target=/root/.cache/uv \
+    printf '%s\n' 'pypdfium2==5.14.0 \
+      --hash=sha256:f1b696e6901e16f114a2ec6332e5e3f8f5033a901614ead28499ab18ca6024f5 \
+      --hash=sha256:11f281613fa22313d9c7ab89947665e84eccf8ebe40e1198a84a88352305648d' \
+      > /tmp/requirements.txt \
+ && UV_PYTHON_DOWNLOADS=never UV_HTTP_TIMEOUT=300 uv pip install --python /usr/bin/python3 --system \
+      --break-system-packages --require-hashes --no-deps --only-binary :all: \
+      -r /tmp/requirements.txt \
+ && rm /tmp/requirements.txt \
+ && python3 -c 'import pypdfium2; pypdfium2.PdfDocument.new().close()'
 
 COPY html2pdf /usr/local/bin/html2pdf

@@ -125,7 +125,9 @@
       "programme": "GEP",
       "language": "ar",
       "page_count": 4,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "annual-report-2016",
@@ -139,7 +141,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 6,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "board-minutes-2017-11",
@@ -154,7 +158,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 3,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "wash-baseline-survey-2017",
@@ -168,7 +174,9 @@
       "programme": "WASH",
       "language": "ar",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "budget-2018",
@@ -182,7 +190,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 4,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "wash-donor-agreement-2018",
@@ -196,7 +206,9 @@
       "programme": "WASH",
       "language": "ar",
       "page_count": 6,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "gep-donor-agreement-2019",
@@ -210,7 +222,9 @@
       "programme": "GEP",
       "language": "en",
       "page_count": 6,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "annual-report-2020",
@@ -224,7 +238,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 12,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "gep-midterm-evaluation-2020",
@@ -238,7 +254,9 @@
       "programme": "GEP",
       "language": "en",
       "page_count": 6,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "annual-report-2021",
@@ -252,7 +270,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 16,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "board-minutes-2021-06",
@@ -266,7 +286,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 4,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "chp-household-survey-2021",
@@ -280,7 +302,9 @@
       "programme": "CHP",
       "language": "ar",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "wash-final-evaluation-2021",
@@ -294,7 +318,9 @@
       "programme": "WASH",
       "language": "ar",
       "page_count": 7,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "yep-grant-agreement-2021",
@@ -308,7 +334,9 @@
       "programme": "YEP",
       "language": "mixed",
       "page_count": 6,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "annual-report-2022",
@@ -322,7 +350,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 14,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "wlp-donor-agreement-2022",
@@ -336,7 +366,9 @@
       "programme": "WLP",
       "language": "ar",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": true,
+      "archived": false
     },
     {
       "doc_id": "yep-employer-survey-2022",
@@ -350,7 +382,9 @@
       "programme": "YEP",
       "language": "mixed",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "yep-final-evaluation-2022",
@@ -364,7 +398,9 @@
       "programme": "YEP",
       "language": "ar",
       "page_count": 8,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "annual-report-2023-en",
@@ -378,7 +414,9 @@
       "programme": null,
       "language": "en",
       "page_count": 10,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "board-minutes-2023-03",
@@ -392,7 +430,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 4,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "board-minutes-2023-12",
@@ -406,7 +446,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 4,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "spc-donor-agreement-2023",
@@ -420,7 +462,9 @@
       "programme": "SPC",
       "language": "ar",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "wlp-evaluation-2023",
@@ -434,7 +478,9 @@
       "programme": "WLP",
       "language": "ar",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "yep-tracer-survey-2023",
@@ -448,7 +494,9 @@
       "programme": "YEP",
       "language": "ar",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "budget-2024-draft",
@@ -462,7 +510,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": true
     },
     {
       "doc_id": "budget-2024-final",
@@ -476,7 +526,9 @@
       "programme": null,
       "language": "ar",
       "page_count": 5,
-      "replaces": "budget-2024-draft"
+      "replaces": "budget-2024-draft",
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "chp-evaluation-2024",
@@ -490,7 +542,9 @@
       "programme": "CHP",
       "language": "ar",
       "page_count": 6,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "spc-satisfaction-survey-2024",
@@ -505,7 +559,9 @@
       "programme": "SPC",
       "language": "ar",
       "page_count": 4,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "yep-annual-report-2024",
@@ -519,7 +575,9 @@
       "programme": "YEP",
       "language": "ar",
       "page_count": 6,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     },
     {
       "doc_id": "wlp-market-assessment-2025",
@@ -533,7 +591,9 @@
       "programme": "WLP",
       "language": "en",
       "page_count": 5,
-      "replaces": null
+      "replaces": null,
+      "restricted": false,
+      "archived": false
     }
   ]
 }

@@ -281,12 +281,11 @@ questions:
     question: "من يقود المؤسسة إدارياً منذ بداية 2022، وممّن تسلّم هذا المنصب؟"
     must_include: ["كريم العطار", "ليلى الزين"]
     expected_citations:
-      - {file: annual-report-2021.pdf, page: 2}
       - {file: annual-report-2022.pdf, page: 2}
     expected_outcome: answered
     expected_answer: "د. كريم العطار مدير تنفيذي منذ 1 كانون الثاني/يناير 2022، خلفاً لليلى الزين التي قادت المؤسسة منذ تأسيسها عام 2014 (الاسمان مستعاران)."
     vocab_shift: true
-    notes: "Annual report 2021 p2 is the fully diacritised foreword, where both names carry tashkeel (كَرِيم العَطَّار، لَيْلَى الزَّيْن). Annual report 2022 p2 is the new director's message. The pages say المدير التنفيذي / خلفاً; the question says يقود المؤسسة إدارياً / تسلّم المنصب."
+    notes: "Annual report 2021 p2 is the fully diacritised foreword, where both names carry tashkeel (كَرِيم العَطَّار، لَيْلَى الزَّيْن). It is not cited: neither pypdfium2 nor poppler extracts those names intact (C1b); re-add it if the extractor learns to. Annual report 2022 p2 is the new director's message. The pages say المدير التنفيذي / خلفاً; the question says يقود المؤسسة إدارياً / تسلّم المنصب."
   - id: D23
     formerly: T05
     language: ar

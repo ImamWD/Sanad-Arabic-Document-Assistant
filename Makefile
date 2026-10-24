@@ -28,7 +28,7 @@ UV_IMAGE := ghcr.io/astral-sh/uv:0.13.5-python3.12-trixie-slim
 .DEFAULT_GOAL := help
 .PHONY: help info up up-dev down logs lint lint-backend lint-ml lint-frontend test \
 	test-backend test-ml test-frontend test-e2e fmt gen-api-types check-api-types lock \
-	render-smoke tools-build
+	render-smoke render-seed check-eval tools-build
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-18s %s\n", $$1, $$2}'
@@ -107,3 +107,11 @@ lock: ## Re-resolve uv.lock (backend, ml) and package-lock.json after editing de
 render-smoke: ## Render an Arabic HTML snippet to PDF with the render tools image
 	$(COMPOSE) --profile tools build render
 	$(RUN) render sh tools/render/smoke.sh
+
+render-seed: ## Render seed/sources into seed/documents, seed/bad and seed/previews (deterministic)
+	$(COMPOSE) --profile tools build render
+	$(RUN) render python3 seed/render.py
+
+check-eval: ## Check eval/*.yaml against the rendered seed corpus (EVAL_ARGS="--extractor poppler")
+	$(COMPOSE) --profile tools build render
+	$(RUN) render python3 scripts/check_eval.py $(EVAL_ARGS) eval/questions.yaml eval/dev_questions.yaml
