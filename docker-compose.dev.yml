@@ -1,0 +1,47 @@
+# Sanad DEVELOPMENT override. Never use it in production: it relaxes isolation on purpose.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build   (make up-dev)
+#
+# - api and backend-dev also join `devhost`, an ordinary (non-internal) network, so they can
+#   reach a host-native Ollama at http://host.docker.internal:11434. Docker on macOS has no
+#   GPU, so Ollama on the host (Metal) is much faster than in a container. Side effect: with
+#   this file loaded, api and backend-dev can reach the internet too.
+# - extra_hosts maps host.docker.internal to the host gateway, so the same works on Linux.
+# - Source is bind-mounted read-only; api and ml reload on change, worker needs a restart.
+#
+# The no-egress guarantee, and its tests, apply to docker-compose.yml on its own.
+
+x-host-access: &host-access
+  networks: [backend, devhost]
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+services:
+  api:
+    <<: *host-access
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    volumes:
+      - ./backend/sanad:/app/backend/sanad:ro
+    command:
+      ["uvicorn", "sanad.api.main:app", "--host", "0.0.0.0", "--port", "8000",
+       "--reload", "--reload-dir", "/app/backend/sanad"]
+
+  worker:
+    volumes:
+      - ./backend/sanad:/app/backend/sanad:ro
+
+  ml:
+    volumes:
+      - ./ml/sanad_ml:/app/ml/sanad_ml:ro
+    command:
+      ["uvicorn", "sanad_ml.main:app", "--host", "0.0.0.0", "--port", "8001",
+       "--reload", "--reload-dir", "/app/ml/sanad_ml"]
+
+  backend-dev:
+    <<: *host-access
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+
+networks:
+  devhost: {}

@@ -19,13 +19,16 @@ export SANAD_INSTANCE WEB_PORT
 endif
 
 COMPOSE ?= docker compose
+# Base file plus the development override (hot reload, route to host Ollama; NOT isolated).
+DEV_COMPOSE := $(COMPOSE) -f docker-compose.yml -f docker-compose.dev.yml
 RUN := $(COMPOSE) run --rm -T
 NODE := $(RUN) node sh -c
 UV_IMAGE := ghcr.io/astral-sh/uv:0.13.5-python3.12-trixie-slim
 
 .DEFAULT_GOAL := help
-.PHONY: help info up down logs lint lint-backend lint-ml lint-frontend test test-backend \
-	test-ml test-frontend test-e2e fmt gen-api-types check-api-types lock render-smoke tools-build
+.PHONY: help info up up-dev down logs lint lint-backend lint-ml lint-frontend test \
+	test-backend test-ml test-frontend test-e2e fmt gen-api-types check-api-types lock \
+	render-smoke tools-build
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-18s %s\n", $$1, $$2}'
@@ -38,8 +41,12 @@ up: ## Build and start the stack, wait until healthy, print its URL
 	$(COMPOSE) up -d --build --wait
 	@echo "Sanad is up: http://$$($(COMPOSE) port web 8080 | sed 's/^0\.0\.0\.0/localhost/')"
 
-down: ## Stop the stack (data volumes are kept)
-	$(COMPOSE) down
+up-dev: ## Like up, plus docker-compose.dev.yml (hot reload, host Ollama). Relaxes isolation!
+	$(DEV_COMPOSE) up -d --build --wait
+	@echo "Sanad (dev override) is up: http://$$($(COMPOSE) port web 8080 | sed 's/^0\.0\.0\.0/localhost/')"
+
+down: ## Stop the stack, dev override included (data volumes are kept)
+	$(DEV_COMPOSE) down
 
 logs: ## Follow logs of the running stack
 	$(COMPOSE) logs -f

@@ -35,3 +35,30 @@ Every command runs in a container (compose profile `tools`); see `make help`.
 
 Isolation: `db`, `api`, `worker` and `ml` sit on the `backend` network, which is
 `internal: true`, so they cannot reach the internet. Only `web` publishes a port.
+
+### Several instances side by side (git worktrees)
+
+`SANAD_INSTANCE` is the compose project name and the tag of every image the stack builds,
+so two instances never share containers, volumes, networks or images.
+
+| Where | `SANAD_INSTANCE` | `WEB_PORT` |
+|---|---|---|
+| main checkout, plain `docker compose` or `make` | `sanad` | `8080` (or `.env`) |
+| git worktree, via `make` | `sanad-<directory name>` | derived from the name, 8100–8899 |
+| anywhere, explicit | your choice | your choice |
+
+```bash
+make info                                        # what this checkout uses
+make up SANAD_INSTANCE=sanad-demo WEB_PORT=8081  # explicit instance via make
+SANAD_INSTANCE=sanad-demo WEB_PORT=8081 docker compose up -d --build   # same, without make
+```
+
+Plain `docker compose` inside a worktree still means the default `sanad` instance, i.e. the
+same stack as the main checkout. Use `make`, or set `SANAD_INSTANCE`, to keep them apart.
+
+### Development override
+
+`docker-compose.dev.yml` (or `make up-dev`) bind-mounts the source with hot reload and gives
+`api` and `backend-dev` a route to the host, so they can use a host-native Ollama at
+`http://host.docker.internal:11434`. It deliberately **relaxes isolation**: never use it in
+production. The no-egress guarantee and its tests apply to `docker-compose.yml` alone.
