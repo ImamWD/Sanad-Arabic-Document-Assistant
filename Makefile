@@ -31,10 +31,10 @@ tools-build: ## Build the dev tool images
 lint: lint-backend lint-ml lint-frontend ## ruff + mypy, ESLint + stylelint + tsc + prettier, gate self-test
 
 lint-backend: tools-build
-	$(RUN) backend-dev sh -c 'ruff check . && ruff format --check . && mypy'
+	$(RUN) -w /app/backend backend-dev sh -c 'ruff check . && ruff format --check . && mypy'
 
 lint-ml: tools-build
-	$(RUN) ml-dev sh -c 'ruff check . && ruff format --check . && mypy'
+	$(RUN) -w /app/ml ml-dev sh -c 'ruff check . && ruff format --check . && mypy'
 
 lint-frontend:
 	$(NODE) 'sh scripts/ensure-deps.sh && npm run lint && sh scripts/check-lint-gates.sh'
@@ -44,10 +44,10 @@ lint-frontend:
 test: test-backend test-ml test-frontend ## All unit tests (no running stack needed)
 
 test-backend: tools-build
-	$(RUN) backend-dev pytest -q
+	$(RUN) -w /app/backend backend-dev pytest -q
 
 test-ml: tools-build
-	$(RUN) ml-dev pytest -q
+	$(RUN) -w /app/ml ml-dev pytest -q
 
 test-frontend: ## vitest (Playwright needs the running stack: make test-e2e)
 	$(NODE) 'sh scripts/ensure-deps.sh && npm test'
@@ -59,7 +59,7 @@ test-e2e: ## Playwright against the running stack (run `make up` first)
 # --- format / codegen ---------------------------------------------------------------------
 
 fmt: tools-build ## Auto-format and auto-fix Python and frontend code
-	$(RUN) backend-dev sh -c 'ruff check --fix . ../ml && ruff format . ../ml'
+	$(RUN) backend-dev sh -c 'ruff check --fix backend ml && ruff format backend ml'
 	$(NODE) 'sh scripts/ensure-deps.sh && npm run format'
 
 gen-api-types: tools-build ## Regenerate frontend/src/api/{openapi.json,schema.d.ts} from the API

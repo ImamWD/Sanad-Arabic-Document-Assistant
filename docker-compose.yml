@@ -122,7 +122,9 @@ services:
       context: ./backend
       target: dev
     image: sanad-backend-dev:local
-    working_dir: /app/backend
+    # Repo root, so roadmap commands like `pytest backend/tests/...` or
+    # `python scripts/check_eval.py eval/...` work as written. The Makefile passes -w.
+    working_dir: /app
     volumes:
       - .:/app
     environment:
@@ -136,7 +138,7 @@ services:
       context: ./ml
       target: dev
     image: sanad-ml-dev:local
-    working_dir: /app/ml
+    working_dir: /app
     volumes:
       - .:/app
     networks: [backend]
