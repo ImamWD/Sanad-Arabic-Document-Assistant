@@ -50,7 +50,8 @@ test('five files, two bad: the good ones reach ready and the bad ones say why', 
   await page.getByLabel(en.upload.details.year).fill('2021');
   await page.getByLabel(en.upload.drop.choose).setInputFiles(FILES);
 
-  await expect(page.getByRole('listitem')).toHaveCount(5);
+  const list = page.getByRole('region', { name: en.upload.list.heading });
+  await expect(list.getByRole('listitem')).toHaveCount(5);
   // The two files past the first three wait their turn.
   await expect(fileRow(page, 'board-minutes-2017-11.txt')).toContainText(en.upload.list.waiting);
 
