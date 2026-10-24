@@ -40,5 +40,11 @@ $lo --convert-to pdf --outdir "$out" "$out/arabic.docx" >/dev/null
 pdffonts "$out/arabic.pdf"
 pdftoppm -png -r 80 -f 1 -l 1 "$out/arabic.pdf" "$out/arabic-libreoffice-page"
 
+echo "== Tool versions"
+chromium --version
+soffice --version
+pandoc --version | head -1
+python3 -c 'import docx, markdown, yaml; print("python3 + yaml, markdown, docx OK")'
+
 ls -l "$out"
 echo "render smoke: OK"

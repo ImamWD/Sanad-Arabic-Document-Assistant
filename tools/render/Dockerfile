@@ -23,6 +23,9 @@ RUN sed -i \
       qpdf \
       img2pdf \
       python3 \
+      python3-yaml \
+      python3-markdown \
+      python3-docx \
       fontconfig \
       fonts-noto-core \
       fonts-hosny-amiri \
