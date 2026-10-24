@@ -13,6 +13,7 @@ import re
 import tempfile
 import time
 from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,9 @@ from sanad.text.arabic import clean_extracted, normalize_for_search
 from tests.ingest.conftest import REPO, SEED_ENTRIES, needs_seed_files
 
 API = "http://api:8000/api"
+# The stack's own database, captured at import: the session fixtures point POSTGRES_DB at a
+# throwaway test database later on.
+LIVE_DATABASE_URL = get_settings().database_url
 CSRF = {"X-Sanad": "1"}
 READY_TIMEOUT_SECONDS = 1200
 
@@ -48,23 +52,24 @@ pytestmark = [
 @pytest.fixture(scope="module")
 def live_db() -> Iterator[sqlalchemy.Engine]:
     """The stack's own database (read only)."""
-    engine = sqlalchemy.create_engine(get_settings().database_url)
+    engine = sqlalchemy.create_engine(LIVE_DATABASE_URL)
     yield engine
     engine.dispose()
 
 
-def login(who: str) -> httpx2.Client:
+@contextmanager
+def signed_in(who: str) -> Iterator[httpx2.Client]:
     settings = get_settings()
-    client = httpx2.Client(base_url=API, timeout=60, headers=CSRF)
-    if who == "guest":
-        response = client.post("/auth/guest", json={})
-    else:
-        password = getattr(settings, f"demo_{who}_password").get_secret_value()
-        response = client.post(
-            "/auth/login", json={"email": f"{who}@sanad.example", "password": password}
-        )
-    assert response.status_code == 200, response.text
-    return client
+    with httpx2.Client(base_url=API, timeout=60, headers=CSRF) as client:
+        if who == "guest":
+            response = client.post("/auth/guest", json={})
+        else:
+            password = getattr(settings, f"demo_{who}_password").get_secret_value()
+            response = client.post(
+                "/auth/login", json={"email": f"{who}@sanad.example", "password": password}
+            )
+        assert response.status_code == 200, response.text
+        yield client
 
 
 @pytest.fixture(scope="module")
@@ -100,8 +105,11 @@ def test_the_seed_corpus_reaches_ready_on_first_boot(ready_seed: dict[str, Any])
 def test_chunks_sit_on_the_viewer_pdf_page_they_name(
     ready_seed: dict[str, Any], live_db: sqlalchemy.Engine
 ) -> None:
-    admin = login("admin")
-    with live_db.connect() as conn, tempfile.TemporaryDirectory() as tmp:
+    with (
+        signed_in("admin") as admin,
+        live_db.connect() as conn,
+        tempfile.TemporaryDirectory() as tmp,
+    ):
         for entry in SEED_ENTRIES:
             row = ready_seed[entry["file"]]
             response = admin.get(f"/documents/{row.id}/file")
@@ -121,9 +129,18 @@ def test_chunks_sit_on_the_viewer_pdf_page_they_name(
                 )
 
 
+_NUMBER = re.compile(r"[\d.,]+")
+
+
 def _fact_on(fact: str, haystack: str) -> bool:
+    """The C1b checker's rule on our normalised text: a number matches as a whole number
+    (538 is not in 1538 or 1,538); anything else as a substring. RTL extraction may put a
+    sentence's full stop right before a number ("عام .2014"), so only digits bound it."""
     needle = normalize_for_search(fact).strip()
-    return re.search(rf"(?<![\w.,]){re.escape(needle)}(?![\w]|[.,]\d)", haystack) is not None
+    if _NUMBER.fullmatch(needle):
+        pattern = rf"(?<!\d)(?<!\d[,.]){re.escape(needle)}(?!\d)(?![,.]\d)"
+        return re.search(pattern, haystack) is not None
+    return needle in haystack
 
 
 @pytest.mark.parametrize("questions", ["eval/questions.yaml", "eval/dev_questions.yaml"])
@@ -160,19 +177,21 @@ def test_a_viewer_can_neither_list_nor_open_a_restricted_document(
     restricted = [row for row in ready_seed.values() if row.restricted]
     if not restricted:
         pytest.skip("seed/manifest.json marks no document restricted yet (C1b)")
-    viewer = login("viewer")
-    listed = viewer.get("/documents", params={"page_size": 100, "include_archived": True}).json()
-    assert not any(item["restricted"] for item in listed["items"])
-    for row in restricted:
-        for suffix in ("", "/file", "/pages/1"):
-            assert viewer.get(f"/documents/{row.id}{suffix}").status_code == 404
-    editor = login("editor")
-    assert editor.get(f"/documents/{restricted[0].id}").status_code == 200
+    with signed_in("viewer") as viewer:
+        params = {"page_size": 100, "include_archived": True}
+        listed = viewer.get("/documents", params=params).json()
+        assert not any(item["restricted"] for item in listed["items"])
+        for row in restricted:
+            for suffix in ("", "/file", "/pages/1"):
+                assert viewer.get(f"/documents/{row.id}{suffix}").status_code == 404
+    with signed_in("editor") as editor:
+        assert editor.get(f"/documents/{restricted[0].id}").status_code == 200
 
 
 def test_the_guest_sees_seed_documents_only(ready_seed: dict[str, Any]) -> None:
-    guest = login("guest")
-    listed = guest.get("/documents", params={"page_size": 100, "include_archived": True}).json()
+    with signed_in("guest") as guest:
+        params = {"page_size": 100, "include_archived": True}
+        listed = guest.get("/documents", params=params).json()
     assert listed["items"]
     assert all(item["is_seed"] and not item["restricted"] for item in listed["items"])
     visible = sum(1 for row in ready_seed.values() if not row.restricted)

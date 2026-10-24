@@ -324,6 +324,8 @@ class _Listener:
 def run(stop: threading.Event, idle_seconds: float) -> None:
     """The worker loop. Survives database and ml outages; returns once `stop` is set."""
     logger.info("worker started")
+    # One line per ml request (a few per page) drowns the worker's own log.
+    logging.getLogger("httpx2").setLevel(logging.WARNING)
     settings = get_settings()
     ingest = get_ingest_settings()
     worker: Worker | None = None
