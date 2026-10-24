@@ -85,6 +85,16 @@
     "UNAUTHENTICATED": "Your session has ended. Sign in again.",
     "FORBIDDEN": "You don't have permission to do this.",
     "NETWORK_ERROR": "Could not reach the server. Check your connection and try again.",
-    "UNKNOWN_ERROR": "Something went wrong. Please try again."
+    "UNKNOWN_ERROR": "Something went wrong. Please try again.",
+    "ACCOUNT_DISABLED": "This account has been deactivated. Ask an administrator to reactivate it.",
+    "CSRF_REJECTED": "The request was blocked for security reasons. Reload the page and try again.",
+    "EMAIL_TAKEN": "An account with this email already exists.",
+    "PASSWORD_TOO_SHORT": "The password must be at least {{min_length}} characters long.",
+    "CANNOT_CHANGE_OWN_ACCESS": "You can't remove your own administrator access or deactivate your own account.",
+    "GUEST_ROLE_FIXED": "The guest account is always read-only; its role can't be changed."
+  },
+  "answer": {
+    "refusal": "I couldn't find an answer to this in the available documents.",
+    "lowConfidence": "This answer is based on sources that may not fully match your question. Check them before relying on it."
   }
 }

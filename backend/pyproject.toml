@@ -5,6 +5,8 @@ description = "Sanad API and ingestion worker"
 requires-python = "==3.12.*"
 # Direct dependencies are pinned exactly; uv.lock pins the full tree.
 dependencies = [
+    "alembic==1.20.1",
+    "argon2-cffi==25.1.0",
     "fastapi==0.162.0",
     "httpx2==2.16.0",
     "psycopg[binary]==3.3.6",

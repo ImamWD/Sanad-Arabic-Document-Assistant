@@ -5,12 +5,14 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import httpx2
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 
-from sanad.api import health
+from sanad.api import admin_users, auth, health, me, programmes
 from sanad.core.config import get_settings
 from sanad.core.db import create_engine
 from sanad.core.errors import install_error_handlers
+from sanad.core.ratelimit import LoginRateLimiter
+from sanad.core.security import csrf_guard
 
 API_PREFIX = "/api"
 
@@ -29,6 +31,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 def create_app() -> FastAPI:
+    settings = get_settings()
     app = FastAPI(
         title="Sanad API",
         version="0.1.0",
@@ -36,9 +39,21 @@ def create_app() -> FastAPI:
         openapi_url=f"{API_PREFIX}/openapi.json",
         docs_url=None,
         redoc_url=None,
+        # App-wide, so every router gets the CSRF check, including ones added later. As a
+        # dependency (not middleware) it runs only for matched routes: 404 and 405 stay as they are.
+        dependencies=[Depends(csrf_guard)],
     )
     install_error_handlers(app)
+    app.state.login_limiter = LoginRateLimiter(
+        window_seconds=settings.login_window_seconds,
+        max_failures_per_email=settings.login_max_failures_per_email,
+        max_failures_per_ip=settings.login_max_failures_per_ip,
+    )
     app.include_router(health.router, prefix=API_PREFIX)
+    app.include_router(auth.router, prefix=API_PREFIX)
+    app.include_router(me.router, prefix=API_PREFIX)
+    app.include_router(admin_users.router, prefix=API_PREFIX)
+    app.include_router(programmes.router, prefix=API_PREFIX)
     return app
 
 

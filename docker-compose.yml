@@ -12,7 +12,7 @@
 # backend-dev and ml-dev are on `backend` (no internet); render has no network at all.
 #
 # docker-compose.dev.yml is the development override (relaxes isolation; see that file).
-# Not here yet (later tasks): ollama, ollama-init, init, and the opt-in override files
+# Not here yet (later tasks): ollama, ollama-init, and the opt-in override files
 # docker-compose.api-llm.yml and docker-compose.gpu.yml.
 #
 # Settings come from .env if it exists (copy .env.example); every value has a default.
@@ -77,6 +77,29 @@ services:
       start_period: 5s
     restart: unless-stopped
 
+  # One-shot: migrate the schema, then run the idempotent init steps (programmes, demo
+  # accounts; later tasks append steps). Runs on every `up`; api and worker wait for it.
+  # alembic/ and seed/ are not baked into the runtime image, so they are mounted read-only.
+  # `files` is the document store api and worker share; B3's seed step copies into it.
+  init:
+    build: *backend-build
+    image: sanad-backend:${SANAD_INSTANCE:-sanad}
+    <<: *env-file
+    init: true
+    command: ["sh", "-c", "alembic -c alembic/alembic.ini upgrade head && python -m sanad.init"]
+    environment:
+      <<: *backend-env
+      FILES_DIR: /data/files
+    volumes:
+      - ./backend/alembic:/app/backend/alembic:ro
+      - ./seed:/app/seed:ro
+      - files:/data/files
+    networks: [backend]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   api:
     build: *backend-build
     image: sanad-backend:${SANAD_INSTANCE:-sanad}
@@ -89,6 +112,8 @@ services:
         condition: service_healthy
       ml:
         condition: service_healthy
+      init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"]
       interval: 5s
@@ -108,6 +133,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      init:
+        condition: service_completed_successfully
     restart: unless-stopped
 
   web:
@@ -225,4 +252,6 @@ networks:
 
 volumes:
   db_data:
+  # Uploaded documents and their PDF renditions (init, api, worker).
+  files:
   frontend_node_modules:
