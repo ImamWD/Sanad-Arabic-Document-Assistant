@@ -1,0 +1,152 @@
+{
+ "qwen3:14b": [
+  {
+   "card": "RTX PRO 4000 Blackwell 24 GB",
+   "model": "qwen3:14b",
+   "gen_tok_s": 54.7,
+   "pp_tok_s": 2279,
+   "median_ttft_s": 2.14,
+   "median_total_s": 4.8,
+   "p90_total_s": 5.4,
+   "max_total_s": 5.9,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 10.33,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  },
+  {
+   "card": "RTX 5080 16 GB (owner's dev PC)",
+   "model": "qwen3:14b",
+   "gen_tok_s": 74.1,
+   "pp_tok_s": 3810,
+   "median_ttft_s": 1.4,
+   "median_total_s": 3.8,
+   "p90_total_s": 4.4,
+   "max_total_s": 4.7,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 10.33,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  }
+ ],
+ "qwen3.5:9b-q4_K_M": [
+  {
+   "card": "RTX PRO 4000 Blackwell 24 GB",
+   "model": "qwen3.5:9b-q4_K_M",
+   "gen_tok_s": 100.4,
+   "pp_tok_s": 4015,
+   "median_ttft_s": 1.21,
+   "median_total_s": 3.9,
+   "p90_total_s": 4.1,
+   "max_total_s": 4.2,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 6.62,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  },
+  {
+   "card": "RTX 5080 16 GB (owner's dev PC)",
+   "model": "qwen3.5:9b-q4_K_M",
+   "gen_tok_s": 136.0,
+   "pp_tok_s": 6714,
+   "median_ttft_s": 0.84,
+   "median_total_s": 3.4,
+   "p90_total_s": 3.5,
+   "max_total_s": 3.6,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 6.62,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  }
+ ],
+ "gemma4:12b-it-qat": [
+  {
+   "card": "RTX PRO 4000 Blackwell 24 GB",
+   "model": "gemma4:12b-it-qat",
+   "gen_tok_s": 70.4,
+   "pp_tok_s": 2677,
+   "median_ttft_s": 1.8,
+   "median_total_s": 4.2,
+   "p90_total_s": 4.9,
+   "max_total_s": 5.5,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 7.96,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  },
+  {
+   "card": "RTX 5080 16 GB (owner's dev PC)",
+   "model": "gemma4:12b-it-qat",
+   "gen_tok_s": 95.4,
+   "pp_tok_s": 4476,
+   "median_ttft_s": 1.2,
+   "median_total_s": 3.5,
+   "p90_total_s": 4.0,
+   "max_total_s": 4.4,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 7.96,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  }
+ ],
+ "gemma4:26b-a4b-it-qat": [
+  {
+   "card": "RTX PRO 4000 Blackwell 24 GB",
+   "model": "gemma4:26b-a4b-it-qat",
+   "gen_tok_s": 167.1,
+   "pp_tok_s": 5842,
+   "median_ttft_s": 0.99,
+   "median_total_s": 3.1,
+   "p90_total_s": 3.3,
+   "max_total_s": 3.7,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 15.42,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  },
+  {
+   "card": "RTX 5080 16 GB (owner's dev PC)",
+   "model": "gemma4:26b-a4b-it-qat",
+   "gen_tok_s": 226.3,
+   "pp_tok_s": 9768,
+   "median_ttft_s": 0.71,
+   "median_total_s": 2.8,
+   "p90_total_s": 2.9,
+   "max_total_s": 3.2,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 15.42,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": false
+  }
+ ],
+ "command-r7b-arabic:7b": [
+  {
+   "card": "RTX PRO 4000 Blackwell 24 GB",
+   "model": "command-r7b-arabic:7b",
+   "gen_tok_s": 92.5,
+   "pp_tok_s": 3970,
+   "median_ttft_s": 1.43,
+   "median_total_s": 3.9,
+   "p90_total_s": 4.2,
+   "max_total_s": 4.5,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 6.05,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  },
+  {
+   "card": "RTX 5080 16 GB (owner's dev PC)",
+   "model": "command-r7b-arabic:7b",
+   "gen_tok_s": 125.3,
+   "pp_tok_s": 6638,
+   "median_ttft_s": 0.98,
+   "median_total_s": 3.3,
+   "p90_total_s": 3.5,
+   "max_total_s": 3.8,
+   "meets_15s_p90": true,
+   "llm_memory_gb_at_8k_ctx": 6.05,
+   "fits_alone": true,
+   "fits_with_ml_on_gpu": true
+  }
+ ]
+}

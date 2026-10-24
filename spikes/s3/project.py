@@ -12,7 +12,8 @@ Method (each assumption is printed with the table):
   read per token). eta is calibrated on the card's own measured llama.cpp tg128 for Llama-2-7B
   Q4_0 (ggml-org/llama.cpp discussion 15013).
 - Prompt processing is compute bound: tok/s = measured pp512 (same source) x (Llama-2-7B
-  active params / model active params) x a long-context factor, x a MoE factor for MoE models.
+  active params / model active params) x a long-context factor.
+- MoE models get the generation and prompt-processing efficiency factors measured on the M5.
 - Per prompt: the measured prompt tokens and output tokens of the run (verbosity matters), and
   total = prompt time + output tokens / gen tok/s + RETRIEVAL_S for embedding, search and rerank.
 """
@@ -43,13 +44,18 @@ REF_ACTIVE_B = 6.61  # non-embedding parameters, billions
 
 # Measured llama-bench numbers (FA on) from ggml-org/llama.cpp discussion 15013, Llama-2-7B Q4_0.
 CARDS = {
-    "RTX PRO 4000 Blackwell 24 GB": {"bandwidth_gbs": 672, "pp512": 5674.44, "tg128": 136.38, "vram_gb": 24},
-    "RTX 5080 16 GB (owner's dev PC)": {"bandwidth_gbs": 960, "pp512": 9487.70, "tg128": 184.68, "vram_gb": 16},
+    "RTX PRO 4000 Blackwell 24 GB": {"bandwidth_gbs": 672, "pp512": 5674.44, "tg128": 136.38, "vram_gib": 24},
+    "RTX 5080 16 GB (owner's dev PC)": {"bandwidth_gbs": 960, "pp512": 9487.70, "tg128": 184.68, "vram_gib": 16},
 }
 CTX_FACTOR = 0.85  # prompt processing at ~4.5k tokens vs pp512 (attention grows with context); assumed
-MOE_PP_FACTOR = 0.5  # MoE prompt processing reaches about half the dense rate per active param; assumed
+# MoE factors, measured on the M5 (Metal) in this spike: gemma4:26b-a4b reached 0.86x the dense
+# models' effective bandwidth when generating (92 vs 104-111 GB/s), and 0.70x gemma4:12b's prompt
+# rate per active parameter. Assumed to carry over to CUDA.
+MOE_GEN_FACTOR = 0.86
+MOE_PP_FACTOR = 0.70
 OVERHEAD_S = 0.3  # request handling, sampling, first-token latency beyond prompt processing; assumed
 RETRIEVAL_S = 2.0  # question embedding + hybrid search + rerank of 30 chunks on GPU/CPU; upper estimate (D3: 1-2 s)
+KV_AND_COMPUTE_GB = 1.0  # f16 KV at num_ctx 8192 plus compute buffers (0.8-1.1 GB in the Ollama logs here)
 ML_ON_GPU_GB = 3.0  # bge-m3 + bge-reranker-v2-m3 on the same card, if placed there
 
 
@@ -135,6 +141,7 @@ def estimate_prompt(p: dict, card: dict, prompt_tokens: int, output_tokens: int)
     eta = card["tg128"] * REF_WEIGHTS_GB / card["bandwidth_gbs"]
     ctx = prompt_tokens + output_tokens / 2
     gen = eta * card["bandwidth_gbs"] / (p["read_per_token_gb"] + kv_read_gb(p, int(ctx)))
+    gen *= MOE_GEN_FACTOR if p["moe"] else 1.0
     pp = card["pp512"] * (REF_ACTIVE_B / p["active_params_b"]) * CTX_FACTOR * (MOE_PP_FACTOR if p["moe"] else 1.0)
     llm = prompt_tokens / pp + output_tokens / gen + OVERHEAD_S
     return {"pp_tok_s": pp, "gen_tok_s": gen, "ttft_s": prompt_tokens / pp + OVERHEAD_S, "llm_s": llm,
@@ -168,7 +175,7 @@ def main() -> None:
         return
 
     print("ESTIMATES, not measurements. Assumptions: eta from each card's measured Llama-2-7B Q4_0 tg128; "
-          f"pp scaled by active params x {CTX_FACTOR} (long context) x {MOE_PP_FACTOR} if MoE; "
+          f"pp scaled by active params x {CTX_FACTOR} (long context); MoE x {MOE_GEN_FACTOR} gen, x {MOE_PP_FACTOR} pp (measured on M5); "
           f"+{OVERHEAD_S} s overhead; +{RETRIEVAL_S} s retrieval; f16 KV.\n")
     out = {}
     for path in args.results:
@@ -178,7 +185,9 @@ def main() -> None:
         if not p:
             print(f"{model}: no profile (run `project.py profile --model {model}` while it is pulled)")
             continue
-        mem = run.get("memory", {})
+        # /api/ps leaves out zero-copy mapped weights on Metal (gemma4:12b showed ~1 GB), so take
+        # at least the weights plus ~1 GB of KV cache and compute buffers at num_ctx 8192.
+        mem_gb = round(max(run.get("memory", {}).get("size_gb") or 0, p["weights_gb_total"] + KV_AND_COMPUTE_GB), 2)
         for card_name, card in CARDS.items():
             per = [estimate_prompt(p, card, r["timing"]["prompt_tokens"], r["timing"]["output_tokens"])
                    for r in run["results"]]
@@ -192,14 +201,16 @@ def main() -> None:
                 "p90_total_s": round(nearest_rank(totals, 0.9), 1),
                 "max_total_s": round(max(totals), 1),
                 "meets_15s_p90": nearest_rank(totals, 0.9) <= 15,
-                "llm_memory_gb_at_8k_ctx": mem.get("size_gb"),
-                "fits_with_ml_on_gpu": (mem.get("size_gb") or 99) + ML_ON_GPU_GB <= card["vram_gb"] * 0.95,
+                "llm_memory_gb_at_8k_ctx": mem_gb,
+                # /api/ps sizes are decimal GB; card VRAM is GiB. Keep 5% for the CUDA context.
+                "fits_alone": mem_gb <= card["vram_gib"] * 1.0737 * 0.95,
+                "fits_with_ml_on_gpu": mem_gb + ML_ON_GPU_GB <= card["vram_gib"] * 1.0737 * 0.95,
             }
             out.setdefault(model, []).append(row)
             print(f"{card_name:34} {model:28} gen={row['gen_tok_s']:6} tok/s pp={row['pp_tok_s']:6} tok/s "
                   f"ttft~{row['median_ttft_s']:5} s median~{row['median_total_s']:5} s p90~{row['p90_total_s']:5} s "
                   f"max~{row['max_total_s']:5} s  meets_p90<=15s={row['meets_15s_p90']}  "
-                  f"mem@8k={row['llm_memory_gb_at_8k_ctx']} GB fits_with_ml={row['fits_with_ml_on_gpu']}")
+                  f"mem@8k={row['llm_memory_gb_at_8k_ctx']} GB fits={row['fits_alone']} fits_with_ml={row['fits_with_ml_on_gpu']}")
     if args.json_out:
         Path(args.json_out).write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
 
