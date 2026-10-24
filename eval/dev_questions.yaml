@@ -14,6 +14,9 @@
 #   items whose kinds include `cross_document`, where each fact appears on AT LEAST ONE
 #   listed page (the notes say which). Scoring accepts any one listed citation.
 # - expected_answer is a short human reference answer; it is not used for scoring.
+# - page_split (optional, default false): true when the fact sits in a paragraph that
+#   starts on one page and ends on the next. The cited page is the one holding the fact.
+#   D07 is the dev page-split item.
 set: dev
 version: 1
 questions:
@@ -93,11 +96,12 @@ questions:
     question: "في دراسة 2015 عن تعليم البنات في سهل القمر، كم مدرسة كانت تفتقر إلى حمّامات خاصة بالبنات؟"
     must_include: ["٢٦"]
     expected_citations:
-      - {file: gep-enrolment-survey-2015.pdf, page: 3}
+      - {file: gep-enrolment-survey-2015.pdf, page: 4}
     expected_outcome: answered
     expected_answer: "٢٦ مدرسة من أصل ٤٠ (٦٥٪)."
     vocab_shift: true
-    notes: "Survey p3, school readiness section, written in Arabic-Indic digits. The page says دورات مياه منفصلة للفتيات; the question says حمامات خاصة بالبنات."
+    page_split: true
+    notes: "PAGE SPLIT: the school-readiness paragraph starts at the bottom of p3 and runs across the page break. P3 names the subject (دورات المياه المنفصلة للفتيات) and ends mid-sentence; the number ٢٦ (Arabic-Indic digits) opens p4, which by itself does not say what the 26 schools lack. The citation is p4, where the fact appears. The question says حمامات خاصة بالبنات. In the early drop (cd3e5c0) this item cited p3; the citation moved to p4 when the paragraph was split."
   - id: D08
     language: en
     kinds: [factual, numeric, english]

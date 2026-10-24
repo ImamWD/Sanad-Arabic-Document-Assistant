@@ -95,6 +95,7 @@ Every item of personal data is visibly synthetic:
 | Draft and final version of one budget | `budget-2024-draft` and `budget-2024-final` | Version supersede (DECISIONS D5) |
 | Quoted "ignore previous instructions"-style text inside a survey response | `spc-satisfaction-survey-2024` p3 (Arabic), `wlp-market-assessment-2025` p4 (English) | Prompt-injection test (R1). Never on an eval-cited page. |
 | Bilingual (Arabic plus English) documents | `yep-grant-agreement-2021`, `yep-employer-survey-2022` | Mixed-direction rendering, cross-lingual retrieval |
+| Paragraph that runs across a page break | `gep-enrolment-survey-2015` p3→p4 (eval D07), `chp-evaluation-2024` p4→p5 (eval T14) | Whether page-bounded chunking (DECISIONS D1) loses context. The subject is on page N, which ends mid-sentence with no full stop; the fact opens page N+1. |
 
 ---
 
@@ -136,6 +137,7 @@ replaces: null
 - **Placement:** nothing but blank lines may come before `<!-- page 1 -->`. The number of markers equals `page_count`.
 - **Page breaks:** C1b must force a page break at every marker and nowhere else. Rendered page N must equal source page N, because eval citations use source page numbers.
 - **Page 1:** every document carries the one-line synthetic-document notice.
+- **Page-split paragraphs:** in two places a paragraph deliberately continues across a marker (see §1, "Deliberate test content"). Page N ends mid-sentence with no closing punctuation, and page N+1 opens with the rest of the sentence, with no heading. Render both parts exactly as written, each on its own page. Don't join them, move text across the break, or add a hyphen or ellipsis.
 
 ### Page budget
 
@@ -256,6 +258,7 @@ Both files have the top-level keys `set` (`test` or `dev`), `version` and `quest
 | `expected_answer` | string or null | Short human reference answer, for the README failure table. **Not used for scoring.** This field goes beyond the minimum schema, because the brief asks for "questions with expected answers". |
 | `notes` | string | where the answer is, and why the item is a paraphrase or a near-miss |
 | `vocab_shift` | bool | `true` when the question's key terms differ from the page's, the way a staff member would ask |
+| `page_split` | bool, optional (default `false`) | `true` when the fact sits in a paragraph that starts on one page and ends on the next. `expected_citations` lists the page where the fact itself appears. Used to report whether page-bounded chunking makes a question fail. |
 
 **`kinds` vocabulary**
 

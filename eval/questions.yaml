@@ -8,6 +8,8 @@
 # 3 English items, two of them about Arabic documents (T18–T20), and 5 unanswerable
 # items, four of them near-misses (T21–T25). T09 uses tatweel and T10 is fully
 # diacritised. T02 depends on the draft/final budget pair, and expects the final figure.
+# T14 is a page-split item (`page_split: true`): its fact sits in a paragraph that runs
+# across a page break, so it tests whether page-bounded chunking loses the context.
 #
 # Conventions (full description in seed/README.md, "Evaluation sets"):
 # - `file` in expected_citations is the manifest `file` (the rendered file name), and
@@ -20,6 +22,8 @@
 #   listed page (the notes say which). Scoring accepts any one listed citation.
 # - No item cites the superseded budget-2024-draft.
 # - expected_answer is a short human reference answer; it is not used for scoring.
+# - page_split (optional, default false): true when the fact sits in a paragraph that
+#   starts on one page and ends on the next. The cited page is the one holding the fact.
 set: test
 version: 1
 questions:
@@ -190,15 +194,15 @@ questions:
   - id: T14
     language: ar
     kinds: [factual, numeric]
-    question: "كم يكلّف فحص المريض الواحد في العيادات المتنقلة في المتوسط؟"
-    must_include: ["27.6"]
+    question: "كم مريضاً حوّلته العيادات المتنقلة وفرق المتطوعين إلى المستشفيات ومراكز التغذية بين 2021 و2023؟"
+    must_include: ["1,840"]
     expected_citations:
-      - {file: chp-evaluation-2024.pdf, page: 2}
-      - {file: chp-evaluation-2024.pdf, page: 6}
+      - {file: chp-evaluation-2024.pdf, page: 5}
     expected_outcome: answered
-    expected_answer: "نحو 27.6 دولاراً أمريكياً للاستشارة الطبية الواحدة (2,160,000 دولار مقسومة على 78,350 استشارة في 2021–2023)."
+    expected_answer: "1,840 حالة أُحيلت إلى المستشفى الحكومي ومراكز التغذية العلاجية خلال السنوات الثلاث، وتابع الفريق الطبي 72% منها حتى وصولها."
     vocab_shift: true
-    notes: "CHP evaluation summary p2 and efficiency section p6. The page says كلفة الاستشارة الطبية الواحدة; the question says فحص المريض."
+    page_split: true
+    notes: "PAGE SPLIT: the referral paragraph starts at the bottom of the CHP evaluation p4 and runs across the page break. P4 names the subject (what was referred, by whom, to where, over three years) and ends mid-sentence; the number 1,840 opens p5, which by itself only says '1,840 cases, 72% followed up'. The citation is p5, where the fact appears. The page says أحالت / حالة; the question says حوّلته / مريضاً. This item replaced an earlier T14 (cost per consultation) to add page-split coverage."
   - id: T15
     language: ar
     kinds: [cross_document, temporal, numeric]
