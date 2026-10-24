@@ -1,5 +1,5 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { createContext, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { currentLanguage, hasExplicitLanguage, type Language } from '../../app/i18n';
@@ -23,11 +23,26 @@ export function useSession() {
   return useQuery(sessionQuery);
 }
 
-/** The signed-in user. Only for components rendered behind <RequireAuth>. */
+/**
+ * True when a session existed earlier in this page load and has ended (sign-out, or a 401).
+ * The first /me answer is update 1; any later change of the session counts.
+ */
+export function useSessionEnded(): boolean {
+  const queryClient = useQueryClient();
+  return (queryClient.getQueryState(sessionQueryKey)?.dataUpdateCount ?? 0) > 1;
+}
+
+/**
+ * The signed-in user, provided by <RequireAuth>. Components below the guard read it from here
+ * rather than subscribing to the session themselves, so none of them ever renders with the
+ * session already gone: the guard swaps them out first.
+ */
+export const CurrentUserContext = createContext<Me | null>(null);
+
 export function useCurrentUser(): Me {
-  const { data } = useSession();
-  if (!data) throw new Error('useCurrentUser() outside <RequireAuth>');
-  return data;
+  const user = useContext(CurrentUserContext);
+  if (!user) throw new Error('useCurrentUser() outside <RequireAuth>');
+  return user;
 }
 
 /**

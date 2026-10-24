@@ -1,6 +1,6 @@
 import { MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 
-import { sessionQueryKey } from '../features/auth/session';
+import { sessionQuery } from '../features/auth/session';
 import { ApiError } from '../lib/api';
 
 const isClientError = (error: unknown) =>
@@ -10,8 +10,9 @@ export function createQueryClient(): QueryClient {
   // A 401 from any request means the session ended (expired, revoked, user deactivated):
   // forget the user, and <RequireAuth> sends them to /login.
   const onError = (error: unknown) => {
-    if (error instanceof ApiError && error.status === 401) {
-      queryClient.setQueryData(sessionQueryKey, null);
+    const user = queryClient.getQueryData(sessionQuery.queryKey);
+    if (user && error instanceof ApiError && error.status === 401) {
+      queryClient.setQueryData(sessionQuery.queryKey, null);
     }
   };
   const queryClient: QueryClient = new QueryClient({

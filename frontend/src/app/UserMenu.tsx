@@ -1,6 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
 
 import { useCurrentUser, useLogout } from '../features/auth/session';
 import { Bidi } from '../lib/BidiText';
@@ -11,11 +10,11 @@ export function UserMenu() {
   const { t } = useTranslation();
   const user = useCurrentUser();
   const logout = useLogout();
-  const navigate = useNavigate();
   const role = user.is_guest ? t('roles.guest') : t(`roles.${user.role}`);
 
+  // Clearing the session is enough: <RequireAuth> then sends the browser to /login.
   const signOut = () => {
-    logout.mutate(undefined, { onSettled: () => void navigate('/login', { replace: true }) });
+    logout.mutate();
   };
 
   return (
