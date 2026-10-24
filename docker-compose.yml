@@ -80,16 +80,20 @@ services:
   # One-shot: migrate the schema, then run the idempotent init steps (programmes, demo
   # accounts; later tasks append steps). Runs on every `up`; api and worker wait for it.
   # alembic/ and seed/ are not baked into the runtime image, so they are mounted read-only.
+  # `files` is the document store api and worker share; B3's seed step copies into it.
   init:
     build: *backend-build
     image: sanad-backend:${SANAD_INSTANCE:-sanad}
     <<: *env-file
     init: true
     command: ["sh", "-c", "alembic -c alembic/alembic.ini upgrade head && python -m sanad.init"]
-    environment: *backend-env
+    environment:
+      <<: *backend-env
+      FILES_DIR: /data/files
     volumes:
       - ./backend/alembic:/app/backend/alembic:ro
       - ./seed:/app/seed:ro
+      - files:/data/files
     networks: [backend]
     depends_on:
       db:
@@ -245,4 +249,6 @@ networks:
 
 volumes:
   db_data:
+  # Uploaded documents and their PDF renditions (init, api, worker).
+  files:
   frontend_node_modules:
