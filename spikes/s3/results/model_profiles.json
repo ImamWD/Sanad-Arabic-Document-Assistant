@@ -1,0 +1,960 @@
+{
+ "qwen3:14b": {
+  "model": "qwen3:14b",
+  "architecture": "qwen3",
+  "quantization": "Q4_K_M",
+  "gguf_license": null,
+  "gguf_license_link": null,
+  "license_text_first_line": "Apache License",
+  "parameter_size": "14.8B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 9.27,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 8.833,
+  "active_params_b": 13.99,
+  "kv_layers": [
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "qwen3.5:9b-q4_K_M": {
+  "model": "qwen3.5:9b-q4_K_M",
+  "architecture": "qwen35",
+  "quantization": "Q4_K_M",
+  "gguf_license": "apache-2.0",
+  "gguf_license_link": "https://huggingface.co/Qwen/Qwen3.5-9B/blob/main/LICENSE",
+  "license_text_first_line": "Apache License",
+  "parameter_size": "9.0B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 5.62,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 5.046,
+  "active_params_b": 7.94,
+  "kv_layers": [
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "gemma4:12b-it-qat": {
+  "model": "gemma4:12b-it-qat",
+  "architecture": "gemma4",
+  "quantization": "Q4_0",
+  "gguf_license": null,
+  "gguf_license_link": null,
+  "license_text_first_line": "Apache License",
+  "parameter_size": "11.9B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 6.96,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 6.96,
+  "active_params_b": 11.91,
+  "kv_layers": [
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "command-r7b-arabic:7b": {
+  "model": "command-r7b-arabic:7b",
+  "architecture": "cohere2",
+  "quantization": "Q4_K_M",
+  "gguf_license": "cc-by-nc-4.0",
+  "gguf_license_link": null,
+  "license_text_first_line": "Creative Commons Attribution-NonCommercial 4.0 International Public",
+  "parameter_size": "8.0B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 5.05,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 5.046,
+  "active_params_b": 8.03,
+  "kv_layers": [
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "gemma4:26b-a4b-it-qat": {
+  "model": "gemma4:26b-a4b-it-qat",
+  "architecture": "gemma4",
+  "quantization": "Q4_0",
+  "gguf_license": null,
+  "gguf_license_link": null,
+  "license_text_first_line": "Apache License",
+  "parameter_size": "25.2B",
+  "moe": true,
+  "experts": "8/128",
+  "weights_gb_total": 14.42,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 2.38,
+  "active_params_b": 3.82,
+  "kv_layers": [
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 8192,
+    "window": 1024
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "qwen3.5:4b-q4_K_M": {
+  "model": "qwen3.5:4b-q4_K_M",
+  "architecture": "qwen35",
+  "quantization": "Q4_K_M",
+  "gguf_license": "apache-2.0",
+  "gguf_license_link": "https://huggingface.co/Qwen/Qwen3.5-4B/blob/main/LICENSE",
+  "license_text_first_line": "Apache License",
+  "parameter_size": "4.2B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 2.64,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 2.638,
+  "active_params_b": 4.21,
+  "kv_layers": [
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "gemma4:e4b-it-qat": {
+  "model": "gemma4:e4b-it-qat",
+  "architecture": "gemma4",
+  "quantization": "Q4_0",
+  "gguf_license": null,
+  "gguf_license_link": null,
+  "license_text_first_line": "Apache License",
+  "parameter_size": "7.5B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 5.14,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 2.827,
+  "active_params_b": 4.64,
+  "kv_layers": [
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ }
+}
