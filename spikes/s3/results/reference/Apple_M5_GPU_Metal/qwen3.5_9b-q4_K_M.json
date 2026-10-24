@@ -86,7 +86,7 @@
   "median_ttft_s": 6.9,
   "median_wall_s": 10.1,
   "p90_wall_s": 12.03,
-  "timings_excluded_cache_hit": 0
+  "timings_excluded": 0
  },
  "results": [
   {

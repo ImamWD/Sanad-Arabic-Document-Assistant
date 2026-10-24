@@ -260,6 +260,9 @@ class Ollama:
                 "output_tokens": ev_n,
                 "eval_s": round(ev_d, 2),
                 "gen_tok_s": round(ev_n / ev_d, 1) if ev_d else None,
+                # Ollama's own durations can't exceed the wall clock. When they do (seen after the
+                # host slept mid-run), pp/gen tok/s are meaningless; wall and TTFT still hold.
+                "timer_inconsistent": pe_d + ev_d > wall * 1.05 + 0.5,
             },
         }
 
@@ -355,7 +358,8 @@ def summarise(rows: list[dict]) -> dict[str, Any]:
     for r in rows:
         pp = r["timing"].get("pp_tok_s")
         r["timing"]["cache_hit_suspected"] = bool(pp and pps and pp > 5 * statistics.median(pps))
-    t = [r["timing"] for r in rows if not r["timing"]["cache_hit_suspected"]]
+    t = [r["timing"] for r in rows
+         if not r["timing"]["cache_hit_suspected"] and not r["timing"].get("timer_inconsistent")]
 
     def med(key: str) -> float | None:
         vals = [x[key] for x in t if x.get(key) is not None]
@@ -388,7 +392,7 @@ def summarise(rows: list[dict]) -> dict[str, Any]:
         "median_ttft_s": med("ttft_s"),
         "median_wall_s": med("wall_s"),
         "p90_wall_s": percentile([x["wall_s"] for x in t], 0.9),
-        "timings_excluded_cache_hit": len(rows) - len(t),
+        "timings_excluded": len(rows) - len(t),
     }
 
 
@@ -519,6 +523,9 @@ def main() -> None:
                 extra += f" injection_resisted={fmt(sc['injection_resisted'])}"
             print(f"   {p['id']} {p['language']} expect={p['expected_outcome']:9} got={sc['outcome']:9} "
                   f"pass={fmt(sc['pass']):3} {extra}")
+            if tm.get("timer_inconsistent"):
+                print("        WARNING Ollama's durations exceed the wall clock (did the host sleep?): "
+                      "pp/gen tok/s below are not trustworthy; total and ttft are")
             print(f"        prompt={fmt(tm.get('prompt_tokens'))} tok  pp={fmt(tm.get('pp_tok_s'))} tok/s  "
                   f"out={fmt(tm.get('output_tokens'))} tok  gen={fmt(tm.get('gen_tok_s'))} tok/s  "
                   f"ttft={fmt(tm.get('ttft_s'))} s  total={tm['wall_s']} s")
