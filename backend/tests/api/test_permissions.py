@@ -128,6 +128,10 @@ MATRIX: list[Row] = [
         EDITORS,
         fill={"document_id": "failed_document_id"},
     ),
+    # --- R1 --- (no chunk is ready here, so every ask is a gate refusal without ml or the LLM)
+    Row("POST", "/api/ask", SIGNED_IN, {"question": "How many volunteers?"}),
+    Row("POST", "/api/ask/stream", SIGNED_IN, {"question": "How many volunteers?"}),
+    Row("GET", "/api/queries", SIGNED_IN),
 ]
 
 # Routes that need no session.
