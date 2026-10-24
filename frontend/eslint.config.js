@@ -1,5 +1,4 @@
 // ESLint flat config. `make lint` runs it with --max-warnings 0.
-import comments from '@eslint-community/eslint-plugin-eslint-comments/configs';
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
 import reactHooks from 'eslint-plugin-react-hooks';
@@ -19,10 +18,11 @@ export default tseslint.config(
     ignores: ['dist/', 'coverage/', 'playwright-report/', 'test-results/', 'src/api/schema.d.ts'],
   },
   {
-    linterOptions: { reportUnusedDisableDirectives: 'error' },
+    // No inline configuration at all: `eslint-disable…` and `/* eslint rule: off */` comments
+    // have no effect (and are reported). A rule can only be changed in this file, in review.
+    linterOptions: { noInlineConfig: true, reportUnusedDisableDirectives: 'error' },
   },
   js.configs.recommended,
-  comments.recommended,
   {
     files: ['**/*.{ts,tsx}'],
     extends: [tseslint.configs.strictTypeChecked, tseslint.configs.stylisticTypeChecked],
@@ -61,11 +61,6 @@ export default tseslint.config(
             ],
           },
         },
-      ],
-      // The i18n rule may not be switched off with an inline comment.
-      '@eslint-community/eslint-comments/no-restricted-disable': [
-        'error',
-        'i18next/no-literal-string',
       ],
       'no-restricted-syntax': [
         'error',
