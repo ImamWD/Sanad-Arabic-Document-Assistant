@@ -1,0 +1,29 @@
+# Shared ruff config for backend/ and ml/. Run through `make lint` / `make fmt`.
+target-version = "py312"
+line-length = 100
+src = ["backend", "ml"]
+cache-dir = "/tmp/ruff_cache"
+
+[lint]
+select = [
+    "E", "W", "F",  # pycodestyle, pyflakes
+    "I",            # isort
+    "B",            # bugbear
+    "UP",           # pyupgrade
+    "SIM",          # simplify
+    "S",            # bandit
+    "ASYNC",        # async pitfalls
+    "RUF",
+    "N",            # naming
+    "PTH",          # pathlib
+    "T20",          # no print() in app code
+]
+ignore = [
+    "ASYNC109",  # health probes take a per-dependency timeout on purpose
+]
+
+[lint.per-file-ignores]
+"**/tests/**" = ["S101"]  # assert is how pytest works
+
+[format]
+quote-style = "double"
