@@ -5,6 +5,12 @@
 # `web` is the one published port. The egress guarantee is tested against THIS file alone.
 # Do not add a docker-compose.override.yml: compose loads it automatically.
 #
+# Containers with internet access in this file (all non-internal networks):
+#   web   (edge)    serves the SPA and proxies /api; makes no outbound calls itself
+#   node  (egress)  tools profile; npm registry; mounts frontend/ only
+#   e2e   (edge)    tools profile; Playwright; mounts frontend/ only
+# backend-dev and ml-dev are on `backend` (no internet); render has no network at all.
+#
 # Not here yet (later tasks): ollama, ollama-init, init, and the opt-in override files
 # docker-compose.api-llm.yml, docker-compose.gpu.yml and docker-compose.dev.yml.
 #
@@ -147,13 +153,15 @@ services:
     profiles: [tools]
     image: node:24.22.1-trixie-slim
     working_dir: /app/frontend
+    # Only frontend/ is mounted: this container has internet access (npm registry), so it must
+    # never see data/, .env or anything else outside the frontend source.
     volumes:
-      - .:/app
+      - ./frontend:/app/frontend
       - frontend_node_modules:/app/frontend/node_modules
     environment:
+      CI: ${CI:-}
       npm_config_update_notifier: "false"
       npm_config_fund: "false"
-    # Needs the npm registry; handles source code only, never document content.
     networks: [egress]
 
   e2e:
@@ -161,10 +169,12 @@ services:
     # Must match the @playwright/test version in frontend/package.json.
     image: mcr.microsoft.com/playwright:v1.64.1-noble
     working_dir: /app/frontend
+    # Only frontend/ is mounted (the edge network has internet access).
     volumes:
-      - .:/app
+      - ./frontend:/app/frontend
       - frontend_node_modules:/app/frontend/node_modules
     environment:
+      CI: ${CI:-}
       E2E_BASE_URL: http://web:8080
       npm_config_update_notifier: "false"
     ipc: host
@@ -184,9 +194,10 @@ services:
 networks:
   backend:
     internal: true
+  # Published network for web (and the e2e browser that talks to it). Has internet access.
   edge: {}
-  # Reserved for containers that need the internet and never see content:
-  # ollama-init (pulls weights) and, in the opt-in API-LLM override, api.
+  # Internet access for containers that never see document content: the node tools
+  # container today; ollama-init (pulls weights) later; api only in the opt-in API-LLM override.
   egress: {}
 
 volumes:
