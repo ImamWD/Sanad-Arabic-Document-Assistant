@@ -1,5 +1,9 @@
 .viewer {
   --toolbar-height: 3.5rem;
+
+  /* The viewer keeps the reader's place itself (PdfViewer: restoreAnchor); the browser's own
+     scroll anchoring would move the page a second time. */
+  overflow-anchor: none;
 }
 
 /* The chrome follows the UI direction (previous at the inline start); the pages don't. */

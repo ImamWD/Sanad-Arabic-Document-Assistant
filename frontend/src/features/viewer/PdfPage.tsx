@@ -67,11 +67,11 @@ export function PdfPage({ page, number, cited, near, width, register }: PdfPageP
       data-cited={cited ? 'true' : undefined}
       data-rendered={near && drawnAt === width ? 'true' : undefined}
     >
-      <div className={styles.pageHead} aria-hidden="true">
-        <span>{label}</span>
+      <div className={styles.pageHead}>
+        {/* The group is already named by this label. */}
+        <span aria-hidden="true">{label}</span>
         {cited && <span className={styles.citedBadge}>{t('viewer.citedPage')}</span>}
       </div>
-      {cited && <span className={styles.srOnly}>{t('viewer.citedPage')}</span>}
       <div
         ref={sheetRef}
         className={styles.sheet}

@@ -1,5 +1,5 @@
 import type { PDFPageProxy } from 'pdfjs-dist';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Icon } from '../../lib/Icon';
@@ -22,9 +22,20 @@ function clamp(page: number, count: number): number {
   return Math.min(Math.max(1, Math.round(page)), count);
 }
 
+/** Where a page's top lands when scrolled to: its scroll margin, below the sticky toolbar. */
+function startLine(element: HTMLElement): number {
+  return parseFloat(getComputedStyle(element).scrollMarginBlockStart) || 0;
+}
+
+/** The reader's place: a page, and how far down it the start line falls (0 to 1). */
+interface Anchor {
+  page: number;
+  ratio: number;
+}
+
 /** The pages, top to bottom, with a toolbar for moving between them. */
 export function PdfViewer({ pages, citedPage }: PdfViewerProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const format = useFormat();
   const count = pages.length;
   const cited = citedPage !== null && citedPage <= count ? citedPage : null;
@@ -35,6 +46,39 @@ export function PdfViewer({ pages, citedPage }: PdfViewerProps) {
   const [width, setWidth] = useState(0);
   const [draft, setDraft] = useState<string | null>(null);
   const inputId = useId();
+  // Null until the reader is among the pages (above them, a layout change moves nothing).
+  const anchor = useRef<Anchor | null>(cited === null ? null : { page: cited, ratio: 0 });
+
+  /** Note which page is at the start line, and how far into it. */
+  const measureAnchor = useCallback(() => {
+    const first = elements.current.get(1);
+    if (!first) return;
+    const line = startLine(first);
+    if (first.getBoundingClientRect().top > line) {
+      anchor.current = null;
+      return;
+    }
+    for (let number = 1; number <= count; number += 1) {
+      const rect = elements.current.get(number)?.getBoundingClientRect();
+      if (rect && rect.bottom > line) {
+        const ratio = rect.height > 0 ? (line - rect.top) / rect.height : 0;
+        anchor.current = { page: number, ratio: Math.min(Math.max(ratio, 0), 1) };
+        return;
+      }
+    }
+  }, [count]);
+
+  /**
+   * Put the reader back on the same spot of the same page after the layout moved under them:
+   * a language switch reflows the header above the pages, and a resize changes page heights.
+   */
+  const restoreAnchor = useCallback(() => {
+    const place = anchor.current;
+    const element = place && elements.current.get(place.page);
+    if (!place || !element) return;
+    const rect = element.getBoundingClientRect();
+    window.scrollBy({ top: rect.top + place.ratio * rect.height - startLine(element) });
+  }, []);
 
   const register = useCallback((number: number, element: HTMLElement | null) => {
     if (element) elements.current.set(number, element);
@@ -45,6 +89,7 @@ export function PdfViewer({ pages, citedPage }: PdfViewerProps) {
     (page: number) => {
       const target = clamp(page, count);
       elements.current.get(target)?.scrollIntoView({ block: 'start' });
+      anchor.current = { page: target, ratio: 0 };
       setCurrent(target);
     },
     [count],
@@ -83,18 +128,33 @@ export function PdfViewer({ pages, citedPage }: PdfViewerProps) {
     };
   }, [pages]);
 
-  // Redraw at the new size when the column's width changes (window resize, sidebar).
+  // Redraw at the new size when the column's width changes (window resize, sidebar), and
+  // keep the reader's place, since every page's height changed with it.
   useEffect(() => {
     const element = column.current;
     if (!element) return;
+    let last = 0;
     const observer = new ResizeObserver(([entry]) => {
-      if (entry) setWidth(Math.round(entry.contentRect.width));
+      if (!entry) return;
+      const next = Math.round(entry.contentRect.width);
+      if (last > 0 && next !== last) restoreAnchor();
+      last = next;
+      setWidth(next);
     });
     observer.observe(element);
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [restoreAnchor]);
+
+  // A language switch mirrors the chrome and reflows the text above the pages: stay put.
+  const language = i18n.language;
+  const shownLanguage = useRef(language);
+  useLayoutEffect(() => {
+    if (shownLanguage.current === language) return;
+    shownLanguage.current = language;
+    restoreAnchor();
+  }, [language, restoreAnchor]);
 
   // Follow the reader: the current page is the one crossing a line near the top.
   useEffect(() => {
@@ -109,6 +169,7 @@ export function PdfViewer({ pages, citedPage }: PdfViewerProps) {
         page = number;
       }
       setCurrent(page);
+      measureAnchor();
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -118,7 +179,7 @@ export function PdfViewer({ pages, citedPage }: PdfViewerProps) {
       window.removeEventListener('scroll', onScroll);
       cancelAnimationFrame(frame);
     };
-  }, [count]);
+  }, [count, measureAnchor]);
 
   const commitDraft = () => {
     if (draft !== null && draft.trim() !== '') {
