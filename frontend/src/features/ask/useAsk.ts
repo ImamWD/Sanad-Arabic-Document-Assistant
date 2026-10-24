@@ -24,7 +24,7 @@ export interface Ask {
  * The Ask screen's state and the one stream in flight. A new question, a history item or
  * leaving the page aborts the current stream, and nothing from an aborted stream is shown.
  */
-export function useAsk(): Ask {
+export function useAsk(historyScope: number): Ask {
   const [state, dispatch] = useReducer(askReducer, IDLE);
   const queryClient = useQueryClient();
   const current = useRef<AbortController | null>(null);
@@ -53,7 +53,10 @@ export function useAsk(): Ask {
       streamAsk(question, onEvent, signal).then(
         () => {
           // The new question is now part of the history.
-          void queryClient.invalidateQueries({ queryKey: queriesKey, exact: true });
+          void queryClient.invalidateQueries({
+            queryKey: [...queriesKey, historyScope],
+            exact: true,
+          });
         },
         (error: unknown) => {
           if (signal.aborted) return;
@@ -66,7 +69,7 @@ export function useAsk(): Ask {
         },
       );
     },
-    [queryClient, start],
+    [queryClient, start, historyScope],
   );
 
   const show = useCallback(

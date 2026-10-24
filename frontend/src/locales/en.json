@@ -112,7 +112,8 @@
       "toggle": "History",
       "heading": "Your questions",
       "empty": "You haven't asked anything yet.",
-      "askedAt": "Asked on {{time}}"
+      "askedAt": "Asked on {{time}}",
+      "guestHint": "As a guest, you see only the questions asked in this session."
     },
     "outcome": {
       "answered": "Answered",

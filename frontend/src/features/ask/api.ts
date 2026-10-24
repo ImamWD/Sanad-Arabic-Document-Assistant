@@ -219,17 +219,22 @@ function decodeSummary(raw: unknown): QuerySummary | null {
 
 export const queriesKey = ['queries'] as const;
 
-/** The history panel: GET /api/queries, the user's own questions, newest first. */
-export const queriesQuery = queryOptions({
-  queryKey: queriesKey,
-  queryFn: async ({ signal }) =>
-    decodeList(await apiFetch<unknown>('/queries', { signal }), decodeSummary),
-});
+/**
+ * The history panel: GET /api/queries, the user's own questions, newest first. `scope` is the
+ * session the cache belongs to (useHistoryScope).
+ */
+export function queriesQuery(scope: number) {
+  return queryOptions({
+    queryKey: [...queriesKey, scope],
+    queryFn: async ({ signal }) =>
+      decodeList(await apiFetch<unknown>('/queries', { signal }), decodeSummary),
+  });
+}
 
 /** One stored question and its answer. Stored answers never change, so it never refetches. */
-export function storedQueryQuery(id: string) {
+export function storedQueryQuery(scope: number, id: string) {
   return queryOptions({
-    queryKey: [...queriesKey, id],
+    queryKey: [...queriesKey, scope, id],
     queryFn: async ({ signal }): Promise<StoredQuery> => {
       const raw = await apiFetch<unknown>(`/queries/${encodeURIComponent(id)}`, { signal });
       const result = decodeAnswer(raw, id);

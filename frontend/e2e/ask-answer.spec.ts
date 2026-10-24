@@ -221,3 +221,67 @@ test('the guest goes from the login page to a cited page in three clicks', async
   await card(page, PDF_CITATION.title).click(); // 3
   await expect(page).toHaveURL(new RegExp(`/documents/${PDF_CITATION.document_id}\\?page=7$`));
 });
+
+test("the guest's history holds only this session's questions, and never flashes the last one", async ({
+  page,
+}) => {
+  // A fake server with per-session history, as R1 scopes it: each guest login is a new session.
+  let user: object | null = null;
+  let session: { question: string; id: string }[] = [];
+  let holdHistory: Promise<void> | null = null;
+  await page.route('**/api/me', (route) =>
+    user
+      ? route.fulfill({ json: user })
+      : route.fulfill({ status: 401, json: { error: { code: 'UNAUTHENTICATED', params: {} } } }),
+  );
+  await page.route('**/api/auth/guest', async (route) => {
+    user = GUEST;
+    session = [];
+    await route.fulfill({ json: GUEST });
+  });
+  await page.route('**/api/auth/logout', async (route) => {
+    user = null;
+    await route.fulfill({ status: 204 });
+  });
+  await page.route('**/api/ask/stream', async (route) => {
+    const { question } = route.request().postDataJSON() as { question: string };
+    session.unshift({ question, id: `${QUERY_ID.slice(0, -3)}${String(200 + session.length)}` });
+    await route.fulfill({
+      headers: { 'Content-Type': 'text/event-stream' },
+      body: `event: final\ndata: ${JSON.stringify(FINAL_ANSWERED)}\n\n`,
+    });
+  });
+  await page.route('**/api/queries', async (route) => {
+    if (holdHistory) await holdHistory;
+    await route.fulfill({
+      json: session.map((q) => ({ ...q, outcome: 'answered', created_at: '2026-10-25T08:00:00Z' })),
+    });
+  });
+
+  await page.goto('/login?lang=en');
+  await page.getByRole('button', { name: en.auth.login.guest }).click();
+  const toggle = page.getByRole('button', { name: en.ask.history.toggle });
+  const panel = page.getByRole('complementary', { name: en.ask.history.heading });
+  await toggle.click();
+  await expect(panel.getByText(en.ask.history.empty)).toBeVisible();
+  await expect(panel.getByText(en.ask.history.guestHint)).toBeVisible();
+
+  // An answer completes while the panel is open: the list refreshes with the new question.
+  await ask(page, en.ask.form.label);
+  await expect(panel.getByRole('button', { name: new RegExp(QUESTION) })).toBeVisible();
+
+  // Sign out, then sign in as guest again: a new session, with its list held back a moment.
+  await page.getByRole('button', { name: GUEST.name }).click();
+  await page.getByRole('menuitem', { name: en.shell.user.signOut }).click();
+  let release: () => void = () => undefined;
+  holdHistory = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.getByRole('button', { name: en.auth.login.guest }).click();
+  await toggle.click();
+  await expect(panel.getByText(en.common.loading)).toBeVisible();
+  await expect(page.getByText(QUESTION)).toHaveCount(0);
+  release();
+  await expect(panel.getByText(en.ask.history.empty)).toBeVisible();
+  await expect(page.getByText(QUESTION)).toHaveCount(0);
+});

@@ -5,12 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { Bidi } from '../../lib/BidiText';
 import { useErrorMessage } from '../../lib/useErrorMessage';
 import { useFormat } from '../../lib/useFormat';
+import { useCurrentUser } from '../auth/session';
 import { queriesQuery, storedQueryQuery } from './api';
 import styles from './HistoryPanel.module.css';
 import type { StoredQuery } from './types';
 
 interface HistoryPanelProps {
   id: string;
+  /** The session the history belongs to (useHistoryScope). */
+  scope: number;
   onShow: (query: StoredQuery) => void;
 }
 
@@ -18,12 +21,13 @@ interface HistoryPanelProps {
  * The user's own questions (GET /api/queries). Mounted only while open, so the Ask page itself
  * never fetches on arrival and a language switch never refetches (no language in any key).
  */
-export function HistoryPanel({ id, onShow }: HistoryPanelProps) {
+export function HistoryPanel({ id, scope, onShow }: HistoryPanelProps) {
   const { t } = useTranslation();
   const format = useFormat();
   const errorMessage = useErrorMessage();
   const queryClient = useQueryClient();
-  const queries = useQuery(queriesQuery);
+  const user = useCurrentUser();
+  const queries = useQuery(queriesQuery(scope));
   const headingId = useId();
   const [selected, setSelected] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<unknown>(null);
@@ -33,7 +37,7 @@ export function HistoryPanel({ id, onShow }: HistoryPanelProps) {
     latest.current = queryId;
     setSelected(queryId);
     setLoadError(null);
-    queryClient.query(storedQueryQuery(queryId)).then(
+    queryClient.query(storedQueryQuery(scope, queryId)).then(
       (query) => {
         if (latest.current === queryId) onShow(query);
       },
@@ -86,6 +90,8 @@ export function HistoryPanel({ id, onShow }: HistoryPanelProps) {
       <h2 id={headingId} className={styles.heading}>
         {t('ask.history.heading')}
       </h2>
+      {/* The guest is one shared account: it sees only this session's questions (R1). */}
+      {user.is_guest && <p className={styles.hint}>{t('ask.history.guestHint')}</p>}
       {loadError !== null && (
         <p className={styles.error} role="alert">
           {errorMessage(loadError)}

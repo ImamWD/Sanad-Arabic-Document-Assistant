@@ -12,6 +12,7 @@ import type { AskState, ErrorInfo } from './askState';
 import { HistoryPanel } from './HistoryPanel';
 import { QuestionForm } from './QuestionForm';
 import { useAsk } from './useAsk';
+import { useHistoryScope } from './useHistoryScope';
 import { WaitStatus } from './WaitStatus';
 
 function Failure({ error, onRetry }: { error: ErrorInfo; onRetry: () => void }) {
@@ -70,7 +71,8 @@ function AskResult({ state, onRetry }: { state: AskState; onRetry: (question: st
 /** /ask, the landing page after sign-in (the guest's too). */
 export function AskPage() {
   const { t } = useTranslation();
-  const { state, ask, show } = useAsk();
+  const historyScope = useHistoryScope();
+  const { state, ask, show } = useAsk(historyScope);
   const [historyOpen, setHistoryOpen] = useState(false);
   const historyId = useId();
 
@@ -96,7 +98,7 @@ export function AskPage() {
         <QuestionForm busy={state.phase === 'streaming'} onAsk={ask} />
         <AskResult state={state} onRetry={ask} />
       </section>
-      {historyOpen && <HistoryPanel id={historyId} onShow={show} />}
+      {historyOpen && <HistoryPanel id={historyId} scope={historyScope} onShow={show} />}
     </div>
   );
 }

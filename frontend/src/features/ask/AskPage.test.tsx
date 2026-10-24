@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { apiError, GUEST, json, renderApp, testUser } from '../../app/test-utils';
+import { sessionQueryKey } from '../auth/session';
 import type { Me } from '../auth/types';
 import ar from '../../locales/ar.json';
 import en from '../../locales/en.json';
@@ -428,6 +429,7 @@ describe('history panel', () => {
     expect(screen.getByRole('link', { name: new RegExp(PDF_CITATION.title) })).toBeDefined();
     expect(gets(calls).map((c) => c.path)).toContain(`/api/queries/${QUERY_ID}`);
     expect(item.getAttribute('aria-current')).toBe('true');
+    expect(within(panel).queryByText(en.ask.history.guestHint)).toBeNull();
   });
 
   it('says so when there is no history yet', async () => {
@@ -438,7 +440,7 @@ describe('history panel', () => {
     expect(await screen.findByText(en.ask.history.empty)).toBeDefined();
   });
 
-  it('is there for the guest too, who asks like anyone else', async () => {
+  it('is there for the guest too, with a this-session-only hint', async () => {
     // For the shared guest account the server lists only this session's questions (R1).
     const { ask, send, actor } = await openAsk(
       { ...GUEST, preferred_language: 'en' },
@@ -449,5 +451,45 @@ describe('history panel', () => {
     expect(screen.getByText(ANSWER_TEXT)).toBeDefined();
     await actor.click(screen.getByRole('button', { name: en.ask.history.toggle }));
     expect(await screen.findByText(en.ask.history.empty)).toBeDefined();
+    expect(screen.getByText(en.ask.history.guestHint)).toBeDefined();
+  });
+
+  it("never shows the previous session's cached history after a new guest login", async () => {
+    const guest: Me = { ...GUEST, preferred_language: 'en' };
+    let release: (response: Response) => void = () => undefined;
+    let session = 1;
+    const { actor, queryClient } = await openAsk(guest, {
+      handlers: {
+        // The first session has one question; the second session's list is held back, so
+        // the test can look at the panel while it loads.
+        'GET /api/queries': () =>
+          session === 1
+            ? json(200, [HISTORY[0]])
+            : new Promise<Response>((resolve) => {
+                release = resolve;
+              }),
+      },
+    });
+    const toggle = () => screen.getByRole('button', { name: en.ask.history.toggle });
+    await actor.click(toggle());
+    expect(await screen.findByText(HISTORY[0]?.question ?? '')).toBeDefined();
+
+    // Sign-out, then a fresh guest login in the same page.
+    session = 2;
+    act(() => {
+      queryClient.setQueryData(sessionQueryKey, null);
+    });
+    await screen.findByRole('button', { name: en.auth.login.guest });
+    act(() => {
+      queryClient.setQueryData(sessionQueryKey, guest);
+    });
+    await screen.findByRole('heading', { level: 1, name: en.pages.ask.title });
+
+    await actor.click(toggle());
+    expect(screen.getByText(en.common.loading)).toBeDefined();
+    expect(screen.queryByText(HISTORY[0]?.question ?? '')).toBeNull();
+    release(json(200, []));
+    expect(await screen.findByText(en.ask.history.empty)).toBeDefined();
+    expect(screen.queryByText(HISTORY[0]?.question ?? '')).toBeNull();
   });
 });
