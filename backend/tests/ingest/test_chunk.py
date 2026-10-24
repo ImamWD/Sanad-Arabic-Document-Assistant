@@ -3,6 +3,7 @@
 The real bge-m3 tokenizer is exercised against the running ml service in test_ml_live.py.
 """
 
+import itertools
 from collections.abc import Sequence
 
 import pytest
@@ -61,7 +62,7 @@ def test_consecutive_chunks_on_a_page_overlap_by_whole_sentences() -> None:
     page = paragraph(*[10] * 30)
     result = chunks_of([page])
     assert len(result) >= 3
-    for prev, nxt in zip(result, result[1:], strict=False):
+    for prev, nxt in itertools.pairwise(result):
         assert nxt.char_start < prev.char_end  # they overlap
         shared = page[nxt.char_start : prev.char_end]
         assert shared.endswith(".")  # whole sentences
@@ -82,7 +83,7 @@ def test_overlap_rounds_to_the_nearest_whole_sentence() -> None:
 def test_no_overlap_when_disabled() -> None:
     params = ChunkParams(target_tokens=100, max_tokens=150, overlap_tokens=0, min_tail_tokens=0)
     result = chunks_of([paragraph(*[10] * 30)], params)
-    for prev, nxt in zip(result, result[1:], strict=False):
+    for prev, nxt in itertools.pairwise(result):
         assert nxt.char_start >= prev.char_end
 
 

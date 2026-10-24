@@ -10,6 +10,7 @@ line. The text itself is exactly pdfium's.
 
 from __future__ import annotations
 
+import itertools
 import logging
 import re
 import statistics
@@ -30,6 +31,9 @@ PARAGRAPH_GAP = 0.35
 # Consecutive lines whose heights differ by more than this ratio are different blocks.
 FONT_CHANGE = 1.2
 _LINE_BREAK = re.compile(r"\r\n|\r|\n")
+# pdfium's marker for a hyphen that ends a line ("long-" / "running"): U+FFFE in its range
+# text, U+0002 in its bounded text. Both stand for the hyphen that was printed.
+_HYPHEN_MARKS = str.maketrans({"\ufffe": "-", "\x02": "-"})
 _SPACE = re.compile(r"\s+")
 
 
@@ -53,28 +57,29 @@ class _Line:
 
 
 def _lines(textpage: pdfium.PdfTextPage) -> list[_Line] | None:
-    """Lines with their loose (font-size based) vertical extent; None if pdfium's char list
-    doesn't reproduce its own page text, in which case we keep the text without geometry."""
-    count = textpage.count_chars()
-    raw = textpage.raw
-    chars = [chr(pdfium_c.FPDFText_GetUnicode(raw, i) or 0xFFFD) for i in range(count)]
-    if "".join(chars) != textpage.get_text_range():
+    """Lines with their loose (font-size based) vertical extent; None when the page text
+    doesn't map 1:1 onto pdfium's char list (characters outside the BMP), in which case the
+    text is kept without paragraph geometry."""
+    text = textpage.get_text_range()
+    if len(text) != textpage.count_chars():
         return None
+    raw = textpage.raw
     lines: list[_Line] = []
     start = 0
-    text = "".join(chars)
     for match in [*_LINE_BREAK.finditer(text), None]:
         end = match.start() if match else len(text)
         bottoms, tops = [], []
         for i in range(start, end):
-            if chars[i].isspace() or pdfium_c.FPDFText_IsGenerated(raw, i) == 1:
+            if text[i].isspace() or pdfium_c.FPDFText_IsGenerated(raw, i) == 1:
                 continue
             _, bottom, _, top = textpage.get_charbox(i, loose=True)
             if top > bottom:
                 bottoms.append(bottom)
                 tops.append(top)
         if bottoms:
-            lines.append(_Line(text[start:end], statistics.median(bottoms), statistics.median(tops)))
+            lines.append(
+                _Line(text[start:end], statistics.median(bottoms), statistics.median(tops))
+            )
         else:
             lines.append(_Line(text[start:end]))
         start = match.end() if match else len(text)
@@ -92,13 +97,13 @@ def paragraph_text(lines: Sequence[_Line]) -> str:
         return ""
     gaps = [
         prev.bottom - line.top
-        for prev, line in zip(lines, lines[1:], strict=False)
+        for prev, line in itertools.pairwise(lines)
         if prev.bottom is not None and line.top is not None and _similar(prev, line)
         if line.top < prev.bottom + prev.height  # going down the page
     ]
     usual = statistics.median(gaps) if gaps else 0.0
     out = [lines[0].text]
-    for prev, line in zip(lines, lines[1:], strict=False):
+    for prev, line in itertools.pairwise(lines):
         out.append("\n\n" if _breaks(prev, line, usual) else "\n")
         out.append(line.text)
     return "".join(out)
@@ -125,6 +130,7 @@ def _page(pdf: pdfium.PdfDocument, index: int) -> RawPage:
                 text = _LINE_BREAK.sub("\n", textpage.get_text_bounded())
             else:
                 text = paragraph_text(lines)
+            text = text.translate(_HYPHEN_MARKS)
         finally:
             textpage.close()
         images = sum(1 for _ in page.get_objects(filter=(pdfium_c.FPDF_PAGEOBJ_IMAGE,)))

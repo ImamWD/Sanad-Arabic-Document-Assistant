@@ -208,9 +208,7 @@ def _halve(units: list[_Unit]) -> tuple[list[_Unit], list[_Unit]]:
     return units[:-1], units[-1:]
 
 
-def chunk_page(
-    text: str, count: TokenCounter, params: ChunkParams
-) -> list[tuple[int, int, int]]:
+def chunk_page(text: str, count: TokenCounter, params: ChunkParams) -> list[tuple[int, int, int]]:
     """(char_start, char_end, token_count) of each chunk of one cleaned page, in order."""
     builder = _PageBuilder(params)
     for units in _units(text, count, params):

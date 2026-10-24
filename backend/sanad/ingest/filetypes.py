@@ -17,6 +17,8 @@ SNIFF_BYTES = 8192
 # The PDF header may follow some leading junk, but must start within the first 1 KiB.
 _PDF_HEADER_WINDOW = 1024
 _ZIP_MAGIC = b"PK\x03\x04"
+# Text, but in an encoding we don't read (we take UTF-8 and Windows-1256).
+_UTF16_BOMS = (b"\xff\xfe", b"\xfe\xff")
 # Control characters that never occur in a real text file (NUL, and C0 except \t \n \f \r).
 _BINARY_BYTES = frozenset(range(0x09)) | {0x0B} | frozenset(range(0x0E, 0x20))
 _MAX_BINARY_SHARE = 0.01
@@ -46,7 +48,11 @@ def looks_like_text(head: bytes) -> bool:
 
 
 def check_content(path: Path, file_type: FileType) -> None:
-    """Raise UNSUPPORTED_TYPE unless the file's content matches its declared type."""
+    """Raise UNSUPPORTED_TYPE unless the file's content matches its declared type.
+
+    FILE_CORRUPT (a .docx that is a broken zip) and TXT_ENCODING_UNKNOWN (UTF-16 text) mean
+    the type is right but the file can't be read.
+    """
     with path.open("rb") as fh:
         head = fh.read(SNIFF_BYTES)
     if file_type is FileType.PDF:
@@ -54,6 +60,8 @@ def check_content(path: Path, file_type: FileType) -> None:
     elif file_type is FileType.DOCX:
         ok = head.startswith(_ZIP_MAGIC) and _is_docx(path)
     else:
+        if head.startswith(_UTF16_BOMS):
+            raise IngestionError(ErrorCode.TXT_ENCODING_UNKNOWN)
         ok = not head.startswith((b"%PDF-", _ZIP_MAGIC)) and looks_like_text(head)
     if not ok:
         raise IngestionError(ErrorCode.UNSUPPORTED_TYPE)
