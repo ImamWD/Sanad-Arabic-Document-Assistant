@@ -352,13 +352,13 @@ def summarise(rows: list[dict]) -> dict[str, Any]:
     }
 
 
-def find_reference(model: str, provider: str, cpu: bool, label: str) -> dict | None:
+def find_reference(model: str, provider: str, cpu: bool, label: str, written: Path) -> dict | None:
     if not REFERENCE.exists():
         return None
     name = f"{slug(model)}{'__cpu' if cpu else ''}.json"
     candidates = [REFERENCE / slug(label) / name] + sorted(REFERENCE.glob(f"*/{name}"))
     for path in candidates:
-        if path.exists():
+        if path.exists() and path.resolve() != written.resolve():
             ref = json.loads(path.read_text(encoding="utf-8"))
             if ref["run"]["provider"] == provider:
                 ref["_path"] = str(path.relative_to(ROOT))
@@ -484,7 +484,7 @@ def main() -> None:
             print(f"   memory: {memory}")
         print(f"   wrote {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")
 
-        ref = find_reference(model, args.provider, args.cpu, label)
+        ref = find_reference(model, args.provider, args.cpu, label, path)
         if ref:
             by_id = {r["id"]: r for r in ref["results"]}
             same = 0
