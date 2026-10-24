@@ -11,8 +11,9 @@
 #   e2e   (edge)    tools profile; Playwright; mounts frontend/ only
 # backend-dev and ml-dev are on `backend` (no internet); render has no network at all.
 #
+# docker-compose.dev.yml is the development override (relaxes isolation; see that file).
 # Not here yet (later tasks): ollama, ollama-init, init, and the opt-in override files
-# docker-compose.api-llm.yml, docker-compose.gpu.yml and docker-compose.dev.yml.
+# docker-compose.api-llm.yml and docker-compose.gpu.yml.
 #
 # Settings come from .env if it exists (copy .env.example); every value has a default.
 #
