@@ -7,7 +7,8 @@ import en from '../locales/en.json';
 
 export const SUPPORTED_LANGUAGES = ['ar', 'en'] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
-export const DEFAULT_LANGUAGE: Language = 'ar';
+// The demo opens in English (BUILD_PLAN: language and presentation).
+export const DEFAULT_LANGUAGE: Language = 'en';
 export const LANGUAGE_STORAGE_KEY = 'sanad.lang';
 
 export function isLanguage(value: unknown): value is Language {
@@ -28,9 +29,23 @@ export function applyDocumentLanguage(i18n: I18n): void {
   document.title = i18n.t('app.title');
 }
 
+// Whether the language was chosen explicitly on this visit (page load): by ?lang= in the URL
+// or with the language switch. An explicit choice beats the user's saved preference
+// (ProfileLanguage). Page-level state, reset by initI18n: react-i18next hands components a
+// per-render wrapper of the instance, so it can't be keyed on the instance.
+let explicitChoice = false;
+
+export function markExplicitLanguage(): void {
+  explicitChoice = true;
+}
+
+export function hasExplicitLanguage(): boolean {
+  return explicitChoice;
+}
+
 /**
- * Locale priority (SYSTEM_DESIGN §8): ?lang= in the URL, then the logged-in user's
- * preference (added with auth), then the last choice in localStorage, then Arabic.
+ * Locale priority (SYSTEM_DESIGN §8): ?lang= in the URL, then the signed-in user's
+ * preference (app/ProfileLanguage.tsx), then the last choice in localStorage, then English.
  * Both locales are bundled, so switching language never touches the network.
  */
 export async function initI18n(i18n: I18n = i18next.createInstance()): Promise<I18n> {
@@ -55,5 +70,8 @@ export async function initI18n(i18n: I18n = i18next.createInstance()): Promise<I
       },
     });
   applyDocumentLanguage(i18n);
+  // ?lang=en-GB counts (it resolved to en); an unsupported ?lang=fr fell back, so it doesn't.
+  const requested = new URLSearchParams(window.location.search).get('lang');
+  explicitChoice = requested?.toLowerCase().split('-')[0] === currentLanguage(i18n);
   return i18n;
 }

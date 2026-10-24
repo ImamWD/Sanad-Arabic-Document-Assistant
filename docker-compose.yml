@@ -141,6 +141,9 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+      args:
+        # Digits in the Arabic UI: latn (default) or arab. Baked in at build time.
+        VITE_AR_NUMBERING: ${AR_NUMBERING:-latn}
     image: sanad-web:${SANAD_INSTANCE:-sanad}
     ports:
       - "${WEB_PORT:-8080}:8080"

@@ -1,0 +1,22 @@
+.page {
+  max-inline-size: 48rem;
+}
+
+.title {
+  margin-block: 0 var(--space-2);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.body {
+  margin-block: 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.meta {
+  margin-block: 0 var(--space-2);
+}
+
+.link {
+  color: var(--color-primary);
+}
