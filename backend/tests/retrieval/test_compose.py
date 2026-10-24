@@ -36,7 +36,10 @@ def test_ollama_and_api_have_no_route_out(base: dict[str, Any]) -> None:
     services = base["services"]
     assert services["ollama"]["networks"] == ["backend"]
     assert services["api"]["networks"] == ["backend"]
-    assert "ollama" in services["api"]["depends_on"]
+    depends = services["api"]["depends_on"]
+    assert depends["ollama"]["condition"] == "service_healthy"
+    # The model is in place before the first question (and `up --wait` accepts the one-shot).
+    assert depends["ollama-init"]["condition"] == "service_completed_successfully"
 
 
 def test_ollama_init_is_egress_only_and_never_on_the_backend(base: dict[str, Any]) -> None:

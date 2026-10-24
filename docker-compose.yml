@@ -121,8 +121,10 @@ services:
         condition: service_healthy
       init:
         condition: service_completed_successfully
-      # Not ollama-init: a restart must work offline, and until the first pull finishes an
-      # answer fails with LLM_UNAVAILABLE instead of the whole stack waiting.
+      # The model must be in place before the first question. On first boot that waits for
+      # the download; afterwards ollama-init finds the model and exits at once, offline too.
+      ollama-init:
+        condition: service_completed_successfully
       ollama:
         condition: service_healthy
     healthcheck:
