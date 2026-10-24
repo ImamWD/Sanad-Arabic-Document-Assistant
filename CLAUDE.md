@@ -1,10 +1,12 @@
 # Sanad — house rules for executor agents
 
 You are implementing one task from [docs/ROADMAP.md](docs/ROADMAP.md). Before writing code, read:
-1. [docs/brief.md](docs/brief.md), the client's original requirements
-2. [docs/DECISIONS.md](docs/DECISIONS.md), the client's approved decisions (24 Oct 2026). Where a decision differs from the brief, the decision wins. Examples: no API mode for client documents, the three-band refusal gate with its approved wording, version history, the never-frozen Ask screen.
-3. [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md)
+1. [docs/BUILD_PLAN.md](docs/BUILD_PLAN.md). **Part 1 is authoritative on scope and schedule**: a two-week portfolio build, with a cut line and a v2 deferred list. **Part 2, the decisions log, is authoritative on behaviour.**
+2. [docs/DECISIONS.md](docs/DECISIONS.md) and [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md), for detail and reasoning. Sections they mark as v2 are not built.
+3. [docs/brief.md](docs/brief.md), the client's original requirements.
 4. your task brief in ROADMAP.md, including its **Owns** list, acceptance criteria and **Verify** commands
+
+Where these disagree, the earlier item in this list wins.
 
 If the design and your task disagree, or a product decision is missing, **stop and ask the manager**. Don't guess, and don't silently redesign.
 
@@ -38,13 +40,9 @@ If the design and your task disagree, or a product decision is missing, **stop a
   - Commit a manifest (URL, sha256, licence) and a fetch script, so the manager can re-fetch the files to verify.
   - **Delete them when they're no longer needed**, after the manager's verification. Your report lists what was downloaded.
   - **Model weights** pulled for a spike go only into the git-ignored `/models/` or `/hf_cache/` folders, or a named Docker volume. At the end, remove the models that weren't chosen (`ollama rm …`, delete their cache entries) and list them.
-- **Client sample documents** (`data/client-samples/`, git-ignored) are the client's real reports.
-  - Never commit them, and never send them to any API.
-  - **Never read their text, titles or file names into your context**: no `cat`, no Read tool, no printing excerpts, no psql or API queries that return their rows.
-  - Only run scripts whose output is aggregate numbers (rates, counts, timings), written so they never echo document text, even on errors.
-  - They are ingested only into the owner's separate stack (`docker compose -p sanad-samples -f docker-compose.yml up -d`, base file only). Never ingest them into the dev stack, and never run that stack with the dev or api-llm overrides.
-  - Playwright runs against them use `trace`, `screenshot` and `video` set to `off`, write no HTML report, and name tests by id only.
-  - If something needs human eyes, list it for the project owner.
+- **Data-handling rule (binding, from the client; it also goes in the README):**
+  > No content from the Foundation's archive is ever sent to any external service, including AI coding assistants, under any circumstances, **including debugging**. Diagnosis uses file names, error messages, page counts and extracted statistics only. If a document must be examined, it is examined on the Foundation's own server.
+- **The eight sample reports** (`data/client-samples/`, git-ignored) are already published on the client's website, so they are the one exception: you may handle them normally. Still don't commit them, because they aren't ours to republish.
 - **Hosted LLM APIs** (the free reference model through `openai_compat`, or `anthropic`) may only ever receive **synthetic seed data**.
 
 ## Code conventions

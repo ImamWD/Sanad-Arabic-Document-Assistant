@@ -17,8 +17,11 @@
 # - page_split (optional, default false): true when the fact sits in a paragraph that
 #   starts on one page and ends on the next. The cited page is the one holding the fact.
 #   D07 is the dev page-split item.
+# - D21-D30 are former headline items moved here when the headline set was cut to 15
+#   (25 Oct 2026); `formerly` keeps their old ID. D21 (formerly T02) depends on the
+#   budget-2024-draft being archived (out of retrieval), since versioning is v2.
 set: dev
-version: 1
+version: 2
 questions:
   - id: D01
     language: ar
@@ -254,3 +257,139 @@ questions:
     expected_answer: null
     vocab_shift: false
     notes: "Out of scope: no document covers HR leave policy."
+  - id: D21
+    formerly: T02
+    language: ar
+    kinds: [factual, numeric, version]
+    question: "ما المبلغ الإجمالي الذي أقرّته المؤسسة كميزانية لسنة 2024؟"
+    must_include: ["5,480,000"]
+    expected_citations:
+      - {file: budget-2024-final.pdf, page: 1}
+      - {file: budget-2024-final.pdf, page: 2}
+      - {file: budget-2024-final.pdf, page: 3}
+      - {file: budget-2024-final.pdf, page: 5}
+      - {file: board-minutes-2023-12.pdf, page: 2}
+      - {file: annual-report-2023-en.pdf, page: 10}
+    expected_outcome: answered
+    expected_answer: "5,480,000 دولار أمريكي، وهي الموازنة النهائية التي اعتمدها مجلس الإدارة في 21 كانون الأول/ديسمبر 2023."
+    vocab_shift: true
+    notes: "Version pair (DECISIONS D5). The superseded draft (budget-2024-draft, 5,600,000) must not be the answer and is never a valid citation. The pages say الموازنة التقديرية / المعتمدة; the question says ميزانية and أقرّته. The final's p5 also shows the draft figure in its change table; the correct answer is the approved total."
+  - id: D22
+    formerly: T03
+    language: ar
+    kinds: [factual, temporal]
+    question: "من يقود المؤسسة إدارياً منذ بداية 2022، وممّن تسلّم هذا المنصب؟"
+    must_include: ["كريم العطار", "ليلى الزين"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 2}
+      - {file: annual-report-2022.pdf, page: 2}
+    expected_outcome: answered
+    expected_answer: "د. كريم العطار مدير تنفيذي منذ 1 كانون الثاني/يناير 2022، خلفاً لليلى الزين التي قادت المؤسسة منذ تأسيسها عام 2014 (الاسمان مستعاران)."
+    vocab_shift: true
+    notes: "Annual report 2021 p2 is the fully diacritised foreword, where both names carry tashkeel (كَرِيم العَطَّار، لَيْلَى الزَّيْن). Annual report 2022 p2 is the new director's message. The pages say المدير التنفيذي / خلفاً; the question says يقود المؤسسة إدارياً / تسلّم المنصب."
+  - id: D23
+    formerly: T05
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما أكثر سبب جعل البنات في سهل القمر يتركن المدرسة بحسب دراسة 2015، وما نسبته؟"
+    must_include: ["بعد المدرسة", "٣٧"]
+    expected_citations:
+      - {file: gep-enrolment-survey-2015.pdf, page: 3}
+    expected_outcome: answered
+    expected_answer: "بُعد المدرسة عن مكان السكن وصعوبة الطريق، وذكرته ٣٧٪ من الأسر."
+    vocab_shift: true
+    notes: "Dropout-reasons table on the 2015 study p3 (Arabic-Indic digits; the page writes بُعد with a damma). The page says انقطاع الفتيات عن الدراسة; the question says البنات يتركن المدرسة."
+  - id: D24
+    formerly: T06
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما نسبة المشاريع الصغيرة للنساء المعيلات التي ظلت تعمل بعد سنة من افتتاحها؟"
+    must_include: ["74"]
+    expected_citations:
+      - {file: wlp-evaluation-2023.docx, page: 3}
+      - {file: wlp-evaluation-2023.docx, page: 4}
+      - {file: board-minutes-2023-12.pdf, page: 3}
+    expected_outcome: answered
+    expected_answer: "74% من المشاريع (334 من 450 في العينة) ما زالت قائمة بعد 12 شهراً، وفق التقييم الداخلي لعام 2023."
+    vocab_shift: true
+    notes: "WLP internal evaluation p3 (key results) and p4 (sector table total), also reported to the board in December 2023 (p3). The pages say ما زالت قائمة بعد 12 شهراً من تأسيسها; the question says ظلت تعمل بعد سنة من افتتاحها."
+  - id: D25
+    formerly: T08
+    language: ar
+    kinds: [factual, numeric, mixed_content]
+    question: "ما قيمة المنحة التي قدمتها مؤسسة فارنهولت لمشروع YEP-2021-03؟"
+    must_include: ["450,000"]
+    expected_citations:
+      - {file: yep-grant-agreement-2021.pdf, page: 3}
+      - {file: yep-grant-agreement-2021.pdf, page: 5}
+      - {file: board-minutes-2021-06.docx, page: 3}
+    expected_outcome: answered
+    expected_answer: "450,000 دولار أمريكي لمدة 24 شهراً تبدأ في 1 تموز/يوليو 2021."
+    vocab_shift: false
+    notes: "Bilingual (mixed) grant agreement Article 3, p3, and the budget total in Article 5, p5; board approval in the June 2021 minutes p3. Tests a Latin project code inside an Arabic question."
+  - id: D26
+    formerly: T11
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم مرحاضاً بُني للبيوت في قرى الهضبة الشرقية ضمن مشروع المياه الأول؟"
+    must_include: ["2,950"]
+    expected_citations:
+      - {file: wash-final-evaluation-2021.pdf, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 8}
+    expected_outcome: answered
+    expected_answer: "2,950 وحدة صرف صحي منزلية محسّنة من أصل 3,000 مستهدفة، ضمن المشروع WASH-2018-01."
+    vocab_shift: true
+    notes: "The pages say وحدة صرف صحي منزلية محسّنة; the question says مرحاضاً بُني للبيوت. 'The first water project' is WASH-2018-01."
+  - id: D27
+    formerly: T17
+    language: ar
+    kinds: [cross_document, temporal, numeric, cross_lingual]
+    question: "كم كان عدد موظفي المؤسسة في 2016، وإلى كم وصل في 2023؟"
+    must_include: ["٢٣", "85"]
+    expected_citations:
+      - {file: annual-report-2016.pdf, page: 2}
+      - {file: annual-report-2023-en.pdf, page: 3}
+      - {file: annual-report-2023-en.pdf, page: 2}
+    expected_outcome: answered
+    expected_answer: "٢٣ موظفاً وموظفة في نهاية 2016، و85 موظفاً في نهاية 2023."
+    vocab_shift: false
+    notes: "Cross-document and cross-lingual: ٢٣ is on the Arabic 2016 report p2 (Arabic-Indic digits); 85 is on the English 2023 report p3 (and p2)."
+  - id: D28
+    formerly: T20
+    language: en
+    kinds: [factual, numeric, english, cross_lingual]
+    question: "How many safe water points were actually completed under the first rural water project in the Eastern Plateau?"
+    must_include: ["22"]
+    expected_citations:
+      - {file: wash-final-evaluation-2021.pdf, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 3}
+      - {file: wash-final-evaluation-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 8}
+      - {file: annual-report-2022.pdf, page: 8}
+    expected_outcome: answered
+    expected_answer: "22 water points, out of 24 planned; two sites were dropped because the water table was too low."
+    vocab_shift: false
+    notes: "English question about Arabic documents. WASH-2018-01 final evaluation p2 and p5 (and p3, where the team inspects all 22 points), annual report 2021 p8, and the 2022 follow-up on p8 (20 of the 22 points still working). 24 is the target, not the answer."
+  - id: D29
+    formerly: T22
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "ما نسبة الأسر في قرى مشروع المياه التي تدفع رسوماً شهرية مقابل الماء بعد انتهاء المشروع؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss (missing metric): the WASH final evaluation p6 discusses water committees, maintenance and spare parts, but no document mentions water fees or tariffs."
+  - id: D30
+    formerly: T25
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "كم يبلغ البدل اليومي الذي يُصرف للموظف في المهمات الميدانية؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss: the 2018 and 2024 budgets contain illustrative salary scales and staffing tables, but no document gives a per diem or travel-allowance rate. The YEP transport allowance is for trainees, not staff."

@@ -5,6 +5,21 @@ Decisions (accepted by the client on 24 Oct 2026) are in [DECISIONS.md](DECISION
 
 Anything marked **(verify)** is a candidate that a spike must confirm before we build on it. It is not a settled fact.
 
+> **Portfolio build scope (25 Oct 2026).** [BUILD_PLAN.md](BUILD_PLAN.md) is authoritative: Part 1 sets scope and schedule, and Part 2, the decisions log, sets behaviour. This design remains the reference, but these parts are **designed and deferred to v2**:
+> - document versions, supersede and amendments (§4, §7)
+> - paragraph-level highlighting: the build cites at **page level**
+> - the Admin usage log, outcome summary and 12-month retention (§7)
+> - everything GPU (§10)
+> - hosted LLM providers: the adapters and override stay, and the build ships local only
+>
+> Changes from the plan:
+> - a **`restricted`** document flag (§4, §9)
+> - the client's six document categories (§4)
+> - fallback locale **English**, with **Latin digits** in both languages (§8)
+> - **15** headline eval questions (§11)
+> - extraction with **pypdfium2**
+> - the binding data-handling rule (§9)
+
 ---
 
 ## 1. Principles
@@ -119,7 +134,7 @@ The brief requires the fields marked ★. The others are design additions, with 
 user_role      : viewer | editor | admin
 ui_lang        : ar | en
 file_type      : pdf | docx | txt
-doc_category   : annual_report | donor_agreement | evaluation | survey | budget | board_minutes | other
+doc_category   : annual_report | donor_agreement | programme_evaluation | field_survey | budget | board_minutes   -- no "other": NULL = uncategorised, flagged for review (client Q5)
 doc_status     : queued | extracting | indexing | ready | failed
 doc_language   : ar | en | mixed
 answer_outcome : answered | low_confidence | no_answer | error
@@ -155,6 +170,7 @@ documents (
   sha256 char(64), size_bytes bigint,       -- duplicate detection
   tags text[] default '{}',
   is_archived bool default false, archived_at, archived_by,
+  restricted bool default false,            -- client Q2: Editors/Admins only; excluded from RETRIEVAL for Viewers and guest
   version_group_id uuid, version int default 1, superseded_by uuid null,  -- DECISIONS D5
   amends_document_id uuid null, amendment_no smallint null,  -- D5/N3: amendment letter linked to its agreement; both stay in retrieval
   is_seed bool default false,
@@ -302,7 +318,10 @@ sequenceDiagram
 ```
 
 Details:
-- **Retrieval scope** covers `status='ready' AND NOT is_archived AND superseded_by IS NULL`, plus any optional filters (programme, year range, category). Guests see only `is_seed` documents.
+- **Retrieval scope** covers `status='ready' AND NOT is_archived AND superseded_by IS NULL`, plus any optional filters (programme, year range, category).
+  - Viewers and the guest never retrieve `restricted` documents, so an answer can never draw on one, even uncited.
+  - The guest sees only `is_seed` documents.
+  - One shared helper, `visible_documents(user)`, applies all of this to the Library, the viewer and retrieval.
 - **Hybrid retrieval.** Dense search catches paraphrases. Lexical search on normalised text catches exact names, codes and numbers, which dense embeddings handle poorly.
   - The default lexical config is `simple` over our own normalised text.
   - The `simple` config has no stopwords, and `plainto_tsquery`/`websearch_to_tsquery` AND every term together, so a natural Arabic question (ما هي … في …) would match almost nothing. The lexical query is therefore built ourselves as an **OR of content terms** with an Arabic stopword list removed. That list lives in `sanad.text.arabic`. Ranking uses `ts_rank_cd`.
@@ -372,8 +391,8 @@ All routes are under `/api`. Errors always take the form `{"error": {"code": "SO
 - **Strings.** All UI text lives in `frontend/src/locales/ar.json` and `en.json` and is reached through `t()`. ESLint `i18next/no-literal-string` runs as an **error** (JSX text plus `placeholder`, `title`, `aria-label` and `alt` attributes). A unit test checks that both files have identical key sets, and that every backend error code has a translation in both.
 - **Direction.** On boot and on every `languageChanged` event we set `document.documentElement.lang` and `dir`, the latter from `i18n.dir()`. Radix `DirectionProvider` receives the same value.
 - **CSS.** Logical properties only: `margin-inline-start`, `padding-block`, `inset-inline-end`, `text-align: start`. Stylelint (`stylelint-use-logical` or equivalent, **verify**) rejects physical properties. Directional icons such as arrows and chevrons mirror with a `[dir=rtl]` transform.
-- **Language entry.** `?lang=ar` and `?lang=en` set the locale on any route, before or after login. Priority order: URL, then the logged-in user's preference, then the last choice in localStorage, then `ar`. Switching language while logged in sends `PATCH /me`. Only `i18n` state changes, so no data refetch happens.
-- **Formatting.** A `useFormat()` hook wraps `Intl.DateTimeFormat`, `NumberFormat` and `RelativeTimeFormat` for the active locale. The digit style for Arabic (Arabic-Indic vs Latin, via `-u-nu-latn`) is a config value (OPEN_QUESTIONS Q6). Hand-built date or number strings are not allowed.
+- **Language entry.** `?lang=ar` and `?lang=en` set the locale on any route, before or after login. Priority order: URL, then the logged-in user's preference, then the last choice in localStorage, then **`en`**. The demo opens in English, and the guest link is `?lang=en`. Switching language while logged in sends `PATCH /me`. Only `i18n` state changes, so no data refetch happens.
+- **Formatting.** A `useFormat()` hook wraps `Intl.DateTimeFormat`, `NumberFormat` and `RelativeTimeFormat` for the active locale. Digits are **Latin (123) by default in both languages** (client Q6), via `-u-nu-latn`. Arabic-Indic digits are a config switch (`AR_NUMBERING=arab`). Hand-built date or number strings are not allowed.
 - **Mixed content.** Every content block (answers, snippets, titles, filenames) renders with `dir="auto"` and `unicode-bidi: plaintext`. Inside answers, Latin runs, codes and URLs are wrapped in `<bdi>` by `src/lib/bidi.ts`. The regression fixture is `"تم تمويل المشروع YEP-2021-03 عبر https://example.org/r في ٢٠٢١"`.
 - **Fonts.** Self-hosted through `@fontsource` (an Arabic face such as IBM Plex Sans Arabic or Noto Sans Arabic, plus a Latin face). No CDN.
 - **Three-clicks path.** Login lands on Ask, Enter submits, and clicking a citation card opens the viewer at that page with the span highlighted. The login page also has a "Continue as guest" button.
@@ -386,9 +405,9 @@ All routes are under `/api`. Errors always take the form `{"error": {"code": "SO
 |---|---|
 | Content egress | Every content-handling container (`api`, `worker`, `ml`, `db`, `ollama`) is on the `internal: true` network only. Model weights are fetched at build time (`ml`) or by the content-free `ollama-init` job. `HF_HUB_OFFLINE=1`. No CDN assets. No telemetry. |
 | API-mode LLM | **The client decided it will not be used for their documents.** The code path stays for benchmarking on synthetic data. Turning it on needs the override file **and** `LLM_PROVIDER`. **Code guard:** hosted providers (`openai_compat`, `anthropic`) make no call, returning `HOSTED_LLM_NON_SEED_DATA`, if any excerpt comes from a document with `is_seed = false`. If a hosted provider is configured, `/health` reports it, the Admin screen shows a red banner ("questions and up to K excerpts are sent to <provider>"), and the README says the same. |
-| Client sample documents | The client's eight real reports live in `data/client-samples/`, which is git-ignored. They are never committed, never sent to any API, and never ingested into the dev stack: only into the owner's separate stack (`docker compose -p sanad-samples -f docker-compose.yml up -d`, base file only). AI assistants never read their text, titles or file names. Only scripts that print aggregate numbers run on them, and anything that needs eyes goes to the project owner (OPEN_QUESTIONS N4). |
+| Data-handling rule (binding, client) | "No content from the Foundation's archive is ever sent to any external service, including AI coding assistants, under any circumstances, **including debugging**. Diagnosis uses file names, error messages, page counts and extracted statistics only. If a document must be examined, it is examined on the Foundation's own server." This rule goes in the README. **Exception:** the eight sample reports are already public and may be handled normally. Keep them in `data/client-samples/` (git-ignored); they are not ours to republish. |
 | Guest | `is_guest` viewer with `GUEST_MODE=seed_only` (default): sees only `is_seed` documents in the library, retrieval and viewer. `GUEST_MODE=off` disables the guest entirely. |
-| Document access | v1: every authenticated user can read every non-seed document, as the brief specifies. A per-document "restricted" flag is raised as Q2. |
+| Document access | A `restricted` flag (client Q2) makes a document visible to Editors and Admins only. It is excluded from the Library, the viewer (404) **and retrieval** for Viewers and the guest. Everything else is readable by every signed-in user. |
 | Passwords and sessions | argon2id; opaque session tokens stored hashed; idle and absolute expiry; deactivation revokes sessions. |
 | CSRF | SameSite=Lax cookie, and state-changing routes require `Content-Type: application/json` or multipart plus a custom `X-Sanad` header. |
 | Uploads | Size limit, type checked by magic bytes as well as extension, files stored under generated paths and never by user filename, and the file served only through the auth-checked endpoint. |
@@ -427,14 +446,13 @@ Config (`.env`):
 
 ## 11. Evaluation harness
 
-- `eval/questions.yaml` holds 25 **headline** questions. They are never used for tuning.
-- `eval/dev_questions.yaml` holds about 15 **tuning** questions, used for the chunk sweep and thresholds, so the headline number isn't overfit.
-- Question mix in the 25:
-  - about 14 Arabic factual questions (several numeric)
-  - 3 cross-document or temporal questions
-  - 3 English questions
-  - 5 **unanswerable** questions, at least 2 of them near-misses where a related document exists but doesn't contain the answer
-  - at least 2 questions phrased with diacritics or tatweel, to test normalisation
+- `eval/questions.yaml` holds **15 headline** questions (BUILD_PLAN: reduced from 25). They are never used for tuning. IDs are stable, so the gaps in the numbering are intentional.
+- `eval/dev_questions.yaml` holds 30 **tuning** questions, including the 10 former headline items (D21–D30), used for thresholds, so the headline number isn't overfit.
+- Question mix in the 15:
+  - 8 Arabic factual questions, including tatweel, diacritics, a code inside Arabic, and one page-split item
+  - 2 cross-document questions
+  - 2 English questions, one about an Arabic document
+  - 3 **unanswerable** questions, 2 of them near-misses where a related document exists but doesn't contain the answer
 - Answerable items carry `must_include` facts (normalised strings and numbers) and `expected_citations: [{file, page}]`. Unanswerable items carry `expected_outcome: no_answer`.
 - **Scoring.** An answerable item is correct only if:
   - its outcome is `answered` or `low_confidence`, and
@@ -443,8 +461,8 @@ Config (`.env`):
 
   An unanswerable item is correct only if its outcome is `no_answer`.
 - **Diagnostics.** We also report retrieval recall@K, meaning whether the expected page was in the candidates. That lets the README separate *retrieval* failures from *generation* failures for each failing question.
-- **Run:** `docker compose run --rm backend-dev python -m sanad.eval [--set test|dev] [--provider ollama|openai_compat|anthropic] [--model NAME] [--repeat N]` writes `eval/results/<timestamp>.{json,md}` and prints `Score: X/25`.
-  - `--set test` is the 25 headline questions; `--set dev` is the tuning set.
+- **Run:** `docker compose run --rm backend-dev python -m sanad.eval [--set test|dev] [--provider ollama|openai_compat|anthropic] [--model NAME] [--repeat N]` writes `eval/results/<timestamp>.{json,md}` and prints `Score: X/15`.
+  - `--set test` is the 15 headline questions; `--set dev` is the 30-question tuning set.
   - The eval runs on the seed corpus only.
   - A hosted-reference run needs egress. It runs only in a stack started with `docker-compose.api-llm.yml` whose database holds seed documents only, and the runner checks that before the first call.
 - **Failure categories:** retrieval / generation / refusal / page-split. Page-split means the expected fact sits in a paragraph that crosses a page boundary.

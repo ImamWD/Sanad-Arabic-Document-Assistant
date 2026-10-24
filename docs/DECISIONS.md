@@ -1,5 +1,12 @@
 # Decisions
 
+> **Portfolio build (25 Oct 2026).** The running **decisions log** is [BUILD_PLAN.md](BUILD_PLAN.md) Part 2, the single list the client asked for. This file keeps the reasoning behind each decision for the README. For the two-week build:
+> - **D5** (versions) is deferred to v2.
+> - **D6** cites at **page level**; paragraph highlighting is v2.
+> - The GPU material in **D3** is out of scope for the build. Local only still holds, and the README reports the eval score for the shipped default model, with hardware labels.
+> - The headline eval has **15** questions.
+> - New since review: the `restricted` flag, the six categories, and Latin digits.
+>
 > **Status: reviewed by the client on 24 Oct 2026.** Every decision below was **accepted**, some with additions, which are marked **Client addition**.
 >
 > Each decision states what was decided and the experiment that would overturn it. Numbers marked *est.* are pre-measurement estimates; before delivery they are replaced with measured values, and this file becomes the "Decisions" section of the README.
