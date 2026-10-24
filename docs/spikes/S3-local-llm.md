@@ -31,6 +31,12 @@ The prompt contract and the refusal tests are the most important part: excerpts 
 | Docker VM kernel and daemons | ~0.5 GiB | — | **estimate** |
 | **Total** | **≈ 6.0 GiB** | ≈ 7.0–7.5 GiB, the cache being reclaimable | |
 
+**Against the manager's planning figures** (`ml` 1.5–2 GB; Postgres, api and worker ~1 GB): 3.4 + 1.5–2 + 1 + 0.5 (VM) = **6.4–6.9 GiB**. That still fits in 7.75 GiB.
+
+**About the "2× the file" claim in my earlier report: it was wrong.** It came from macOS RSS, which also counts clean mapped GGUF pages; those can be reclaimed. The real driver is that **mmap is off in CPU mode**. Ollama then copies every weight into private memory, including tables the CPU never repacks. Measured as dirty or anonymous memory:
+- gemma4:12b: 10.0 GB for a 7.2 GB file (1.4×)
+- gemma4:e4b: 6.82 GiB for a 6.1 GB file, and 3.40 GiB with mmap on and text-only
+
 **Suggested README sentence:** *"The default configuration uses about 6 GB of RAM: the local model takes ~3.4 GB, the embedding and reranking models ~1.6 GB, and the rest of the stack under 1 GB. Docker Desktop's default 8 GB allocation is enough."*
 
 Not covered by the measurements:
