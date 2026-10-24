@@ -1,4 +1,4 @@
-from sanad.text.arabic import clean_extracted
+from sanad.text.arabic import clean_extracted, normalize_for_search
 from tests.text.helpers import BARNAMAJ, ISTIJABA, TAMKEEN, arabic_indic
 
 HEADER = "مؤسسة الريحان للتنمية — التقرير السنوي 2021"
@@ -40,6 +40,18 @@ def test_codes_urls_digits_and_case_stay_byte_exact() -> None:
 def test_superscript_footnote_markers_are_kept() -> None:
     line = "بلغ عدد المستفيدين 2,950 أسرة\N{SUPERSCRIPT ONE}"
     assert clean_extracted([line]) == [line]
+
+
+def test_thin_space_thousands_separator_survives_cleaning() -> None:
+    thin, narrow = "\N{THIN SPACE}", "\N{NARROW NO-BREAK SPACE}"
+    line = f"بلغ عدد المستفيدين 1{thin}250 أسرة و12{narrow}400 استشارة"
+    cleaned = clean_extracted([line])
+    assert cleaned == [line]
+    assert normalize_for_search(cleaned[0]) == "بلغ عدد المستفيدين 1250 اسره و 12400 استشاره"
+    # Anywhere else a thin space is just a space.
+    assert clean_extracted([f"عام 2021{thin}{thin}مشروع 1{thin}25 نقطة{narrow}"]) == [
+        "عام 2021 مشروع 1 25 نقطة"
+    ]
 
 
 def test_whitespace_collapses_and_paragraphs_survive() -> None:

@@ -575,6 +575,9 @@ RUNNING_LINE_EDGE = 3
 RUNNING_LINE_MIN_PAGES = 3
 
 _DIGIT_RUN_RE = re.compile(r"\d+")
+# Whitespace to collapse, except a lone thin or narrow no-break space between digit groups:
+# that is a thousands separator ("1 250"), which normalize_number_tokens still needs to see.
+_SPACE_RUN_RE = re.compile(r"(?<=\d)([\N{THIN SPACE}\N{NARROW NO-BREAK SPACE}])(?=\d{3}(?!\d))|\s+")
 
 
 def clean_extracted(pages: Sequence[str]) -> list[str]:
@@ -582,9 +585,10 @@ def clean_extracted(pages: Sequence[str]) -> list[str]:
 
     Per line: remove bidi controls and byte-order marks, repair visual order
     (`repair_visual_order`), fold presentation forms (lam-alef and other ligatures
-    included), compose with NFC, and collapse whitespace. Then remove running headers,
-    footers and page numbers (see RUNNING_LINE_EDGE), and collapse blank lines so that
-    paragraphs stay separated by exactly one.
+    included), compose with NFC, and collapse whitespace (a thin-space thousands separator
+    is kept). Then remove running headers, footers and page numbers (see
+    RUNNING_LINE_EDGE), and collapse blank lines so that paragraphs stay separated by
+    exactly one.
 
     Only presentation forms are folded, not full NFKC: footnote superscripts and the like
     stay as printed. `normalize_for_search` applies NFKC on the search side.
@@ -599,7 +603,7 @@ def clean_extracted(pages: Sequence[str]) -> list[str]:
 def _clean_line(line: str) -> str:
     line = repair_visual_order(line.translate(_BIDI_TABLE))
     line = unicodedata.normalize("NFC", line.translate(_PRESENTATION_FOLD))
-    return " ".join(line.split())
+    return _SPACE_RUN_RE.sub(lambda m: m.group(1) or " ", line).strip()
 
 
 def _collapse_blank(lines: list[str]) -> list[str]:
