@@ -59,8 +59,9 @@
   background: var(--color-primary-soft);
 }
 
-.question {
+.item .question {
   overflow-wrap: anywhere;
+  text-align: match-parent;
 }
 
 .meta {
