@@ -60,6 +60,8 @@ ML_ON_GPU_GB = 3.0  # bge-m3 + bge-reranker-v2-m3 on the same card, if placed th
 
 
 def show(base: str, model: str) -> dict:
+    if not base.startswith(("http://", "https://")):
+        raise SystemExit(f"--target must be an http(s) URL, got {base!r}")
     req = urllib.request.Request(f"{base.rstrip('/')}/api/show", json.dumps({"model": model, "verbose": True}).encode(),
                                  {"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=60) as resp:

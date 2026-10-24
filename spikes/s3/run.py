@@ -322,6 +322,11 @@ class OpenAICompat:
 # --------------------------------------------------------------------------------------- run
 
 
+def check_url(target: str) -> None:
+    if urlparse(target).scheme not in ("http", "https"):
+        sys.exit(f"--target must be an http(s) URL, got {target!r}")
+
+
 def slug(text: str) -> str:
     return re.sub(r"[^A-Za-z0-9._-]+", "_", text).strip("_")
 
@@ -457,11 +462,13 @@ def main() -> None:
             return
         assert_synthetic(data)
         target = args.target or os.environ.get("OPENAI_COMPAT_BASE_URL") or GEMINI_OPENAI_BASE
+        check_url(target)
         client: Any = OpenAICompat(target, key, max(args.num_predict, 4096), args.seed, args.reasoning_effort)
         label = args.label or f"hosted: {urlparse(target).hostname}"
         server_version = None
     else:
         target = args.target or os.environ.get("OLLAMA_BASE_URL") or "http://host.docker.internal:11434"
+        check_url(target)
         client = Ollama(target, args.num_ctx, args.num_predict, args.cpu, args.seed, args.keep_alive, args.num_thread)
         label = args.label or ("CPU only (num_gpu=0)" if args.cpu else "default offload")
         server_version = client.version()
@@ -524,7 +531,7 @@ def main() -> None:
                 "target_host": urlparse(target).hostname, "server_version": server_version,
                 "options": getattr(client, "options", {"max_tokens": getattr(client, "max_tokens", None)}),
                 "think": think, "cache_bust": not args.no_cache_bust, "variant": args.variant,
-                "date_utc": dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "date_utc": dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "prompts_sha256_12": prompts_sha, "prompt_ids": [p["id"] for p in prompts],
             },
             "model_info": info,
@@ -535,7 +542,7 @@ def main() -> None:
         suffix = ("__cpu" if args.cpu else "") + ("__sandwich" if args.variant == "sandwich" else "")
         path = out_dir / f"{slug(model)}{suffix}.json"
         path.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-        print(f"   summary: " + "  ".join(f"{k}={fmt(v)}" for k, v in summary.items()))
+        print("   summary: " + "  ".join(f"{k}={fmt(v)}" for k, v in summary.items()))
         if memory:
             print(f"   memory: {memory}")
         print(f"   wrote {path.relative_to(ROOT) if path.is_relative_to(ROOT) else path}")

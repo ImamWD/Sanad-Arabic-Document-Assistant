@@ -214,7 +214,6 @@ def has_fact(text: str, facts: list[str]) -> bool:
 
 def build(spec: dict) -> dict:
     pool = [c for doc in spec["pool"] for c in doc_chunks(doc)]
-    by_key = {(c["doc_id"], c["page"], c["chunk"]): c for c in pool}
     selected: list[dict] = []
 
     def take(chunk: dict) -> None:
@@ -253,7 +252,7 @@ def build(spec: dict) -> dict:
         target["text"] = "\n\n".join(paras)
         target["injected"] = True
 
-    random.Random(spec["id"]).shuffle(excerpts)  # gold position varies, deterministically
+    random.Random(spec["id"]).shuffle(excerpts)  # noqa: S311 - gold position varies, deterministically
     for n, e in enumerate(excerpts, start=1):
         e["n"] = n
         e["supports"] = bool(spec["must_include"]) and has_fact(e["text"], spec["must_include"])
@@ -261,10 +260,12 @@ def build(spec: dict) -> dict:
         del e["chunk"]
 
     if spec["expected_outcome"] == "no_answer":
-        assert not any(e["supports"] for e in excerpts)
+        if any(e["supports"] for e in excerpts):
+            raise SystemExit(f"{spec['id']}: an excerpt answers an unanswerable question")
     else:
         for fact in spec["must_include"]:
-            assert any(has_fact(e["text"], [fact]) for e in excerpts), (spec["id"], fact)
+            if not any(has_fact(e["text"], [fact]) for e in excerpts):
+                raise SystemExit(f"{spec['id']}: no excerpt holds {fact}")
 
     blocks = []
     for e in excerpts:

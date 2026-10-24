@@ -37,12 +37,12 @@ def pack(args: argparse.Namespace) -> None:
             if text and text != "NO_ANSWER":
                 answers[r["id"]].append({"model": run["run"]["model"], "provider": run["run"]["provider"],
                                          "label": run["run"]["label"], "text": text})
-    rng = random.Random(secrets.randbits(64))  # unrecoverable order: the reviewer can't re-derive it
+    rng = random.Random(secrets.randbits(64))  # noqa: S311 - shuffling, not crypto; the seed is not saved
     flat = [(pid, a) for pid in answers for a in answers[pid]]
     ids = [f"A{n:02d}" for n in range(1, len(flat) + 1)]
     rng.shuffle(ids)
     mapping = {}
-    for (pid, a), aid in zip(flat, ids):
+    for (pid, a), aid in zip(flat, ids, strict=True):
         a["id"] = aid
         mapping[aid] = {"prompt": pid, "model": a["model"], "provider": a["provider"], "label": a["label"]}
 
