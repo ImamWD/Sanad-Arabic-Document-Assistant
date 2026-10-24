@@ -1,6 +1,8 @@
 """DOCX/TXT -> PDF with LibreOffice, the way the C1b checker does it (conversion parity)."""
 
+import ast
 import io
+import re
 import subprocess
 import zipfile
 from pathlib import Path
@@ -34,12 +36,13 @@ def test_text_that_is_not_text_is_refused() -> None:
 
 def test_checker_and_worker_use_the_same_settings() -> None:
     checker = Path(__file__).resolve().parents[3] / "scripts" / "check_eval.py"
-    if not checker.is_file():
-        pytest.skip("scripts/check_eval.py arrives with C1b")
     source = checker.read_text(encoding="utf-8")
-    assert f'TXT_INFILTER = "{convert.TXT_INFILTER}"' in source
-    assert f"TXT_ENCODINGS = {convert.TXT_ENCODINGS!r}" in source
+    assert f'"{convert.TXT_INFILTER}"' in source
+    encodings = re.search(r"^TXT_ENCODINGS = (\(.*\))$", source, re.M)
+    assert encodings is not None
+    assert ast.literal_eval(encodings.group(1)) == convert.TXT_ENCODINGS
     assert '"--headless"' in source and '"--norestore"' in source
+    assert '.replace("\\r\\n", "\\n")' in source  # CRLF to LF before LibreOffice
 
 
 def page_count(pdf: Path) -> int:
