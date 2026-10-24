@@ -82,6 +82,13 @@ MATRIX: list[Row] = [
         fill={"user_id": "viewer_id"},
     ),
     # --- B3 ---
+    Row(
+        "POST",
+        "/api/documents",
+        EDITORS,
+        {"title": "Matrix upload", "restricted": "false"},
+        files={"file": ("matrix-upload.pdf", b"%PDF-1.4 matrix upload", "application/pdf")},
+    ),
     Row("GET", "/api/documents", SIGNED_IN),
     Row("GET", "/api/documents/{document_id}", SIGNED_IN, fill={"document_id": "document_id"}),
     Row(
