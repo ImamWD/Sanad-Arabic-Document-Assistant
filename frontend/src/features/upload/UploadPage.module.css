@@ -209,12 +209,19 @@
   inline-size: 10rem;
 }
 
-.server,
-.rejected {
+.server {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: var(--space-2);
+}
+
+/* Like a failed document's status: the badge, then the reason under it. */
+.rejected {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
 }
 
 .reason {

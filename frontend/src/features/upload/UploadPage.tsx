@@ -11,7 +11,7 @@ import { useFormat } from '../../lib/useFormat';
 import { viewerPath } from '../library/api';
 import { MAX_YEAR, MIN_YEAR, parseYear } from '../library/filters';
 import { programmeName, useProgrammes } from '../library/labels';
-import { DocumentStatus } from '../library/StatusBadge';
+import { DocumentStatus, StatusBadge } from '../library/StatusBadge';
 import type { Category, UploadDetails } from '../library/types';
 import { CATEGORIES } from '../library/types';
 import styles from './UploadPage.module.css';
@@ -119,10 +119,11 @@ function FileRow({ item }: { item: UploadItem }) {
   const { t } = useTranslation();
   const format = useFormat();
   const errorMessage = useErrorMessage();
-  const size = format.number(item.file.size / 1024, {
+  const megabytes = item.file.size >= 1024 * 1024;
+  const size = format.number(item.file.size / (megabytes ? 1024 * 1024 : 1024), {
     style: 'unit',
-    unit: 'kilobyte',
-    maximumFractionDigits: 0,
+    unit: megabytes ? 'megabyte' : 'kilobyte',
+    maximumFractionDigits: 1,
   });
 
   let state;
@@ -146,6 +147,7 @@ function FileRow({ item }: { item: UploadItem }) {
         : undefined;
     state = (
       <span className={styles.rejected}>
+        <StatusBadge status="failed" />
         <span className={styles.reason} data-error-code={(item.error as ApiError | null)?.code}>
           {errorMessage(item.error)}
         </span>

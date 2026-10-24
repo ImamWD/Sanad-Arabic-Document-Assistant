@@ -56,9 +56,11 @@
   border-style: dashed;
 }
 
-/* Amber, like the low-confidence banner: something needs a person's attention. */
+/* Amber, like the low-confidence banner: something needs a person's attention. It may wrap
+   in a narrow column, so it is a box rather than a pill. */
 .flag {
   border-color: #d98e04;
+  border-radius: var(--radius-2);
   background: #fff7e6;
   color: #6b4300;
   white-space: normal;
