@@ -1,0 +1,22 @@
+#!/bin/sh
+# html2pdf <input.html> <output.pdf>
+# Print a local HTML file to PDF with headless Chromium (HarfBuzz shaping, embedded fonts).
+set -eu
+if [ $# -ne 2 ]; then
+  echo "usage: html2pdf <input.html> <output.pdf>" >&2
+  exit 2
+fi
+in=$(realpath "$1")
+out=$2
+mkdir -p "$(dirname "$out")"
+chromium \
+  --headless \
+  --no-sandbox \
+  --disable-gpu \
+  --disable-dev-shm-usage \
+  --no-first-run \
+  --user-data-dir=/tmp/chromium-profile \
+  --no-pdf-header-footer \
+  --print-to-pdf="$out" \
+  "file://$in" 2>/tmp/chromium.log || { cat /tmp/chromium.log >&2; exit 1; }
+test -s "$out"
