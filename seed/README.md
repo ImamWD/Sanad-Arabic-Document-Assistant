@@ -402,6 +402,13 @@ soffice --headless --norestore -env:UserInstallation=file:///tmp/<profile> \
   "--infilter=Text (encoded):UTF8,LF,,," --convert-to pdf --outdir <out> <file>.txt
 ```
 
+**DOCX page numbers depend on the converter.** Headline items T06, T07, T08 and T12 (and dev items D10 and D15) cite DOCX pages. Those numbers come from LibreOffice 25.2 (the `render` image's Debian snapshot) laying out the DOCX with these fonts:
+- Noto Naskh Arabic
+- Noto Serif
+- DejaVu Sans, as the fallback for Latin digits and punctuation inside Arabic runs (`pdffonts` lists it)
+
+A worker that lacks those fonts, or runs another LibreOffice version, can paginate differently and silently break those citations. B3 should install the same fonts and run `check_eval.py` against the worker image.
+
 Without the decode step, LibreOffice reads the Windows-1256 file as mojibake. TXT import sets the text in Liberation Mono, with DejaVu Sans Mono for Arabic. In that font, lam-alef extracts reversed with both poppler and pdfium (دولار comes out as `دوالر`). No eval fact on a TXT page contains lam-alef, but B3 and S4 should look at the TXT import font.
 
 ### Check
