@@ -6,7 +6,7 @@ import { apiFetch } from '../lib/api';
 import iconStyles from '../lib/Icon.module.css';
 import ar from '../locales/ar.json';
 import en from '../locales/en.json';
-import { apiError, GUEST, renderApp, testUser } from './test-utils';
+import { apiError, GUEST, json, renderApp, testUser } from './test-utils';
 
 beforeEach(() => {
   localStorage.clear();
@@ -168,6 +168,26 @@ describe('header', () => {
     expect(await screen.findByRole('button', { name: ar.auth.login.submit })).toBeDefined();
     expect(router.state.location.pathname).toBe('/login');
     expect(calls.some((c) => c.method === 'POST' && c.path === '/api/auth/logout')).toBe(true);
+  });
+
+  it('after signing out, the next sign-in lands on Ask, not the previous page', async () => {
+    const actor = userEvent.setup();
+    const user = testUser('admin');
+    const { router } = await renderApp({
+      path: '/library',
+      user,
+      handlers: {
+        'POST /api/auth/logout': () => new Response(null, { status: 204 }),
+        'POST /api/auth/guest': () => json(200, GUEST),
+      },
+    });
+
+    await actor.click(await screen.findByRole('button', { name: user.name }));
+    await actor.click(await screen.findByRole('menuitem', { name: ar.shell.user.signOut }));
+    await actor.click(await screen.findByRole('button', { name: ar.auth.login.guest }));
+
+    expect(await screen.findByRole('heading', { name: ar.pages.ask.title })).toBeDefined();
+    expect(router.state.location.pathname).toBe('/ask');
   });
 
   it('labels a guest as a guest', async () => {
