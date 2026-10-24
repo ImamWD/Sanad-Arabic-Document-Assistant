@@ -720,5 +720,241 @@
    }
   ],
   "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "qwen3.5:4b-q4_K_M": {
+  "model": "qwen3.5:4b-q4_K_M",
+  "architecture": "qwen35",
+  "quantization": "Q4_K_M",
+  "gguf_license": "apache-2.0",
+  "gguf_license_link": "https://huggingface.co/Qwen/Qwen3.5-4B/blob/main/LICENSE",
+  "license_text_first_line": "Apache License",
+  "parameter_size": "4.2B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 2.64,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 2.638,
+  "active_params_b": 4.21,
+  "kv_layers": [
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
+ },
+ "gemma4:e4b-it-qat": {
+  "model": "gemma4:e4b-it-qat",
+  "architecture": "gemma4",
+  "quantization": "Q4_0",
+  "gguf_license": null,
+  "gguf_license_link": null,
+  "license_text_first_line": "Apache License",
+  "parameter_size": "7.5B",
+  "moe": false,
+  "experts": null,
+  "weights_gb_total": 5.14,
+  "vision_audio_gb": 0.0,
+  "read_per_token_gb": 2.827,
+  "active_params_b": 4.64,
+  "kv_layers": [
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 2048,
+    "window": 512
+   },
+   {
+    "bytes_per_token": 4096,
+    "window": null
+   }
+  ],
+  "kv_note": "f16 KV; sliding-window layers capped at the window; hybrid recurrent layers excluded"
  }
 }

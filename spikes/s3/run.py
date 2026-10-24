@@ -182,13 +182,15 @@ def first_content_seen(content: str) -> bool:
 
 class Ollama:
     def __init__(self, target: str, num_ctx: int, num_predict: int, cpu: bool, seed: int, keep_alive: str,
-                 num_thread: int | None = None):
+                 num_thread: int | None = None, use_mmap: bool | None = None):
         self.base = target.rstrip("/")
         self.options: dict[str, Any] = {"temperature": 0, "seed": seed, "num_ctx": num_ctx, "num_predict": num_predict}
         if cpu:
             self.options["num_gpu"] = 0
         if num_thread:
             self.options["num_thread"] = num_thread
+        if use_mmap is not None:
+            self.options["use_mmap"] = use_mmap
         self.keep_alive = keep_alive
 
     def version(self) -> str:
@@ -426,6 +428,8 @@ def main() -> None:
     ap.add_argument("--target", default=None, help="Ollama base URL (default $OLLAMA_BASE_URL) or OpenAI-compatible base URL")
     ap.add_argument("--cpu", action="store_true", help="Ollama only: options.num_gpu = 0 (CPU-only timings)")
     ap.add_argument("--num-thread", type=int, default=None, help="Ollama only: options.num_thread (default: Ollama's choice)")
+    ap.add_argument("--use-mmap", choices=["true", "false"], default=None,
+                    help="Ollama only: options.use_mmap (CPU mode defaults to off, which loads every weight as private memory)")
     ap.add_argument("--label", default=None, help="hardware label stored with the results, e.g. 'Apple M5 GPU (Metal)'")
     ap.add_argument("--num-ctx", type=int, default=8192)
     ap.add_argument("--num-predict", type=int, default=768)
@@ -473,7 +477,8 @@ def main() -> None:
     else:
         target = args.target or os.environ.get("OLLAMA_BASE_URL") or "http://host.docker.internal:11434"
         check_url(target)
-        client = Ollama(target, args.num_ctx, args.num_predict, args.cpu, args.seed, args.keep_alive, args.num_thread)
+        client = Ollama(target, args.num_ctx, args.num_predict, args.cpu, args.seed, args.keep_alive, args.num_thread,
+                        None if args.use_mmap is None else args.use_mmap == "true")
         label = args.label or ("CPU only (num_gpu=0)" if args.cpu else "default offload")
         server_version = client.version()
 

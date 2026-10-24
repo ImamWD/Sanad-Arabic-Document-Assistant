@@ -1,0 +1,27 @@
+{
+ "date": "2026-10-24",
+ "host": "Apple M5, 24 GB unified memory; Docker Desktop VM 7.748 GiB (docker info); Ollama 0.40.10",
+ "method": {
+  "linux_container": "spikes/s3/container_mem.sh: ollama/ollama:0.40.10 (image 4c5b27871a32) with --memory=--memory-swap=<limit>, host model store mounted read-only, run.py --cpu over P01-P03, then cgroup v2 memory.peak / memory.current / memory.stat. 'anon' cannot be reclaimed; 'file' is page cache of the mapped GGUF and can be.",
+  "macos_host_cpu": "host Ollama with options.num_gpu=0, then spikes/s3/footprint.sh (macOS phys_footprint of llama-server: dirty memory, excludes clean mapped file pages)."
+ },
+ "linux_container": [
+  {"model": "gemma4:e4b-it-qat", "limit": "7g", "use_mmap": false, "prompts": "P01", "oom_killed": false, "anon_gib": 6.82, "file_gib": 0.01, "peak_gib": 6.88, "docker_stats_gib": 6.831, "pass": "1/1"},
+  {"model": "gemma4:e4b-it-qat", "limit": "7g", "use_mmap": true, "prompts": "P01", "oom_killed": false, "anon_gib": 4.10, "file_gib": 1.09, "peak_gib": 6.29, "docker_stats_gib": 4.455, "pass": "1/1"},
+  {"model": "gemma4:e4b-it-qat", "limit": "4608m", "use_mmap": true, "prompts": "P01-P03", "oom_killed": true, "anon_gib": 4.22, "file_gib": 0.14, "peak_gib": 4.50, "docker_stats_gib": 4.339, "pass": "2/3", "note": "runner OOM-killed during P01 (error: unexpected EOF); Ollama restarted it and P02, P03 passed"},
+  {"model": "s3-gemma4-e4b-text (gemma4:e4b-it-qat without its 0.99 GB vision/audio projector)", "limit": "4608m", "use_mmap": true, "prompts": "P01-P03", "oom_killed": false, "anon_gib": 3.40, "file_gib": 1.07, "peak_gib": 4.50, "docker_stats_gib": 4.025, "pass": "3/3",
+   "timing_s": {"P01": 64.43, "P02": 50.06, "P03": 39.87}, "note": "peak equals the limit because page cache fills to it; no OOM. Container CPU threads were Ollama's default for the 10-vCPU VM."}
+ ],
+ "macos_host_cpu": [
+  {"model": "gemma4:12b-it-qat", "use_mmap": "default (off on CPU)", "api_ps_gb": 8.81, "phys_footprint_gb": 10.0, "note": "RSS was ~17 GB earlier in the session: it included clean mapped GGUF pages; footprint is the dirty part"},
+  {"model": "qwen3.5:4b-q4_K_M", "use_mmap": "default (off on CPU)", "api_ps_gb": 3.90, "phys_footprint_gb": 6.9, "note": "includes its 0.68 GB vision projector"},
+  {"model": "gemma4:e4b-it-qat", "use_mmap": "default (off on CPU)", "api_ps_gb": 6.10, "phys_footprint_gb": 8.19},
+  {"model": "gemma4:e4b-it-qat", "use_mmap": true, "api_ps_gb": 3.18, "phys_footprint_gb": 4.44, "note": "P01, P02 answers and timings unchanged (34.8 s, 46.7 s)"}
+ ],
+ "text_only_variant_check": "s3-gemma4-e4b-text on M5 Metal, all 10 prompts: answer text byte-identical to gemma4:e4b-it-qat (10/10)",
+ "other_stack_services_observed": {
+  "source": "docker stats of a running Sanad dev stack (another worktree, B3-era) on this Mac, 24 Oct",
+  "api_mib": 74.2, "db_mib": 66.6, "web_mib": 10.2, "worker_mib": 313.7, "ml_gib_docker_stats": 2.038,
+  "ml_note": "B3 hand-over: ml int8 ONNX (bge-m3 + bge-reranker-v2-m3) ~1.45 GiB RSS, +0.2 GiB peak during inference; docker stats adds ~0.5 GiB reclaimable page cache"
+ }
+}
