@@ -17,8 +17,8 @@ REFUSAL = {
     "en": "I couldn't find an answer to this in the available documents.",
 }
 LOW_CONFIDENCE = {
-    "ar": "هذه الإجابة مبنية على مصادر قد لا تتطابق تماماً مع سؤالك — راجع المصادر قبل الاعتماد عليها.",  # noqa: E501 - approved copy, kept on one line
-    "en": "This answer is based on sources that may not fully match your question — check them before relying on it.",  # noqa: E501 - approved copy, kept on one line
+    "ar": "هذه الإجابة مبنية على مصادر قد لا تتطابق تماماً مع سؤالك. راجع المصادر قبل الاعتماد عليها.",  # noqa: E501 (approved copy, kept on one line)
+    "en": "This answer is based on sources that may not fully match your question. Check them before relying on it.",  # noqa: E501 (approved copy, kept on one line)
 }
 
 

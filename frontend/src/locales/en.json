@@ -25,6 +25,6 @@
   },
   "answer": {
     "refusal": "I couldn't find an answer to this in the available documents.",
-    "lowConfidence": "This answer is based on sources that may not fully match your question — check them before relying on it."
+    "lowConfidence": "This answer is based on sources that may not fully match your question. Check them before relying on it."
   }
 }
