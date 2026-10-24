@@ -107,7 +107,8 @@ def test_english_seed_question_is_answered_with_its_citation(sign_in: Any) -> No
 
 def test_unanswerable_question_is_refused(sign_in: Any) -> None:
     result = ask(
-        sign_in("guest"), "How many weeks of paid maternity leave do the foundation's employees get?"
+        sign_in("guest"),
+        "How many weeks of paid maternity leave do the foundation's employees get?",
     )
     assert result["outcome"] == "no_answer", result
     assert result["answer"] is None and result["citations"] == []
@@ -157,8 +158,10 @@ def test_guest_stream_order(sign_in: Any) -> None:
     with client.stream(
         "POST",
         "/ask/stream",
-        json={"question": "How many safe water points were actually completed under the first "
-              "rural water project in the Eastern Plateau?"},
+        json={
+            "question": "How many safe water points were actually completed under the first "
+            "rural water project in the Eastern Plateau?"
+        },
         headers={"Accept": "text/event-stream"},
     ) as response:
         assert response.status_code == 200
