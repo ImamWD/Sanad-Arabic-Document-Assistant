@@ -52,7 +52,7 @@ def test_thresholds_are_inclusive(text: str, language: str) -> None:
     assert detect_language(text) == language
 
 
-@pytest.mark.parametrize("text", ["", "2021", "1,250 — 52%", TATWEEL * 3])
+@pytest.mark.parametrize("text", ["", "2021", "1,250 (52%)", TATWEEL * 3])
 def test_no_letters_is_mixed(text: str) -> None:
     assert detect_language(text) == "mixed"
 
