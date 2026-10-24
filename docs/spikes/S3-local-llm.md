@@ -2,12 +2,27 @@
 
 Spike report, 24 Oct 2026. Roadmap task S3. The scripts, prompts and raw results are in [`spikes/s3/`](../../spikes/s3/).
 
+> **Re-scope note.** This spike ran to the original S3 brief: a production model for a 24 GB GPU and a CPU demo model.
+>
+> On 25 Oct, `docs/BUILD_PLAN.md` re-scoped the build to a two-week portfolio build with everything GPU deferred. S3 became: *which default model fits the **whole stack in ~8 GB of Docker memory** with acceptable quality, plus an optional larger model for GPU hosts such as the owner's RTX 5080.*
+>
+> What this spike's data says about the new question:
+> - **The Gemma models don't fit an 8 GB stack in CPU mode.** llama.cpp repacks Q4_0 weights for the CPU, so RAM is ~2× the file. gemma4:12b's `llama-server` used ~17 GB; the 26B would need ~30 GB.
+> - **qwen3.5:9b is too tight.** `/api/ps` showed 6.45 GB in CPU mode, before `ml` (bge-m3 plus the reranker) and Postgres.
+> - **So the 8 GB default needs a ~4B-class model, which was not tested here.** Candidates: `qwen3.5:4b-q4_K_M` (3.3 GB), `gemma4:e4b-it-qat` (6.1 GB with its vision and audio towers). The same `run.py` answers that in about an hour.
+> - **Larger model for a GPU host:** `gemma4:26b-a4b-it-qat` is the best model here. It fits a 16 GB RTX 5080 on its own (15.4 GB at an 8k context, est.), but not with `ml` also on the card. `gemma4:12b-it-qat` (~8 GB) fits with `ml`.
+> - **Client server, now known** (BUILD_PLAN Q8): Dell T440, 2× Xeon Silver 4208 (Cascade Lake, 8 cores each at 2.1 GHz base), 495 W PSU, no spare GPU power connectors.
+>   - Its CPU is not obviously faster than the M5's 4 performance cores, so the M5 CPU timings below are **not** a pessimistic bound for it.
+>   - A card for it would have to be slot-powered (e.g. the 70 W RTX PRO 4000 SFF). That favours the MoE even more, since it reads ~2.7 GB per token against ~9.6 GB for a dense 14B.
+>
+> The sections below are kept as measured. The GPU projection is now background for the client's calendar, not a build deliverable.
+
 ## Recommendations
 
 | Role | Model (pinned Ollama tag) | Why |
 |---|---|---|
 | **Production model** (RTX PRO 4000 Blackwell 24 GB) | **`gemma4:26b-a4b-it-qat`** (Gemma 4 26B-A4B, mixture-of-experts, QAT 4-bit, Apache 2.0) | Best quality in the test. On the base prompt it is the only model with **both** exact `NO_ANSWER` refusals (3/3) **and** no hijack by the injected instruction (with the sandwich prompt the 12B does both too). It also had the best blind grounding (no unsupported claim) and the joint-best Arabic fluency: 4.5/5 on 4 answers, against qwen3.5's 4.4 on 7. It is also by far the fastest: only ~3.8 B of its 25 B parameters run per token. **Estimated** p90 on the card is **~3.3 s** including retrieval, against a 15 s target. It needs ~15.4 GB at an 8k context, which leaves ~10 GB of the card: room for `ml` (~3 GB) and a longer context. |
-| **CPU demo model** (weeks 1–8) | **`gemma4:12b-it-qat`** (Gemma 4 12B, QAT 4-bit, Apache 2.0), **unless** the 26B measures inside the 30–90 s band on an x86 CPU (see below) | The best *measured* CPU option with exact refusals: 9/10, 3/3 `NO_ANSWER`, and 10/10 with the sandwich prompt. It is the same family, tokenizer and chat template as the production model, so the week-8 gap should be small. On the M5's 4 performance cores it took a **median 93 s and p90 105 s**, slightly above the band. The client's 16 cores should be faster at prompt processing, which is 93–97% of the time, but that is not measured. |
+| **CPU demo model** (weeks 1–8) | **`gemma4:12b-it-qat`** (Gemma 4 12B, QAT 4-bit, Apache 2.0), **unless** the 26B measures inside the 30–90 s band on an x86 CPU (see below) | The best *measured* CPU option with exact refusals: 9/10, 3/3 `NO_ANSWER`, and 10/10 with the sandwich prompt. It is the same family, tokenizer and chat template as the production model, so the week-8 gap should be small. On the M5's 4 performance cores it took a **median 93 s and p90 105 s**, slightly above the band. Prompt processing is 93–97% of that time; how the client's 2× Xeon Silver 4208 compares is not measured. |
 
 **Open point: no measured candidate meets both CPU-demo requirements.** On the M5's 4 performance cores:
 - `gemma4:12b-it-qat` has exact refusals but is slightly out of the 30–90 s band (p90 105 s).
@@ -85,7 +100,7 @@ Conditions, so nobody over-reads these:
 - **M5 CPU**: `options.num_gpu = 0`. Ollama used **4 threads** (the performance cores; `n_threads = 4` in its log).
   - Other sessions' containers kept the load average at 4–10, and swap was nearly full during some runs.
   - A 10-thread run of gemma4:12b (3 prompts, kept in `results/reference/Apple_M5_CPU_10_threads/`) was **slower** (generation 0.3–3.7 tok/s, load average 30): the efficiency cores and contention hurt.
-  - These are **indicative only** for the client's 16-core x86 server.
+  - These are **indicative only** for the client's server (2× Xeon Silver 4208, 16 cores at 2.1 GHz base). It isn't obviously faster than the M5's 4 performance cores.
   - CPU outcomes matched the Metal outcomes prompt for prompt for every model.
 - **Tokenizers matter for Arabic speed.** The same Arabic prompt is 3,672 tokens for Qwen3.5, 4,059 for Gemma 4, 4,254 for Qwen3 and 4,542 for Command R7B. English prompts are ~3,000 for all of them.
 - **Answers are short.** The median is 24–74 output tokens, and the longest answer was 115 tokens. The research note assumed ~300. So prompt processing, not generation, dominates the time: 93–97% of it on CPU.
@@ -119,8 +134,7 @@ The `gemma4:31b` row is a back-of-envelope figure: ~19 GB of 4-bit weights and 3
     - 9B: ~69 s median
     - 12B: ~93 s median
     - 14B: ~155 s median
-  - Prompt processing is 93–97% of that, and it scales with cores and SIMD width. The client's 16-core x86 server is unmeasured.
-  - The "30–90 s" band is plausible there for the 9–12B models and possibly for the 26B MoE.
+  - Prompt processing is 93–97% of that. The client's 2× Xeon Silver 4208 is unmeasured, and the "30–90 s" band is not assured there.
 - **Memory (D2's table, SYSTEM_DESIGN §10).**
   - On CPU, llama.cpp **repacks 4-bit (Q4_0) weights**, so RAM is about **2× the file size** plus KV:
     - gemma4:12b's `llama-server` used ~17 GB in CPU mode
