@@ -64,7 +64,7 @@ def register_seed_documents(db: Session, settings: Settings) -> None:
     )
 
     added = missing = 0
-    for entry in manifest["documents"]:
+    for entry in manifest.get("documents", []):
         filename = str(entry["file"])
         if filename in registered:
             continue

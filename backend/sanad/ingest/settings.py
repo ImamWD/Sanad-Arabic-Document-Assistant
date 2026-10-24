@@ -41,9 +41,6 @@ class IngestSettings(BaseSettings):
     embed_batch_size: int = Field(default=8, ge=1, le=256)
     ml_timeout_seconds: float = Field(default=300, gt=0)
 
-    # Seed corpus (registered by `python -m sanad.init`): manifest + rendered files.
-    seed_dir: Path = Path("/app/seed")
-
     @property
     def chunk_params(self) -> ChunkParams:
         return ChunkParams(
