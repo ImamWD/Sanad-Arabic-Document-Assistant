@@ -168,6 +168,14 @@ def page_anchors(src: SourceWords, n: int = 4) -> list[str]:
     return list(dict.fromkeys(head + tail))
 
 
+def page_drift(source: str, rendered: str) -> list[str] | None:
+    """Anchors of a source page missing from a rendered page; None if it has too few."""
+    anchors = page_anchors(source_words(source))
+    if len(anchors) < 2:
+        return None
+    return [w for w in anchors if not on_page(w, rendered)]
+
+
 def on_page(anchor: str, page_text: str) -> bool:
     """Words ignore whitespace (pdfium puts spaces after non-joining letters: و يعمل);
     numbers match whole."""
@@ -278,15 +286,17 @@ def check_corpus(
         if got != expected:
             continue
         for number, (source, rendered) in enumerate(zip(pages, texts[file], strict=True), 1):
-            words = source_words(source)
-            anchors = page_anchors(words)
-            missing = [w for w in anchors if not on_page(w, rendered)]
-            report.check(
-                len(anchors) >= 2 and not missing,
-                f"{file} p{number}: page text drifted, missing {missing} of {anchors}",
-            )
-            report.fidelity_words += len(words.words)
-            report.fidelity_found += sum(w in rendered for w in words.words)
+            missing = page_drift(source, rendered)
+            report.check(missing == [], f"{file} p{number}: page text drifted, missing {missing}")
+            words = source_words(source).words
+            report.fidelity_words += len(words)
+            report.fidelity_found += sum(w in rendered for w in words)
+        # Negative control: compared with the next page's text, every page must look drifted.
+        if expected > 1:
+            shifted = texts[file][1:] + texts[file][:1]
+            pairs = enumerate(zip(pages, shifted, strict=True), 1)
+            blind = [n for n, pair in pairs if page_drift(*pair) == []]
+            report.check(not blind, f"{file}: drift check blind to a page shift on pages {blind}")
 
 
 def check_items(

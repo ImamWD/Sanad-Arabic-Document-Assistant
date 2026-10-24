@@ -9,7 +9,9 @@ This folder holds Sanad's demo and evaluation corpus. It is a set of **synthetic
 | `sources/<doc_id>.md` | Authoring source of each document: YAML front matter plus page-marked body | C1a |
 | `manifest.json` | Organisation, programmes and one metadata entry per document. **The manifest is authoritative.** | C1a |
 | `documents/` | Rendered files (PDF, DOCX, TXT), one per manifest entry | C1b |
-| `bad/` | Ingestion failure fixtures | C1b |
+| `bad/` | Ingestion failure fixtures (see [`bad/README.md`](bad/README.md)) | C1b |
+| `previews/` | PNGs of three rendered pages: an Arabic PDF, an English PDF, and a DOCX after LibreOffice conversion | C1b |
+| `render.py` | Renders `sources/` into `documents/`, `bad/` and `previews/` (`make render-seed`); see §6 | C1b |
 
 ---
 
@@ -170,7 +172,7 @@ No raw HTML other than the page markers. No images.
 |---|---|---|
 | `ar` | RTL | inherits RTL |
 | `en` | LTR | inherits LTR |
-| `mixed` | RTL | each paragraph, list item and table cell gets `dir="auto"`, so English clauses render LTR |
+| `mixed` | RTL | each paragraph, list item and table cell takes the direction of its first strong character (what `dir="auto"` computes), so English clauses render LTR. See §6 for the clause isolation. |
 
 ### Per-format rendering notes for C1b
 
@@ -187,7 +189,7 @@ No raw HTML other than the page markers. No images.
 - The body is **plain text**, with no Markdown tables or `#` headings (lists use `-` or `1.`). Copy it verbatim after dropping the front matter.
 - Replace each page marker with a **form feed (U+000C)** between pages: no form feed before page 1 and none at the end.
 - Encode the file as the manifest `encoding` says: `utf-8` (no BOM) or `windows-1256`.
-- **Risk:** it is not yet verified that LibreOffice's text import breaks pages at form feeds. If it doesn't, TXT page numbers will drift. C1b must check this, and if needed fall back to keeping TXT pages short enough to stay aligned.
+- **Verified (C1b):** LibreOffice's text import breaks pages at form feeds, so the converted PDF has one page per source page. It does **not** detect Windows-1256: the file comes out as mojibake unless ingestion decodes it first (§6).
 - **Eval exposure:** TXT pages are kept short (about 140–190 words). The headline set cites no TXT page. The dev set cites `board-minutes-2017-11` p2 twice (D04, D11), and both facts sit mid-page.
 
 ---
@@ -358,3 +360,66 @@ The corpus has 30 documents and 186 pages, dated 2015–2025:
   - YEP income broken down by gender (D19)
   - maternity leave (D20)
 - **New pages that repeat an eval fact:** if a new page contains an existing eval fact, add it to that item's `expected_citations`. Otherwise a correct answer citing the new page is scored wrong.
+
+---
+
+## 6. Rendering and checking (C1b)
+
+### Render
+
+`make render-seed` runs `seed/render.py` in the `render` tools image, with no network. It rewrites `documents/`, `bad/` and `previews/`, and **re-running it is byte-identical**:
+- PDF dates are pinned, the XMP packet is dropped and the file ID is deterministic.
+- DOCX core properties and zip timestamps are fixed.
+- The encrypted fixture uses a static ID and IV.
+
+It fails if any source's front matter differs from the manifest, if the page markers aren't `1..page_count`, or if any rendered page count differs from `page_count`. That last check counts DOCX and TXT pages on their LibreOffice conversion.
+
+| Format | How |
+|---|---|
+| `pdf` | Markdown subset → HTML → headless Chromium print. Each source page is one fixed A4 box (`210 × 297 mm`, `overflow: hidden`), so every marker is a page break and a page can never spill onto the next. Before printing, a script shrinks a box's type in 0.25 pt steps if its content doesn't fit, and the render fails if a page still overflows. No page in the current corpus needed shrinking. There is no page-number footer, because short numbers in a footer could satisfy a fact check by accident. |
+| `docx` | python-docx. `page_break_before` is set on the first paragraph of every page after the first (no page opens with a table). Paragraphs, runs, tables (`bidiVisual`) and the section are RTL. Arabic is set in the complex-script font slot (Noto Naskh Arabic), Latin in Noto Serif. Lists are written as text markers (`•`, `1.`), so numbering never runs on from an earlier list. |
+| `txt` | The body verbatim, a form feed between pages, encoded as the manifest says. The Windows-1256 file uses CRLF line ends, like a Notepad export. The UTF-8 file uses LF and has no BOM. |
+
+**Fonts.** Arabic in the PDFs is set in **Amiri** (Latin in Amiri's own Latin glyphs, with Noto Serif as fallback), and English documents in Noto Serif.
+- **Not Noto Naskh Arabic for PDFs.** It draws dotted letters as a base glyph plus dot glyphs. Chromium then wraps nearly every Arabic letter in an `/ActualText` span (about 2,300 per document), and pdfium (pypdfium2) extracts many words letter-reversed. Amiri maps letters to single glyphs.
+- **Amiri's optional ligatures are switched off** (`font-variant-ligatures`): pdfium dropped a letter from each one (تظ, مص…). Required ligatures (lam-alef) stay.
+- **Never KacstOne.** Its lam-meem ligature extracts as the wrong letters.
+
+**Mixed documents.** Each block's direction is set explicitly from its first strong character. Inside a block, clauses split at ` — `, ` / ` or a sentence end are each wrapped in `<bdi>`, so an English clause keeps its trailing punctuation and an Arabic clause its order. `dir="auto"` can't be used on the block itself: it skips text inside `<bdi>`, so a block whose every clause is isolated falls back to LTR.
+
+### How ingestion must convert DOCX and TXT
+
+The checker builds each viewer PDF the way ingestion must (SYSTEM_DESIGN §5.2), and B3 should do exactly the same:
+
+```sh
+# DOCX
+soffice --headless --norestore -env:UserInstallation=file:///tmp/<profile> \
+  --convert-to pdf --outdir <out> <file>.docx
+
+# TXT: decode in Python first (utf-8, then utf-8-sig, then cp1256), normalise CRLF to LF,
+# write the text as UTF-8, then:
+soffice --headless --norestore -env:UserInstallation=file:///tmp/<profile> \
+  "--infilter=Text (encoded):UTF8,LF,,," --convert-to pdf --outdir <out> <file>.txt
+```
+
+Without the decode step, LibreOffice reads the Windows-1256 file as mojibake. TXT import sets the text in Liberation Mono, with DejaVu Sans Mono for Arabic. In that font, lam-alef extracts reversed with both poppler and pdfium (دولار comes out as `دوالر`). No eval fact on a TXT page contains lam-alef, but B3 and S4 should look at the TXT import font.
+
+### Check
+
+```sh
+docker compose run --rm <container with LibreOffice and pypdfium2> \
+  python scripts/check_eval.py eval/questions.yaml eval/dev_questions.yaml
+```
+
+- **Corpus checks:** every source's front matter equals its manifest entry, and every viewer PDF has `page_count` pages. Each rendered page also holds its own source page's text: the first and last four reliable words of source page N must be on rendered page N. Words written with tashkeel or containing lam-alef aren't reliable, so they're skipped, and a page without enough words uses its numbers. Every run also has a negative control: compared with the next page's text, every page must fail this check, so a one-page shift can't go unnoticed.
+- **Eval checks:** the citation semantics of §4, plus no citation of a superseded document and no cited page beyond `page_count`.
+- **Matching:** facts match after folding digits (Latin, Arabic-Indic, Persian), Arabic separators, tashkeel, tatweel, presentation forms and bidi controls. Numbers match as whole numbers. The fold is local to the checker until B1's `sanad.text.arabic` merges.
+- **Informational line:** the share of source words that pypdfium2 extracts verbatim on their page. It is currently 95.9%.
+
+### Extraction findings for S1
+
+- **pypdfium2 mangles words written with tashkeel in Chromium PDFs.** Chromium wraps every base+mark cluster in `/ActualText`, and pdfium reorders letters around it.
+  - The fully diacritised foreword (`annual-report-2021` p2) comes out scrambled whatever the font. LibreOffice PDFs fail the same way.
+  - Poppler (`pdftotext`) extracts the same page in order, apart from stray spaces before hamza marks.
+- **pdfium inserts spaces after non-joining letters** (`و يعمل`), and **splits lam-alef-hamza** (الإلكتروني comes out as `لكتروني الإ`).
+- **pdfium doesn't mirror brackets** in RTL lines: `(اسم مستعار)` extracts as `) اسم مستعار(`.
