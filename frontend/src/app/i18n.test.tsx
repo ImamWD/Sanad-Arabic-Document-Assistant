@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ar from '../locales/ar.json';
 import en from '../locales/en.json';
-import { App } from './App';
 import { initI18n, LANGUAGE_STORAGE_KEY } from './i18n';
+import { LanguageSwitch } from './LanguageSwitch';
 
 function visit(search: string) {
   window.history.replaceState({}, '', `/${search}`);
@@ -71,10 +71,9 @@ describe('language switch', () => {
     const i18n = await initI18n();
     render(
       <I18nextProvider i18n={i18n}>
-        <App />
+        <LanguageSwitch />
       </I18nextProvider>,
     );
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(ar.app.title);
 
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: ar.language.switch }));
@@ -83,7 +82,6 @@ describe('language switch', () => {
 
     expect(htmlLangDir()).toEqual({ lang: 'en', dir: 'ltr' });
     expect(document.title).toBe(en.app.title);
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(en.app.title);
     expect(screen.getByRole('button', { name: en.language.switch }).lang).toBe('ar');
     expect(localStorage.getItem(LANGUAGE_STORAGE_KEY)).toBe('en');
     expect(fetchSpy).not.toHaveBeenCalled();

@@ -1,15 +1,90 @@
 {
   "app": {
-    "title": "Sanad — Document Assistant"
+    "title": "Sanad — Document Assistant",
+    "name": "Sanad"
   },
   "language": {
     "switch": "العربية"
+  },
+  "common": {
+    "loading": "Loading…"
+  },
+  "auth": {
+    "login": {
+      "intro": "Sign in to ask questions about the organisation's documents.",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "submitting": "Signing in…",
+      "missingFields": "Enter your email and password.",
+      "or": "or",
+      "guest": "Continue as guest",
+      "guestHint": "Guests can explore the sample documents only."
+    }
+  },
+  "shell": {
+    "skipToContent": "Skip to main content",
+    "nav": {
+      "label": "Main navigation",
+      "ask": "Ask",
+      "library": "Library",
+      "upload": "Upload",
+      "admin": "Admin"
+    },
+    "user": {
+      "signOut": "Sign out"
+    }
+  },
+  "roles": {
+    "viewer": "Viewer",
+    "editor": "Editor",
+    "admin": "Administrator",
+    "guest": "Guest"
+  },
+  "pages": {
+    "ask": {
+      "title": "Ask a question",
+      "body": "Ask about the organisation's documents and get answers with their sources. This screen is being built."
+    },
+    "library": {
+      "title": "Library",
+      "body": "Browse and search every document in the archive. This screen is being built."
+    },
+    "upload": {
+      "title": "Upload documents",
+      "body": "Add PDF, Word and text files to the library. This screen is being built."
+    },
+    "admin": {
+      "title": "Administration",
+      "body": "Manage users and review how the assistant is used. This screen is being built."
+    },
+    "document": {
+      "title": "Document",
+      "page": "Page {{page}}",
+      "body": "The document viewer is being built."
+    },
+    "notFound": {
+      "title": "Page not found",
+      "body": "Check the address, or go back to Ask."
+    },
+    "forbidden": {
+      "title": "You don't have access to this page",
+      "body": "Ask an administrator if you need it."
+    },
+    "backToAsk": "Go to Ask"
   },
   "errors": {
     "BAD_REQUEST": "The request could not be completed. Check the details and try again.",
     "NOT_FOUND": "The requested item was not found.",
     "METHOD_NOT_ALLOWED": "This action is not allowed.",
     "VALIDATION_ERROR": "Some fields are not valid. Review them and try again.",
-    "INTERNAL_ERROR": "Something went wrong on the server. Please try again later."
+    "INTERNAL_ERROR": "Something went wrong on the server. Please try again later.",
+    "INVALID_CREDENTIALS": "The email or password is incorrect.",
+    "RATE_LIMITED": "Too many attempts. Wait a moment and try again.",
+    "GUEST_DISABLED": "Guest access is turned off.",
+    "UNAUTHENTICATED": "Your session has ended. Sign in again.",
+    "FORBIDDEN": "You don't have permission to do this.",
+    "NETWORK_ERROR": "Could not reach the server. Check your connection and try again.",
+    "UNKNOWN_ERROR": "Something went wrong. Please try again."
   }
 }
