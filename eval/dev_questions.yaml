@@ -1,0 +1,246 @@
+# Sanad development (tuning) question set.
+#
+# Used for the chunk-size sweep and threshold tuning (DECISIONS D1, D4). It shares no
+# question and no answer fact with the headline set in eval/questions.yaml.
+# All answers come from the synthetic seed corpus in seed/sources (see seed/README.md).
+#
+# Conventions (full description in seed/README.md, "Evaluation sets"):
+# - `file` in expected_citations is the manifest `file` (the rendered file name), and
+#   `page` is the source page number (`<!-- page N -->`).
+# - must_include facts are written exactly as on the cited page, up to digit style
+#   (Latin vs Arabic-Indic) and diacritics/tatweel. Percentages are written as the bare
+#   number without the % / ٪ sign, because the sign's position flips in RTL extraction.
+# - Citation semantics: every must_include fact appears on EVERY listed page, except for
+#   items whose kinds include `cross_document`, where each fact appears on AT LEAST ONE
+#   listed page (the notes say which). Scoring accepts any one listed citation.
+# - expected_answer is a short human reference answer; it is not used for scoring.
+set: dev
+version: 1
+questions:
+  - id: D01
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما متوسط ما أنفقه برنامج الشباب مقابل كل شاب نجح فعلاً في الحصول على عمل خلال المرحلة الأولى؟"
+    must_include: ["1,910"]
+    expected_citations:
+      - {file: yep-final-evaluation-2022.pdf, page: 2}
+      - {file: yep-final-evaluation-2022.pdf, page: 6}
+    expected_outcome: answered
+    expected_answer: "نحو 1,910 دولارات أمريكية لكل فرصة عمل (إجمالي الإنفاق 2,870,000 مقسوماً على 1,503 ملتحقين بالعمل)."
+    vocab_shift: true
+    notes: "The evaluation calls this كلفة الفرصة الوظيفية الواحدة (p2 summary, p6 efficiency section). The question asks about spending per young person who got a job instead."
+  - id: D02
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم واحداً من شباب السنابل حصلوا على شغل بعد التدريب في المرحلة الأولى من البرنامج؟"
+    must_include: ["632"]
+    expected_citations:
+      - {file: yep-final-evaluation-2022.pdf, page: 5}
+    expected_outcome: answered
+    expected_answer: "632 متدرباً ومتدربة من محافظة السنابل التحقوا بسوق العمل، أي 41.0% من 1,540 متدرباً."
+    vocab_shift: true
+    notes: "Gender and governorate table on p5 (row محافظة السنابل). The question uses colloquial حصلوا على شغل where the page says الملتحقون بسوق العمل."
+  - id: D03
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم من الوقت كانت تستغرق رحلة إحضار الماء في قرى الهضبة الشرقية قبل بدء مشروع المياه؟"
+    must_include: ["74"]
+    expected_citations:
+      - {file: wash-baseline-survey-2017.pdf, page: 3}
+    expected_outcome: answered
+    expected_answer: "74 دقيقة في المتوسط ذهاباً وإياباً، وفق المسح المرجعي لعام 2017."
+    vocab_shift: true
+    notes: "Baseline survey p3: متوسط الوقت اللازم لجلب المياه ذهاباً وإياباً. The question speaks of the trip to fetch water before the project."
+  - id: D04
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما نسبة البيوت في قرى الهضبة الشرقية التي لم يكن لديها أي مرحاض على الإطلاق عام 2017؟"
+    must_include: ["18"]
+    expected_citations:
+      - {file: wash-baseline-survey-2017.pdf, page: 4}
+      - {file: board-minutes-2017-11.txt, page: 2}
+    expected_outcome: answered
+    expected_answer: "18% من الأسر لم يكن لديها أي مرفق للصرف الصحي (تغوط في العراء)."
+    vocab_shift: true
+    notes: "Survey p4 sanitation table (لا يوجد مرفق / التغوط في العراء), repeated in the November 2017 board minutes p2. The question says البيوت and مرحاض instead of الأسر and مرفق صرف صحي."
+  - id: D05
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم في المئة من العائلات في سهول النخيل تسكن على بعد يزيد على خمسة كيلومترات من أقرب مركز صحي؟"
+    must_include: ["46"]
+    expected_citations:
+      - {file: chp-household-survey-2021.pdf, page: 4}
+    expected_outcome: answered
+    expected_answer: "46% من الأسر."
+    vocab_shift: false
+    notes: "Household survey p4, access table. Close to the page wording; serves as an easier anchor item."
+  - id: D06
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم تدفع العائلة في سهول النخيل من جيبها كل شهر على العلاج والدواء تقريباً؟"
+    must_include: ["34"]
+    expected_citations:
+      - {file: chp-household-survey-2021.pdf, page: 4}
+    expected_outcome: answered
+    expected_answer: "نحو 34 دولاراً أمريكياً شهرياً في المتوسط."
+    vocab_shift: true
+    notes: "Survey p4: متوسط الإنفاق الشهري للأسرة على الصحة من مالها الخاص. The question says من جيبها and العلاج والدواء."
+  - id: D07
+    language: ar
+    kinds: [factual, numeric]
+    question: "في دراسة 2015 عن تعليم البنات في سهل القمر، كم مدرسة كانت تفتقر إلى حمّامات خاصة بالبنات؟"
+    must_include: ["٢٦"]
+    expected_citations:
+      - {file: gep-enrolment-survey-2015.pdf, page: 3}
+    expected_outcome: answered
+    expected_answer: "٢٦ مدرسة من أصل ٤٠ (٦٥٪)."
+    vocab_shift: true
+    notes: "Survey p3, school readiness section, written in Arabic-Indic digits. The page says دورات مياه منفصلة للفتيات; the question says حمامات خاصة بالبنات."
+  - id: D08
+    language: en
+    kinds: [factual, numeric, english]
+    question: "While schools were shut in 2020, roughly how many girls kept up their studies by following the radio broadcasts?"
+    must_include: ["2,400"]
+    expected_citations:
+      - {file: gep-midterm-evaluation-2020.pdf, page: 2}
+    expected_outcome: answered
+    expected_answer: "About 2,400 girls followed the radio lessons regularly."
+    vocab_shift: false
+    notes: "Mid-term evaluation executive summary p2 (Remote learning bullet)."
+  - id: D09
+    language: en
+    kinds: [factual, numeric, english, cross_lingual]
+    question: "How much did the foundation spend altogether in 2021?"
+    must_include: ["4,180,000"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 4}
+      - {file: annual-report-2021.pdf, page: 14}
+    expected_outcome: answered
+    expected_answer: "USD 4,180,000 in total expenditure."
+    vocab_shift: false
+    notes: "English question about the Arabic 2021 annual report: key-figures table p4 and expenditure table p14 (إجمالي النفقات)."
+  - id: D10
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما حجم الأموال التي دخلت المؤسسة خلال 2020 بحسب الحسابات بعد مراجعتها من المدقق؟"
+    must_include: ["3,560,000"]
+    expected_citations:
+      - {file: board-minutes-2021-06.docx, page: 2}
+    expected_outcome: answered
+    expected_answer: "3,560,000 دولار أمريكي إجمالي الإيرادات المدققة لعام 2020."
+    vocab_shift: true
+    notes: "Board minutes 2/2021 p2, item 2 (البيانات المالية المدققة). The page says إجمالي الإيرادات; the question asks how much money came in."
+  - id: D11
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما المبلغ الذي وافق مجلس الإدارة في خريف 2017 على طلبه من صندوق سدرة الوادي لمشروع المياه؟"
+    must_include: ["1,200,000"]
+    expected_citations:
+      - {file: board-minutes-2017-11.txt, page: 2}
+    expected_outcome: answered
+    expected_answer: "1,200,000 دولار أمريكي لمدة 36 شهراً (القرار 2017/4/1)."
+    vocab_shift: false
+    notes: "November 2017 board minutes (Windows-1256 TXT), p2, decision 2017/4/1."
+  - id: D12
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما نسبة الفتيات بين من أنهوا دورات برنامج التوظيف في 2021؟"
+    must_include: ["46"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 6}
+    expected_outcome: answered
+    expected_answer: "شكّلت الشابات 46% من المتدربين البالغ عددهم 1,240."
+    vocab_shift: true
+    notes: "Annual report 2021 p6. The page says الشابات and المتدربين الذين أتموا; the question says الفتيات and من أنهوا الدورات. It also calls the programme برنامج التوظيف."
+  - id: D13
+    language: en
+    kinds: [factual, numeric, english, cross_lingual, cross_document]
+    question: "How did girls' school enrolment in Sahl Al-Qamar in 2015 compare with the level reached in the target schools by the 2020 mid-term review?"
+    must_include: ["٥٨", "68"]
+    expected_citations:
+      - {file: gep-enrolment-survey-2015.pdf, page: 2}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 2}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 4}
+    expected_outcome: answered
+    expected_answer: "Girls' net enrolment was 58% across the governorate in 2015; in the 30 target schools it had reached 68% by October 2020 (from a 61% baseline in 2019)."
+    vocab_shift: false
+    notes: "Cross-document: ٥٨ is on the 2015 survey p2 (Arabic-Indic digits); 68 is on the mid-term evaluation p2 and p4. The two figures cover different populations (governorate vs target schools), which a good answer should say."
+  - id: D14
+    language: ar
+    kinds: [factual, numeric, temporal]
+    question: "كيف تغيّر عدد الذين خدمهم برنامج الصحة المجتمعية من 2020 إلى 2021؟"
+    must_include: ["3,370", "12,930"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 5}
+    expected_outcome: answered
+    expected_answer: "ارتفع من 3,370 مستفيداً في 2020 إلى 12,930 في 2021 بعد استئناف العيادات المتنقلة."
+    vocab_shift: false
+    notes: "Beneficiaries-by-programme table on annual report 2021 p5 holds both years."
+  - id: D15
+    language: ar
+    kinds: [factual, diacritics]
+    question: "فِي أَيِّ سَنَةٍ بَدَأَتِ المُؤَسَّسَةُ عَمَلَهَا؟"
+    must_include: ["2014"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 3}
+      - {file: annual-report-2021.pdf, page: 2}
+      - {file: gep-enrolment-survey-2015.pdf, page: 1}
+      - {file: board-minutes-2021-06.docx, page: 3}
+    expected_outcome: answered
+    expected_answer: "تأسست المؤسسة عام 2014."
+    vocab_shift: true
+    notes: "Fully diacritised question. Founding year on annual report 2021 p3 (تأسست) and in the diacritised foreword p2, the 2015 survey p1 (٢٠١٤) and the June 2021 minutes p3. The question says بدأت عملها instead of تأسست."
+  - id: D16
+    language: en
+    kinds: [factual, numeric, english, cross_lingual]
+    question: "How many people were on the foundation's payroll at the end of 2021?"
+    must_include: ["71"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 3}
+      - {file: annual-report-2021.pdf, page: 4}
+      - {file: annual-report-2021.pdf, page: 15}
+    expected_outcome: answered
+    expected_answer: "71 staff members (38 women and 33 men)."
+    vocab_shift: true
+    notes: "English question about the Arabic annual report: staff count on p3, p4 (key figures) and p15 (governance). The page says موظفاً وموظفة; the question says payroll."
+  - id: D17
+    language: ar
+    kinds: [factual, numeric, tatweel]
+    question: "كم استشارة طبية قدّمتها العيــادات المتنقلة خلال سنة 2021؟"
+    must_include: ["21,450"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 11}
+    expected_outcome: answered
+    expected_answer: "21,450 استشارة طبية."
+    vocab_shift: false
+    notes: "Question contains tatweel (العيــادات). Answer in the community-health section of the 2021 annual report p11, whose heading also uses tatweel (الصحـة)."
+  - id: D18
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "كم عدد الفتيات اللواتي دعمهن برنامج التعليم الأساسي في عام 2018؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss: the corpus has girls'-education figures for 2015, 2016 and 2019–2023, but no 2018 figure, actual or target. The nearest pages are the 2021 annual report p9 and the mid-term evaluation."
+  - id: D19
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "هل يختلف متوسط راتب الخريجات عن الخريجين في برنامج تمكين الشباب، وبكم؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss: the YEP evaluation p5 gives placement rates by gender and one overall average income (285 USD), but no income by gender. An answer that quotes 285 for both or derives a gap is wrong."
+  - id: D20
+    language: en
+    kinds: [unanswerable, english]
+    question: "How many weeks of paid maternity leave do the foundation's employees get?"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Out of scope: no document covers HR leave policy."

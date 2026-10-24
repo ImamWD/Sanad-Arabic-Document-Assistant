@@ -1,0 +1,307 @@
+# Seed corpus
+
+This folder holds Sanad's demo and evaluation corpus. It is a set of **synthetic** documents from a fictional NGO, written in Arabic and English. The guest account sees exactly this data, and the evaluation sets in [`eval/`](../eval) are answered from it.
+
+> **Everything here is fictional.** The organisation, donors, evaluators, governorates, villages, people, ID numbers and figures are all invented. People are always marked as pseudonyms (اسم مستعار / pseudonym). The only URLs are `example.org`, and the only emails are `@example.org`. No document is based on a real organisation's records.
+
+| Path | What it is | Written by |
+|---|---|---|
+| `sources/<doc_id>.md` | Authoring source of each document: YAML front matter plus page-marked body | C1a |
+| `manifest.json` | Organisation, programmes and one metadata entry per document. **The manifest is authoritative.** | C1a |
+| `documents/` | Rendered files (PDF, DOCX, TXT), one per manifest entry | C1b |
+| `bad/` | Ingestion failure fixtures | C1b |
+
+---
+
+## 1. The fictional world
+
+### Organisation
+
+The issuing organisation has exactly **two fixed name forms**. Both are defined in `manifest.json` under `organization`, so a later rename is a mechanical find-and-replace.
+
+| | Arabic | English |
+|---|---|---|
+| Name (only form used) | مؤسسة الريحان للتنمية | Al-Rayhan Development Foundation |
+| Short reference | المؤسسة | the Foundation |
+| HQ city | مدينة الريحان | Al-Rayhan |
+
+- **Founded:** 2014. Registration number `FAKE-REG-2014-0417`.
+- **Website:** https://example.org. Email: info@example.org.
+- **Name usage:** the name never appears in any other spelling, case ending or diacritised form. Diacritised passages say المؤسسة instead.
+- **Real client:** the client's real name is never used anywhere in this public repo (manager decision, 24 Oct 2026).
+
+### Currency and number conventions
+
+- **Currency:** all money is in **US dollars**: `دولار أمريكي` in Arabic, `USD` in English. No other currency appears.
+- **Digits by document:**
+
+  | Documents | Digits | Thousands separator | Percent sign |
+  |---|---|---|---|
+  | Most documents | Latin (`2021`, `4,180,000`) | `,` | `%` |
+  | `gep-enrolment-survey-2015`, `annual-report-2016` | Arabic-Indic (`٢٠١٥`, `١٬٨٥٠`) | `٬` | `٪` |
+  | `board-minutes-2017-11` (Windows-1256) | Latin only, because cp1256 has no Arabic-Indic digits, no `٪` and no `٬` | `,` | `%` |
+
+  The Arabic-Indic documents exercise digit normalisation.
+- **Project codes:** `<PROGRAMME>-<YEAR>-<NN>`, for example `YEP-2021-03`. They appear inside Arabic sentences, as do `https://example.org/...` URLs, to exercise bidi handling.
+
+### Programmes
+
+The six programmes are listed with their bilingual names, one-line descriptions and regions in `manifest.json` under `programmes`.
+
+| Code | Arabic name | Started | Regions |
+|---|---|---|---|
+| YEP | برنامج تمكين الشباب للتوظيف | 2020 | وادي الريم، السنابل |
+| WASH | مشروع المياه والإصحاح البيئي في المناطق الريفية | 2018 (baseline 2017) | الهضبة الشرقية، سهول النخيل |
+| GEP | برنامج دعم التعليم الأساسي للفتيات | 2015 study, activities from 2016 | سهل القمر |
+| WLP | برنامج سُبل العيش للنساء المعيلات | pilot 2018 | وادي الريم، مرج الزعفران |
+| CHP | برنامج الصحة المجتمعية | June 2016 | سهول النخيل، الهضبة الشرقية |
+| SPC | مبادرة الحماية الاجتماعية والدعم النقدي | April 2020 | مرج الزعفران، السنابل |
+
+All six governorates are invented: وادي الريم (Wadi Al-Reem), السنابل (Al-Sanabel), الهضبة الشرقية (Eastern Plateau), سهول النخيل (Palm Plains), سهل القمر (Sahl Al-Qamar), مرج الزعفران (Marj Al-Zaafaran). So are the district and village names inside them.
+
+### Donors, evaluators and partners (all invented)
+
+| Name | Role |
+|---|---|
+| صندوق سِدرة الوادي للتنمية (Sidrat Al-Wadi Development Fund) | Funds `WASH-2018-01` |
+| صندوق تلال العنبر للتنمية (Tilal Al-Anbar Development Fund) | Funds `YEP-2020-01`, `WASH-2020-02`, `SPC-2023-01` |
+| Thornvale Education Trust (صندوق ثورنفيل للتعليم) | Funds `GEP-2019-02` |
+| Varnholt Foundation (مؤسسة فارنهولت) | Funds `YEP-2021-03` «مسارات رقمية / Digital Pathways» |
+| مؤسسة بيارق النور الخيرية (Bayariq Al-Nour Charitable Foundation) | Funds `WLP-2022-01` |
+| Quillmere Health Fund (صندوق كويلمير للصحة) | Funds `CHP-2021-01` |
+| مكتب سراج الهضبة للاستشارات التنموية | Evaluator, YEP final evaluation 2022 |
+| مركز تل الورد للبحوث والتقييم | Evaluator, WASH 2021 and CHP 2024 |
+| Corvane Evaluation Partners | Evaluator, GEP mid-term 2020; WLP market assessment 2025 |
+
+The external auditor is never named. No document contains bank names or account details.
+
+### Personal data
+
+Every item of personal data is visibly synthetic:
+
+- **People:** names carry `(اسم مستعار)` / `(pseudonym)`, or sit under a heading stating that all names are pseudonyms.
+- **Identifiers:** they always start with `FAKE-`, for example `FAKE-REG-2014-0417`, `FAKE-HH-0001` or `FAKE-0000-1234`. No realistic national-ID or phone-number format is used.
+- **Salaries:** salary scales appear only in budget documents. They are labelled as illustrative, list grades rather than people, and are never tied to a named person.
+
+### Deliberate test content
+
+| What | Where | Why |
+|---|---|---|
+| Fully diacritised passage | `annual-report-2021` p2 (board chair's foreword) | Normalisation (B1) |
+| Tatweel in headings | `annual-report-2021` p9 (`التعليــم`) and p11 (`الصحـة`), plus others listed per document | A search for التعليم must match التعليــم |
+| Arabic-Indic digits | see the digits table above | Digit normalisation, S1 extraction |
+| Codes and URLs inside Arabic sentences | most documents | Bidi handling (F1), extraction (S1) |
+| Windows-1256 text file | `board-minutes-2017-11` | TXT encoding fallback (B3) |
+| Draft and final version of one budget | `budget-2024-draft` and `budget-2024-final` | Version supersede (DECISIONS D5) |
+| Quoted "ignore previous instructions"-style text inside a survey response | SPC 2024 survey and WLP 2025 market assessment (pages listed in §5) | Prompt-injection test (R1). Never on an eval-cited page. |
+
+---
+
+## 2. Source format
+
+Each document is one UTF-8 file `sources/<doc_id>.md`:
+
+```markdown
+---
+doc_id: annual-report-2021
+title_ar: "التقرير السنوي 2021"
+title_en: "Annual Report 2021"
+category: annual_report
+year: 2021
+programme: null
+language: ar
+format: pdf
+page_count: 16
+replaces: null
+---
+
+<!-- page 1 -->
+
+# التقرير السنوي 2021
+...
+
+<!-- page 2 -->
+...
+```
+
+### Front matter
+
+- **Fields:** the front matter repeats the manifest fields `doc_id`, `title_ar`, `title_en`, `category`, `year`, `programme`, `language`, `format`, `page_count` and `replaces`, plus `encoding` for TXT files.
+- **Conflicts:** the manifest wins. A checker should fail on any mismatch.
+
+### Page markers
+
+- **Syntax:** `<!-- page N -->` on its own line, starting at 1, with no gaps.
+- **Placement:** nothing but blank lines may come before `<!-- page 1 -->`. The number of markers equals `page_count`.
+- **Page breaks:** C1b must force a page break at every marker and nowhere else. Rendered page N must equal source page N, because eval citations use source page numbers.
+- **Page 1:** every document carries the one-line synthetic-document notice.
+
+### Page budget
+
+Each page must fit on one A4 page when rendered:
+
+| Page content | Limit |
+|---|---|
+| Arabic prose | at most about **250 words** per page |
+| English prose | at most about **300 words** per page |
+| Mixed pages | budgeted proportionally |
+| Tables | at most **12 rows**. A page with a table carries at most about 120 to 150 words of prose. |
+
+Most pages use 40–75% of the budget, so C1b has room for fonts and line height. Because pages are deliberately under-filled, C1b must not merge pages.
+
+### Body syntax (Markdown subset)
+
+Bodies use only:
+- `#` / `##` / `###` headings
+- paragraphs (separated by blank lines)
+- `-` bullet lists and `1.` numbered lists
+- `**bold**`
+- `>` blockquote (used for the synthetic notice)
+- pipe tables
+
+No raw HTML other than the page markers. No images.
+
+### Direction
+
+| `language` | Document direction | Per-block direction |
+|---|---|---|
+| `ar` | RTL | inherits RTL |
+| `en` | LTR | inherits LTR |
+| `mixed` | RTL | each paragraph, list item and table cell gets `dir="auto"`, so English clauses render LTR |
+
+### Per-format rendering notes for C1b
+
+**`pdf`**
+- Markdown → HTML → Chromium print, with an embedded Arabic font, A4, a page break at each marker.
+- A footer with only the page number is fine.
+- Avoid a running header that repeats the title. The cleaner strips repeated lines anyway.
+
+**`docx`**
+- Markdown → DOCX with an explicit page break at each marker, and RTL paragraphs for Arabic.
+- The PDF that LibreOffice produces from this DOCX defines the cited page numbers. C1b must verify it still has `page_count` pages, with the expected text on each page.
+
+**`txt`**
+- The body is **plain text**, with no Markdown tables or `#` headings (lists use `-` or `1.`). Copy it verbatim after dropping the front matter.
+- Replace each page marker with a **form feed (U+000C)** between pages: no form feed before page 1 and none at the end.
+- Encode the file as the manifest `encoding` says: `utf-8` (no BOM) or `windows-1256`.
+- **Risk:** it is not yet verified that LibreOffice's text import breaks pages at form feeds. If it doesn't, TXT page numbers will drift. C1b must check this, and if needed fall back to keeping TXT pages short enough to stay aligned. Until then, eval items cite TXT pages only where the fact is not near a page boundary.
+
+---
+
+## 3. Manifest
+
+`manifest.json` top-level keys:
+
+| Key | Contents |
+|---|---|
+| `schema_version` | currently `1` |
+| `synthetic` | `true` |
+| `notice_ar`, `notice_en` | the fictional-content notice |
+| `organization` | `{name_ar, name_en, hq_city_ar, hq_city_en, founded, website}` |
+| `currency` | `"USD"` |
+| `programmes` | list of `{code, name_ar, name_en, description_ar, description_en, regions: [{name_ar, name_en}]}` |
+| `documents` | one entry per document (below) |
+
+Document entry fields:
+
+| Field | Notes |
+|---|---|
+| `doc_id` | kebab-case, unique; also the source file stem |
+| `file` | rendered file name, `<doc_id>.<format>` (C1b writes it to `documents/`) |
+| `source` | `seed/sources/<doc_id>.md` |
+| `format` | `pdf`, `docx` or `txt` |
+| `title_ar`, `title_en` | |
+| `category` | `annual_report`, `donor_agreement`, `evaluation`, `survey`, `budget` or `board_minutes` |
+| `year` | the year the document is about (for a budget, the budget year) |
+| `programme` | a programme code, or `null` for organisation-wide documents |
+| `language` | `ar`, `en` or `mixed` |
+| `page_count` | equals the number of page markers |
+| `replaces` | `doc_id` of the earlier version this document supersedes, else `null` |
+| `encoding` | **only on `txt` entries:** `utf-8` or `windows-1256` |
+
+### Version pair (DECISIONS D5)
+
+`budget-2024-final` has `replaces: budget-2024-draft`. The final changes these figures from the draft:
+- the total
+- the YEP allocation
+- the SPC allocation
+- administrative costs
+
+Eval questions expect the **final** figures and never cite the draft.
+
+---
+
+## 4. Evaluation sets
+
+| File | Contents |
+|---|---|
+| `eval/questions.yaml` | the 25 **headline** questions (IDs `T01`…). Never used for tuning. |
+| `eval/dev_questions.yaml` | the 15–20 **dev** questions (IDs `D01`…) for the chunk sweep and thresholds. Shares no question and no answer fact with the headline set. |
+
+Both files have the top-level keys `set` (`test` or `dev`), `version` and `questions`.
+
+### Item schema
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | string | `T01`… or `D01`… |
+| `language` | `ar` or `en` | language of the question |
+| `kinds` | list | from the vocabulary below |
+| `question` | string | paraphrased, never copied from the page |
+| `must_include` | list, at most 3 | short atomic facts, written exactly as on the cited page |
+| `expected_citations` | list of `{file, page}` | `file` is the manifest `file`; `page` is the source page number |
+| `expected_outcome` | `answered` or `no_answer` | |
+| `expected_answer` | string or null | Short human reference answer, for the README failure table. **Not used for scoring.** This field goes beyond the minimum schema, because the brief asks for "questions with expected answers". |
+| `notes` | string | where the answer is, and why the item is a paraphrase or a near-miss |
+| `vocab_shift` | bool | `true` when the question's key terms differ from the page's, the way a staff member would ask |
+
+**`kinds` vocabulary**
+
+| Kind | Meaning |
+|---|---|
+| `factual` | a single fact |
+| `numeric` | the fact is a number |
+| `temporal` | compares points in time |
+| `cross_document` | needs facts from more than one document |
+| `english` | question in English |
+| `cross_lingual` | question language differs from the source document's |
+| `mixed_content` | hinges on a code or URL inside Arabic text |
+| `version` | depends on the superseded/final version pair |
+| `diacritics` | the question is written with tashkeel |
+| `tatweel` | the question contains tatweel |
+| `unanswerable` | the documents don't contain the answer |
+| `near_miss` | a related document exists but doesn't contain the answer |
+
+### Rules for `must_include`
+
+- **Atomic:** each fact is a number, code, year, or a name of one or two words. It never spans table cells or anything that might wrap.
+- **Exact:** each fact is written exactly as it appears on the page, including thousands separators. Checkers and scorers may fold digit style (Latin, Arabic-Indic or Persian), diacritics and tatweel.
+- **Percentages:** written as the bare number, without `%` or `٪`. In RTL text the sign can extract before or after the digits, so the bare number is the stable fact.
+- **Unanswerable items:** `must_include: []` and `expected_citations: []`.
+
+### Citation semantics (for the C1b checker and the E1 scorer)
+
+**Checker**
+- **Default:** every `must_include` fact must appear on **every** listed citation page. The listed pages are equally valid alternatives: the same fact appears in several documents.
+- **`cross_document` items:** each fact must appear on **at least one** listed page. The item's `notes` say which fact is on which page.
+- **Superseded documents:** no item ever cites one (`budget-2024-draft`).
+
+**Scorer**
+- A citation is correct when **any one** listed `{file, page}` is among the answer's citations (SYSTEM_DESIGN §11).
+
+### Honesty rules followed
+
+- **Paraphrase:** headline questions paraphrase their source and don't reuse its sentences. A 4-gram overlap check against each cited page was run during authoring.
+- **Vocabulary shift:** at least 8 of the 25 headline items have `vocab_shift: true`.
+- **Unanswerable items are kept unanswerable.** While writing the corpus we kept a list of facts that must not appear anywhere for each unanswerable item, and re-checked it after every batch. Examples: no community-health figures for 2017–2019, and no water fees.
+
+---
+
+## 5. Document index
+
+See `manifest.json` for the full list. Pages carrying prompt-injection test lines (never cited by eval):
+
+| Document | Page |
+|---|---|
+| `spc-satisfaction-survey-2024` | to be filled with the full corpus |
+| `wlp-market-assessment-2025` | to be filled with the full corpus |
