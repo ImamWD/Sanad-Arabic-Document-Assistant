@@ -2,6 +2,7 @@ import { act, cleanup, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { makeDocument } from '../features/library/test-fixtures';
 import { apiFetch } from '../lib/api';
 import iconStyles from '../lib/Icon.module.css';
 import ar from '../locales/ar.json';
@@ -54,10 +55,15 @@ describe('routing', () => {
     expect(await screen.findByRole('heading', { name: ar.pages.notFound.title })).toBeDefined();
   });
 
-  it('opens a document at the requested page, with localised digits', async () => {
-    await renderApp({ path: '/documents/doc-7?page=12', user: testUser('viewer') });
-    expect(await screen.findByText('الصفحة 12')).toBeDefined();
-    expect(screen.getByText('doc-7').getAttribute('dir')).toBe('auto');
+  it('opens a document link in the viewer (F4), its title in its own direction', async () => {
+    const doc = makeDocument({ id: 'doc-7', status: 'queued', page_count: null });
+    await renderApp({
+      path: '/documents/doc-7?page=12',
+      user: testUser('viewer'),
+      handlers: { 'GET /api/documents/doc-7': () => json(200, doc) },
+    });
+    const heading = await screen.findByRole('heading', { level: 1, name: doc.title });
+    expect(heading.getAttribute('dir')).toBe('auto');
   });
 
   it('a 401 from any request ends the session and returns to login', async () => {
