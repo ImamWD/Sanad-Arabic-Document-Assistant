@@ -1,0 +1,192 @@
+# Sanad: base stack. `docker compose up -d --build` runs the whole system from a clean checkout.
+#
+# Isolation: every container that touches document content (db, api, worker, ml) is on the
+# `backend` network only, which is `internal: true` and has no route to the internet.
+# `web` is the one published port. The egress guarantee is tested against THIS file alone.
+# Do not add a docker-compose.override.yml: compose loads it automatically.
+#
+# Not here yet (later tasks): ollama, ollama-init, init, and the opt-in override files
+# docker-compose.api-llm.yml, docker-compose.gpu.yml and docker-compose.dev.yml.
+#
+# Settings come from .env if it exists (copy .env.example); every value has a default.
+
+name: sanad
+
+x-env-file: &env-file
+  env_file:
+    - path: .env
+      required: false
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sanad}:${POSTGRES_PASSWORD:-sanad}@db:5432/${POSTGRES_DB:-sanad}
+  ML_BASE_URL: http://ml:8001
+
+x-backend-build: &backend-build
+  context: ./backend
+  target: runtime
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.7-pg16-trixie
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sanad}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sanad}
+      POSTGRES_DB: ${POSTGRES_DB:-sanad}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+  ml:
+    build:
+      context: ./ml
+      target: runtime
+    image: sanad-ml:local
+    <<: *env-file
+    init: true
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=3)"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+    restart: unless-stopped
+
+  api:
+    build: *backend-build
+    image: sanad-backend:local
+    <<: *env-file
+    init: true
+    environment: *backend-env
+    networks: [backend]
+    depends_on:
+      db:
+        condition: service_healthy
+      ml:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"]
+      interval: 5s
+      timeout: 6s
+      retries: 20
+      start_period: 5s
+    restart: unless-stopped
+
+  worker:
+    build: *backend-build
+    image: sanad-backend:local
+    <<: *env-file
+    init: true
+    command: ["python", "-m", "sanad.worker"]
+    environment: *backend-env
+    networks: [backend]
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: sanad-web:local
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    networks: [edge, backend]
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------------------
+  # Developer tools (profile `tools`). Never started by `up`; used by the Makefile through
+  # `docker compose run --rm <service> …`. They bind-mount the repo, so they always see the
+  # working tree (including uncommitted files).
+  # ---------------------------------------------------------------------------------------
+
+  backend-dev:
+    profiles: [tools]
+    build:
+      context: ./backend
+      target: dev
+    image: sanad-backend-dev:local
+    working_dir: /app/backend
+    volumes:
+      - .:/app
+    environment:
+      LOG_LEVEL: WARNING
+    # Internal network: tests can reach db later, never the internet.
+    networks: [backend]
+
+  ml-dev:
+    profiles: [tools]
+    build:
+      context: ./ml
+      target: dev
+    image: sanad-ml-dev:local
+    working_dir: /app/ml
+    volumes:
+      - .:/app
+    networks: [backend]
+
+  node:
+    profiles: [tools]
+    image: node:24.22.1-trixie-slim
+    working_dir: /app/frontend
+    volumes:
+      - .:/app
+      - frontend_node_modules:/app/frontend/node_modules
+    environment:
+      npm_config_update_notifier: "false"
+      npm_config_fund: "false"
+    # Needs the npm registry; handles source code only, never document content.
+    networks: [egress]
+
+  e2e:
+    profiles: [tools]
+    # Must match the @playwright/test version in frontend/package.json.
+    image: mcr.microsoft.com/playwright:v1.64.1-noble
+    working_dir: /app/frontend
+    volumes:
+      - .:/app
+      - frontend_node_modules:/app/frontend/node_modules
+    environment:
+      E2E_BASE_URL: http://web:8080
+      npm_config_update_notifier: "false"
+    ipc: host
+    # Reaches the running stack through `web`, like a browser would.
+    networks: [edge]
+
+  render:
+    profiles: [tools]
+    build: ./tools/render
+    image: sanad-render:local
+    working_dir: /app
+    volumes:
+      - .:/app
+    # Renders local files only; no network at all.
+    network_mode: none
+
+networks:
+  backend:
+    internal: true
+  edge: {}
+  # Reserved for containers that need the internet and never see content:
+  # ollama-init (pulls weights) and, in the opt-in API-LLM override, api.
+  egress: {}
+
+volumes:
+  db_data:
+  frontend_node_modules:
