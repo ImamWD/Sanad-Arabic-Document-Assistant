@@ -47,10 +47,11 @@ questions:
     must_include: ["74"]
     expected_citations:
       - {file: wash-baseline-survey-2017.pdf, page: 3}
+      - {file: wash-final-evaluation-2021.pdf, page: 4}
     expected_outcome: answered
     expected_answer: "74 دقيقة في المتوسط ذهاباً وإياباً، وفق المسح المرجعي لعام 2017."
     vocab_shift: true
-    notes: "Baseline survey p3: متوسط الوقت اللازم لجلب المياه ذهاباً وإياباً. The question speaks of the trip to fetch water before the project."
+    notes: "Baseline survey p3: متوسط الوقت اللازم لجلب المياه ذهاباً وإياباً. The final evaluation repeats the 2017 value in its comparison table (p4, column 2017). The question speaks of the trip to fetch water before the project."
   - id: D04
     language: ar
     kinds: [factual, numeric]
@@ -59,10 +60,11 @@ questions:
     expected_citations:
       - {file: wash-baseline-survey-2017.pdf, page: 4}
       - {file: board-minutes-2017-11.txt, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 4}
     expected_outcome: answered
     expected_answer: "18% من الأسر لم يكن لديها أي مرفق للصرف الصحي (تغوط في العراء)."
     vocab_shift: true
-    notes: "Survey p4 sanitation table (لا يوجد مرفق / التغوط في العراء), repeated in the November 2017 board minutes p2. The question says البيوت and مرحاض instead of الأسر and مرفق صرف صحي."
+    notes: "Survey p4 sanitation table (لا يوجد مرفق / التغوط في العراء), repeated in the November 2017 board minutes p2 and in the 2017 column of the final evaluation's table (p4). The question says البيوت and مرحاض instead of الأسر and مرفق صرف صحي."
   - id: D05
     language: ar
     kinds: [factual, numeric]
@@ -126,10 +128,12 @@ questions:
     must_include: ["3,560,000"]
     expected_citations:
       - {file: board-minutes-2021-06.docx, page: 2}
+      - {file: annual-report-2020.pdf, page: 4}
+      - {file: annual-report-2020.pdf, page: 11}
     expected_outcome: answered
     expected_answer: "3,560,000 دولار أمريكي إجمالي الإيرادات المدققة لعام 2020."
     vocab_shift: true
-    notes: "Board minutes 2/2021 p2, item 2 (البيانات المالية المدققة). The page says إجمالي الإيرادات; the question asks how much money came in."
+    notes: "Board minutes 2/2021 p2, item 2 (البيانات المالية المدققة); the same total is in the 2020 annual report (key figures p4, financial report p11). The page says إجمالي الإيرادات; the question asks how much money came in."
   - id: D11
     language: ar
     kinds: [factual, numeric]
@@ -186,10 +190,11 @@ questions:
       - {file: annual-report-2021.pdf, page: 2}
       - {file: gep-enrolment-survey-2015.pdf, page: 1}
       - {file: board-minutes-2021-06.docx, page: 3}
+      - {file: annual-report-2016.pdf, page: 2}
     expected_outcome: answered
     expected_answer: "تأسست المؤسسة عام 2014."
     vocab_shift: true
-    notes: "Fully diacritised question. Founding year on annual report 2021 p3 (تأسست) and in the diacritised foreword p2, the 2015 survey p1 (٢٠١٤) and the June 2021 minutes p3. The question says بدأت عملها instead of تأسست."
+    notes: "Fully diacritised question. Founding year on annual report 2021 p3 (تأسست) and in the diacritised foreword p2, the 2015 survey p1 and the 2016 annual report p2 (both ٢٠١٤), and the June 2021 minutes p3. The question says بدأت عملها instead of تأسست."
   - id: D16
     language: en
     kinds: [factual, numeric, english, cross_lingual]
@@ -210,10 +215,11 @@ questions:
     must_include: ["21,450"]
     expected_citations:
       - {file: annual-report-2021.pdf, page: 11}
+      - {file: chp-evaluation-2024.pdf, page: 4}
     expected_outcome: answered
     expected_answer: "21,450 استشارة طبية."
     vocab_shift: false
-    notes: "Question contains tatweel (العيــادات). Answer in the community-health section of the 2021 annual report p11, whose heading also uses tatweel (الصحـة)."
+    notes: "Question contains tatweel (العيــادات). Answer in the community-health section of the 2021 annual report p11, whose heading also uses tatweel (الصحـة), and in the yearly outputs table of the 2024 CHP evaluation p4 (2021 column)."
   - id: D18
     language: ar
     kinds: [unanswerable, near_miss]

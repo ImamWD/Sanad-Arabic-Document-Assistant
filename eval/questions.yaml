@@ -1,0 +1,327 @@
+# Sanad headline evaluation set: the 25 questions the client judges the system on.
+#
+# NEVER used for tuning. Tuning uses eval/dev_questions.yaml, which shares no question
+# and no answer fact with this file. All answers come from the synthetic seed corpus in
+# seed/sources (see seed/README.md).
+#
+# Mix: 14 Arabic factual items (T01–T14), 3 cross-document or temporal items (T15–T17),
+# 3 English items, two of them about Arabic documents (T18–T20), and 5 unanswerable
+# items, four of them near-misses (T21–T25). T09 uses tatweel and T10 is fully
+# diacritised. T02 depends on the draft/final budget pair, and expects the final figure.
+#
+# Conventions (full description in seed/README.md, "Evaluation sets"):
+# - `file` in expected_citations is the manifest `file` (the rendered file name), and
+#   `page` is the source page number (`<!-- page N -->`).
+# - must_include facts are written exactly as on the cited page, up to digit style
+#   (Latin vs Arabic-Indic) and diacritics/tatweel. Percentages are written as the bare
+#   number without the % / ٪ sign, because the sign's position flips in RTL extraction.
+# - Citation semantics: every must_include fact appears on EVERY listed page, except for
+#   items whose kinds include `cross_document`, where each fact appears on AT LEAST ONE
+#   listed page (the notes say which). Scoring accepts any one listed citation.
+# - No item cites the superseded budget-2024-draft.
+# - expected_answer is a short human reference answer; it is not used for scoring.
+set: test
+version: 1
+questions:
+  - id: T01
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم عدد الشباب الذين حصلوا على وظيفة عن طريق برنامج التوظيف خلال 2021؟"
+    must_include: ["538"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 6}
+      - {file: annual-report-2021.pdf, page: 7}
+      - {file: yep-final-evaluation-2022.pdf, page: 4}
+    expected_outcome: answered
+    expected_answer: "التحق 538 شاباً وشابة بسوق العمل في 2021، أي 43.4% من 1,240 متدرباً."
+    vocab_shift: true
+    notes: "The pages say عدد المستفيدين الملتحقين بسوق العمل (annual report 2021 p6, total row of the tracks table p7; 2021 row of the evaluation table p4). The question asks how many young people got a job."
+  - id: T02
+    language: ar
+    kinds: [factual, numeric, version]
+    question: "ما المبلغ الإجمالي الذي أقرّته المؤسسة كميزانية لسنة 2024؟"
+    must_include: ["5,480,000"]
+    expected_citations:
+      - {file: budget-2024-final.pdf, page: 1}
+      - {file: budget-2024-final.pdf, page: 3}
+      - {file: budget-2024-final.pdf, page: 5}
+      - {file: board-minutes-2023-12.pdf, page: 2}
+      - {file: annual-report-2023-en.pdf, page: 10}
+    expected_outcome: answered
+    expected_answer: "5,480,000 دولار أمريكي، وهي الموازنة النهائية التي اعتمدها مجلس الإدارة في 21 كانون الأول/ديسمبر 2023."
+    vocab_shift: true
+    notes: "Version pair (DECISIONS D5). The superseded draft (budget-2024-draft, 5,600,000) must not be the answer and is never a valid citation. The pages say الموازنة التقديرية / المعتمدة; the question says ميزانية and أقرّته. The final's p5 also shows the draft figure in its change table; the correct answer is the approved total."
+  - id: T03
+    language: ar
+    kinds: [factual, temporal]
+    question: "من يقود المؤسسة إدارياً منذ بداية 2022، وممّن تسلّم هذا المنصب؟"
+    must_include: ["كريم العطار", "ليلى الزين"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 2}
+      - {file: annual-report-2022.pdf, page: 2}
+    expected_outcome: answered
+    expected_answer: "د. كريم العطار مدير تنفيذي منذ 1 كانون الثاني/يناير 2022، خلفاً لليلى الزين التي قادت المؤسسة منذ تأسيسها عام 2014 (الاسمان مستعاران)."
+    vocab_shift: true
+    notes: "Annual report 2021 p2 is the fully diacritised foreword, where both names carry tashkeel (كَرِيم العَطَّار، لَيْلَى الزَّيْن). Annual report 2022 p2 is the new director's message. The pages say المدير التنفيذي / خلفاً; the question says يقود المؤسسة إدارياً / تسلّم المنصب."
+  - id: T04
+    language: ar
+    kinds: [factual, numeric]
+    question: "حسب المسح الذي أُجري على الأسر في سهول النخيل سنة 2021، كم في المئة من الأطفال الصغار كانوا قد أخذوا كل تطعيماتهم؟"
+    must_include: ["82"]
+    expected_citations:
+      - {file: chp-household-survey-2021.pdf, page: 3}
+      - {file: annual-report-2021.pdf, page: 11}
+      - {file: chp-evaluation-2024.pdf, page: 5}
+    expected_outcome: answered
+    expected_answer: "82% من الأطفال بعمر 12 إلى 23 شهراً تلقوا جميع اللقاحات الأساسية."
+    vocab_shift: true
+    notes: "Survey p3 child-health table; repeated in the annual report 2021 p11 and in the 2021 column of the CHP evaluation p5 (whose 2024 endline value, 89, is NOT the answer). The pages say تلقوا جميع اللقاحات الأساسية; the question says أخذوا كل تطعيماتهم."
+  - id: T05
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما أكثر سبب جعل البنات في سهل القمر يتركن المدرسة بحسب دراسة 2015، وما نسبته؟"
+    must_include: ["بعد المدرسة", "٣٧"]
+    expected_citations:
+      - {file: gep-enrolment-survey-2015.pdf, page: 3}
+    expected_outcome: answered
+    expected_answer: "بُعد المدرسة عن مكان السكن وصعوبة الطريق، وذكرته ٣٧٪ من الأسر."
+    vocab_shift: true
+    notes: "Dropout-reasons table on the 2015 study p3 (Arabic-Indic digits; the page writes بُعد with a damma). The page says انقطاع الفتيات عن الدراسة; the question says البنات يتركن المدرسة."
+  - id: T06
+    language: ar
+    kinds: [factual, numeric]
+    question: "ما نسبة المشاريع الصغيرة للنساء المعيلات التي ظلت تعمل بعد سنة من افتتاحها؟"
+    must_include: ["74"]
+    expected_citations:
+      - {file: wlp-evaluation-2023.docx, page: 3}
+      - {file: wlp-evaluation-2023.docx, page: 4}
+      - {file: board-minutes-2023-12.pdf, page: 3}
+    expected_outcome: answered
+    expected_answer: "74% من المشاريع (334 من 450 في العينة) ما زالت قائمة بعد 12 شهراً، وفق التقييم الداخلي لعام 2023."
+    vocab_shift: true
+    notes: "WLP internal evaluation p3 (key results) and p4 (sector table total), also reported to the board in December 2023 (p3). The pages say ما زالت قائمة بعد 12 شهراً من تأسيسها; the question says ظلت تعمل بعد سنة من افتتاحها."
+  - id: T07
+    language: ar
+    kinds: [factual, numeric, mixed_content]
+    question: "كم تتسلم الأسرة المستفيدة كل شهر في مشروع الدعم النقدي SPC-2023-01؟"
+    must_include: ["75"]
+    expected_citations:
+      - {file: spc-donor-agreement-2023.docx, page: 2}
+      - {file: spc-donor-agreement-2023.docx, page: 3}
+      - {file: board-minutes-2023-03.pdf, page: 3}
+      - {file: annual-report-2023-en.pdf, page: 8}
+    expected_outcome: answered
+    expected_answer: "75 دولاراً أمريكياً شهرياً لمدة ستة أشهر."
+    vocab_shift: false
+    notes: "Project code inside an Arabic question. Agreement Article 2 (p2) and the budget table (p3); the March 2023 board minutes p3; the English annual report 2023 p8 (USD 75)."
+  - id: T08
+    language: ar
+    kinds: [factual, numeric, mixed_content]
+    question: "ما قيمة المنحة التي قدمتها مؤسسة فارنهولت لمشروع YEP-2021-03؟"
+    must_include: ["450,000"]
+    expected_citations:
+      - {file: yep-grant-agreement-2021.pdf, page: 3}
+      - {file: board-minutes-2021-06.docx, page: 3}
+    expected_outcome: answered
+    expected_answer: "450,000 دولار أمريكي لمدة 24 شهراً تبدأ في 1 تموز/يوليو 2021."
+    vocab_shift: false
+    notes: "Bilingual (mixed) grant agreement Article 3, p3; board approval in the June 2021 minutes p3. Tests a Latin project code inside an Arabic question."
+  - id: T09
+    language: ar
+    kinds: [factual, numeric, tatweel]
+    question: "في كم مدرسة عمل برنامج التعليــم الخاص بالفتيات خلال 2021؟"
+    must_include: ["36"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 9}
+    expected_outcome: answered
+    expected_answer: "36 مدرسة أساسية في سهل القمر: 30 ضمن المشروع GEP-2019-02 و6 من موارد المؤسسة الذاتية."
+    vocab_shift: false
+    notes: "The question contains tatweel (التعليــم). Annual report 2021 p9, whose heading also has tatweel. The 2022 report repeats 36 schools for 2022, which is a different year and not a valid citation here."
+  - id: T10
+    language: ar
+    kinds: [factual, numeric, diacritics]
+    question: "كَمْ مُتَطَوِّعًا وَمُتَطَوِّعَةً سَانَدُوا المُؤَسَّسَةَ فِي عَامِ 2021؟"
+    must_include: ["340"]
+    expected_citations:
+      - {file: annual-report-2021.pdf, page: 3}
+      - {file: annual-report-2021.pdf, page: 4}
+    expected_outcome: answered
+    expected_answer: "340 متطوعاً ومتطوعة."
+    vocab_shift: false
+    notes: "Fully diacritised question; the page text is plain. Annual report 2021 p3 (فريقنا) and the key-figures table p4."
+  - id: T11
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم مرحاضاً بُني للبيوت في قرى الهضبة الشرقية ضمن مشروع المياه الأول؟"
+    must_include: ["2,950"]
+    expected_citations:
+      - {file: wash-final-evaluation-2021.pdf, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 8}
+    expected_outcome: answered
+    expected_answer: "2,950 وحدة صرف صحي منزلية محسّنة من أصل 3,000 مستهدفة، ضمن المشروع WASH-2018-01."
+    vocab_shift: true
+    notes: "The pages say وحدة صرف صحي منزلية محسّنة; the question says مرحاضاً بُني للبيوت. 'The first water project' is WASH-2018-01."
+  - id: T12
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم كانت حصة المصاريف العامة والإدارة في ميزانية سنة 2018؟"
+    must_include: ["140,000"]
+    expected_citations:
+      - {file: budget-2018.docx, page: 3}
+    expected_outcome: answered
+    expected_answer: "140,000 دولار أمريكي، أي 8.5% من موازنة بلغت 1,650,000 دولار."
+    vocab_shift: true
+    notes: "2018 budget (DOCX) p3 expenditure table, row التكاليف الإدارية وتكاليف الدعم. The question says المصاريف العامة والإدارة and ميزانية."
+  - id: T13
+    language: ar
+    kinds: [factual, numeric]
+    question: "بعد مرور سنة على تخرجهم، كم في المئة من خريجي دفعة 2022 في برنامج الشباب كانوا يشتغلون؟"
+    must_include: ["64"]
+    expected_citations:
+      - {file: yep-tracer-survey-2023.pdf, page: 3}
+      - {file: annual-report-2023-en.pdf, page: 5}
+    expected_outcome: answered
+    expected_answer: "64% من المجيبين كانوا يعملون بأجر أو في مشروع خاص بعد عام من التخرج."
+    vocab_shift: true
+    notes: "Tracer study p3, first table; also the English annual report 2023 p5. The page says يعمل بأجر أو في مشروع خاص; the question says يشتغلون and دفعة."
+  - id: T14
+    language: ar
+    kinds: [factual, numeric]
+    question: "كم يكلّف فحص المريض الواحد في العيادات المتنقلة في المتوسط؟"
+    must_include: ["27.6"]
+    expected_citations:
+      - {file: chp-evaluation-2024.pdf, page: 2}
+      - {file: chp-evaluation-2024.pdf, page: 6}
+    expected_outcome: answered
+    expected_answer: "نحو 27.6 دولاراً أمريكياً للاستشارة الطبية الواحدة (2,160,000 دولار مقسومة على 78,350 استشارة في 2021–2023)."
+    vocab_shift: true
+    notes: "CHP evaluation summary p2 and efficiency section p6. The page says كلفة الاستشارة الطبية الواحدة; the question says فحص المريض."
+  - id: T15
+    language: ar
+    kinds: [cross_document, temporal, numeric]
+    question: "كيف تغيّرت نسبة الأسر التي تشرب من مصادر مياه آمنة في قرى الهضبة الشرقية بين بداية المشروع ونهايته؟"
+    must_include: ["41", "78"]
+    expected_citations:
+      - {file: wash-baseline-survey-2017.pdf, page: 3}
+      - {file: wash-final-evaluation-2021.pdf, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 4}
+      - {file: annual-report-2021.pdf, page: 8}
+    expected_outcome: answered
+    expected_answer: "ارتفعت من 41% في المسح المرجعي لعام 2017 إلى 78% في التقييم النهائي لعام 2021، متجاوزة الهدف البالغ 75%."
+    vocab_shift: false
+    notes: "Cross-document: 41 is on the 2017 baseline survey p3; both 41 and 78 are on the final evaluation p2 and p4 and on the annual report 2021 p8. A good answer combines the baseline and endline sources."
+  - id: T16
+    language: ar
+    kinds: [cross_document, temporal, numeric]
+    question: "كم متدرباً أنهى برنامج الشباب في سنته الأولى، وكم أصبح العدد في 2022؟"
+    must_include: ["820", "1,410"]
+    expected_citations:
+      - {file: annual-report-2020.pdf, page: 6}
+      - {file: annual-report-2022.pdf, page: 6}
+      - {file: yep-final-evaluation-2022.pdf, page: 4}
+    expected_outcome: answered
+    expected_answer: "أتمّ التدريب 820 شاباً وشابة في 2020، السنة الأولى للبرنامج، وارتفع العدد إلى 1,410 في 2022."
+    vocab_shift: false
+    notes: "Cross-document and temporal: the programme's first year (2020) must be inferred. 820 is on the annual report 2020 p6; 1,410 is on the annual report 2022 p6; both are on the evaluation p4."
+  - id: T17
+    language: ar
+    kinds: [cross_document, temporal, numeric, cross_lingual]
+    question: "كم كان عدد موظفي المؤسسة في 2016، وإلى كم وصل في 2023؟"
+    must_include: ["٢٣", "85"]
+    expected_citations:
+      - {file: annual-report-2016.pdf, page: 2}
+      - {file: annual-report-2023-en.pdf, page: 3}
+      - {file: annual-report-2023-en.pdf, page: 2}
+    expected_outcome: answered
+    expected_answer: "٢٣ موظفاً وموظفة في نهاية 2016، و85 موظفاً في نهاية 2023."
+    vocab_shift: false
+    notes: "Cross-document and cross-lingual: ٢٣ is on the Arabic 2016 report p2 (Arabic-Indic digits); 85 is on the English 2023 report p3 (and p2)."
+  - id: T18
+    language: en
+    kinds: [factual, numeric, english]
+    question: "How many teachers had been trained by the mid-term point of the girls' education project?"
+    must_include: ["96"]
+    expected_citations:
+      - {file: gep-midterm-evaluation-2020.pdf, page: 2}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 4}
+    expected_outcome: answered
+    expected_answer: "96 of the planned 150 teachers had completed the inclusive-teaching course by October 2020."
+    vocab_shift: false
+    notes: "English question about an English document: mid-term evaluation executive summary p2 and indicator table p4."
+  - id: T19
+    language: en
+    kinds: [factual, numeric, english, cross_lingual]
+    question: "According to its final evaluation, what were young people who found work through the youth employment programme earning per month on average?"
+    must_include: ["285"]
+    expected_citations:
+      - {file: yep-final-evaluation-2022.pdf, page: 2}
+      - {file: yep-final-evaluation-2022.pdf, page: 5}
+    expected_outcome: answered
+    expected_answer: "About USD 285 a month on average."
+    vocab_shift: false
+    notes: "English question about an Arabic document: YEP final evaluation p2 (summary) and p5 (متوسط الدخل الشهري للخريجين العاملين)."
+  - id: T20
+    language: en
+    kinds: [factual, numeric, english, cross_lingual]
+    question: "How many safe water points were actually completed under the first rural water project in the Eastern Plateau?"
+    must_include: ["22"]
+    expected_citations:
+      - {file: wash-final-evaluation-2021.pdf, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 8}
+      - {file: annual-report-2022.pdf, page: 8}
+    expected_outcome: answered
+    expected_answer: "22 water points, out of 24 planned; two sites were dropped because the water table was too low."
+    vocab_shift: false
+    notes: "English question about Arabic documents. WASH-2018-01 final evaluation p2 and p5, annual report 2021 p8, and the 2022 follow-up on p8 (20 of the 22 points still working). 24 is the target, not the answer."
+  - id: T21
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "كم عدد المستفيدين من برنامج الصحة المجتمعية في عام 2019؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss (wrong year): community-health figures exist for 2016 (annual report 2016 p4) and 2020–2023 (annual reports, CHP evaluation), but no document gives any 2017–2019 figure."
+  - id: T22
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "ما نسبة الأسر في قرى مشروع المياه التي تدفع رسوماً شهرية مقابل الماء بعد انتهاء المشروع؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss (missing metric): the WASH final evaluation p6 discusses water committees, maintenance and spare parts, but no document mentions water fees or tariffs."
+  - id: T23
+    language: en
+    kinds: [unanswerable, near_miss, english]
+    question: "What girls' enrolment rate had the GEP-2019-02 target schools reached when the project ended in 2022?"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss: the corpus has the 61% baseline, the 68% mid-term value (2020) and the 75% target, but the final evaluation was not yet published (annual report 2023 p6). Answering 68 or 75 is wrong."
+  - id: T24
+    language: ar
+    kinds: [unanswerable]
+    question: "هل لدى المؤسسة سياسة تسمح للموظفين بالعمل من المنزل؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Out of scope: no document covers HR or working-arrangement policies. The 2020 report describes the pandemic response without mentioning staff working from home."
+  - id: T25
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "كم يبلغ البدل اليومي الذي يُصرف للموظف في المهمات الميدانية؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "Near-miss: the 2018 and 2024 budgets contain illustrative salary scales and staffing tables, but no document gives a per diem or travel-allowance rate. The YEP transport allowance is for trainees, not staff."
