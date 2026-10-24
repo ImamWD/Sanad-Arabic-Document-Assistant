@@ -161,7 +161,7 @@
   },
   "documents": {
     "fileType": {
-      "pdf": "PDF",
+      "pdf": "ملف PDF",
       "docx": "وورد (DOCX)",
       "txt": "نص (TXT)"
     },

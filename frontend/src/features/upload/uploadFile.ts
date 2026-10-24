@@ -52,7 +52,13 @@ export function uploadFile(
           reject(new ApiError(xhr.status, UNKNOWN_ERROR));
         }
       } else {
-        reject(errorFromResponse(xhr.status, xhr.responseText));
+        const error = errorFromResponse(xhr.status, xhr.responseText);
+        // nginx refuses an oversized body itself, with an HTML page rather than the envelope.
+        reject(
+          xhr.status === 413 && error.code === UNKNOWN_ERROR
+            ? new ApiError(413, 'FILE_TOO_LARGE')
+            : error,
+        );
       }
     };
     xhr.onerror = () => {
