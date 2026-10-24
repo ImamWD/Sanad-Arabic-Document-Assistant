@@ -725,7 +725,7 @@ def decode_txt(data: bytes) -> str:
             text = data.decode(encoding)
         except UnicodeDecodeError:
             continue
-        return text.removeprefix("﻿")
+        return text.removeprefix("\ufeff")
     raise RenderError("TXT_ENCODING_UNKNOWN")
 
 
