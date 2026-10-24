@@ -44,8 +44,9 @@ RUN --mount=from=uv,source=/uv,target=/usr/local/bin/uv \
     uv sync --frozen --no-install-project --no-default-groups --only-group export
 COPY build/export_models.py ./
 # The Hugging Face download cache survives rebuilds (a BuildKit cache mount, never in a layer).
+ARG QUANT_WEIGHT_MAX=127
 RUN --mount=type=cache,target=/hf-cache \
-    python export_models.py /opt/models
+    QUANT_WEIGHT_MAX=${QUANT_WEIGHT_MAX} python export_models.py /opt/models
 
 # --- runtime ------------------------------------------------------------------------------------
 FROM base AS runtime

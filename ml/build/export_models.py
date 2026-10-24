@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import gc
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -51,6 +52,9 @@ CHECK_PASSAGES = [
     "The Foundation rehabilitated 42 rural water points in the Eastern Plateau in 2019.",
     "بلغ عدد المتطوعين 340 متطوعًا ومتطوعة.",
 ]
+# Largest |int8| a MatMul weight may take. 127 uses the full range; 63 (7 bits) can't
+# saturate the 16-bit pairwise sums of onnxruntime's x86 int8 kernel on CPUs without VNNI.
+WEIGHT_MAX = int(os.environ.get("QUANT_WEIGHT_MAX", "127"))
 # Fail the build if quantisation broke the model, not merely if it nudged it.
 MIN_COSINE = 0.95
 MAX_SCORE_DIFF = 0.15
@@ -196,9 +200,9 @@ def step_quantize(work: Path) -> None:
             and uses[weight] == 1
         ):
             w = take(weight)
-            scale = np.abs(w).max(axis=0) / 127.0
+            scale = np.abs(w).max(axis=0) / WEIGHT_MAX
             scale[scale == 0] = 1.0
-            w_q = np.clip(np.rint(w / scale), -127, 127).astype(np.int8)
+            w_q = np.clip(np.rint(w / scale), -WEIGHT_MAX, WEIGHT_MAX).astype(np.int8)
             del w
             add(w_q, f"{weight}_quantized")
             add(scale.astype(np.float32), f"{weight}_scale")
