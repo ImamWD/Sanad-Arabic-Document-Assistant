@@ -339,7 +339,7 @@ Details:
 
   | Event | Payload | UI shows |
   |---|---|---|
-  | `stage` | `{"stage": "queued", "position": P}` (only when waiting for the LLM) | "Waiting — P questions ahead" |
+  | `stage` | `{"stage": "queued", "position": P}` (only when waiting for the LLM) | "Waiting: P questions ahead" |
   | `stage` | `{"stage": "searching"}` | "Searching the documents…" |
   | `stage` | `{"stage": "reading", "sources": N, "band": "answer" \| "low_confidence"}` | "Reading N sources…". The amber banner appears **now** if the band is `low_confidence`. |
   | `eta` | `{"expected_seconds": S}` | If S > `ETA_NOTICE_SECONDS` (20): "This answer may take about S seconds" (localised), shown before the wait; then elapsed time against S |

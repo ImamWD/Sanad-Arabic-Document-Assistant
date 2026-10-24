@@ -19,7 +19,7 @@
 | D2 | `bge-m3`, run locally | Accepted. Keep the "privacy" sentence verbatim in the README. Server has 64 GB of RAM. |
 | D3 | Local generation; API mode not used for documents | Decided. GPU approved in principle once we supply a local price and a measured time. Build on CPU until then. |
 | D4 | Three-band gate, biased toward refusing | Accepted. Add outcome counts to the Admin log. |
-| D5 | Explicit versions; superseded versions leave retrieval | Accepted. Show "v3 — current" and the earlier versions. |
+| D5 | Explicit versions; superseded versions leave retrieval | Accepted. Show "v3 (current)" and the earlier versions. |
 | D6 | Paragraph-level highlight with page fallback | Accepted. Report the success rate on real reports separately. |
 
 ---
@@ -167,7 +167,7 @@ A **three-band gate** on the reranker's top score, biased toward refusing:
 | Band | Condition | Behaviour |
 |---|---|---|
 | Refuse | top score < `T_refuse` | The LLM is **not called**. UI: "لم أجد في الوثائق المتاحة ما يجيب عن هذا السؤال." / "I couldn't find an answer to this in the available documents." Then up to 3 nearest document titles as "you may want to check", with no claims. |
-| Low confidence | `T_refuse` ≤ score < `T_confident` | Answer **with citations** under an amber banner: "هذه الإجابة مبنية على مصادر قد لا تتطابق تماماً مع سؤالك — راجع المصادر قبل الاعتماد عليها." / "This answer is based on sources that may not fully match your question — check them before relying on it." |
+| Low confidence | `T_refuse` ≤ score < `T_confident` | Answer **with citations** under an amber banner: "هذه الإجابة مبنية على مصادر قد لا تتطابق تماماً مع سؤالك. راجع المصادر قبل الاعتماد عليها." / "This answer is based on sources that may not fully match your question. Check them before relying on it." (Punctuation updated 25 Oct: no em dashes in UI text.) |
 | Answer | score ≥ `T_confident` | Normal answer with citations |
 
 There is a second safety net in every band. The LLM must output `NO_ANSWER` when the excerpts don't contain the answer, and any answer without a valid `[n]` citation becomes a refusal.
@@ -194,7 +194,7 @@ It shows each as a count and a percentage, with a trend over the period. The cli
 **Why.** Replacing silently would break old citations and lose history. Keeping both in retrieval would surface contradictory figures, for example a draft and a final budget.
 
 **Client addition: show the version history.** Donor agreements often get three or four amendments.
-- The **Library row** shows the version and its status at a glance, e.g. **"v3 — current"**, with the number of earlier versions.
+- The **Library row** shows the version and its status at a glance, e.g. **"v3 (current)"**, with the number of earlier versions.
 - The **document page** lists the earlier versions, each with date and uploader, and each one openable.
 
 **Open point (N3).** An amendment that is a **full consolidated text** fits the version model: it replaces the previous version in retrieval. An amendment *letter* that changes only some clauses must **not** supersede the original, because the unchanged clauses still apply. Superseding it would hide them from answers. We have asked the client which form their amendments take.

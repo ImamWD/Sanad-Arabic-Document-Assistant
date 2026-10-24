@@ -23,7 +23,14 @@ If the design and your task disagree, or a product decision is missing, **stop a
    - No CDN assets, fonts or analytics.
    - `HF_HUB_OFFLINE=1` at runtime.
 8. **Never invent answers.** Don't weaken the refusal path: the gate, the `NO_ANSWER` sentinel, and the rule that no valid citation means no answer. Changes to prompts or thresholds go through the eval (`python -m sanad.eval --set dev`), with before and after numbers in the PR.
-9. **The repo is public.**
+9. **Plain writing, no em dashes (owner rule, 25 Oct 2026).** Never use the em dash `—` in:
+   - code comments or docstrings
+   - UI text, in `ar.json` and `en.json` as well as in messages and labels
+   - test names
+   - commit messages, PR titles or the README
+
+   Use a period, comma, colon or parentheses instead. Write short, plain sentences. This doesn't apply to document content in `seed/sources` or to test fixtures that reproduce real documents. `make lint` will enforce it.
+10. **The repo is public.**
    - Never commit real client documents, secrets, `.env` files, model weights or anything under `data/`.
    - Seed data is synthetic and *obviously* fake where it's personal (names, IDs, salaries).
    - Seed content is realistic Arabic and English. No lorem ipsum, no `test1`.
