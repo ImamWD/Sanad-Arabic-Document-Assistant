@@ -13,15 +13,15 @@ never runs under emulation. The runtime image receives only, per model:
                                          and the fp32-vs-int8 agreement measured here
 
 Why int8: the whole stack has to fit in about 8 GB of Docker memory on a reviewer's laptop,
-and onnxruntime has no fast fp16 kernels on CPU. Dynamic int8 quantisation shrinks each
-model from ~2.2 GB to ~0.6 GB, and the client's Xeon (Cascade Lake, AVX-512 VNNI) runs int8
-matrix products natively.
+and onnxruntime has no fast fp16 kernels on CPU. int8 weights (dynamic quantisation for the
+MatMuls, per-row int8 for the word embeddings) shrink each model from ~2.2 GB to ~0.6 GB,
+and the client's Xeon (Cascade Lake, AVX-512 VNNI) runs int8 matrix products natively.
 
 Each step runs in its own process, so the memory torch holds after exporting is returned to
 the system before the quantiser loads the 2.2 GB fp32 graph.
 """
 
-# ruff: noqa: T201, S603  -- build script: progress goes to the build log; it runs itself.
+# ruff: noqa: T201, S603  -- build script: progress goes to the build log; runs itself.
 from __future__ import annotations
 
 import gc
@@ -147,14 +147,118 @@ def step_export(spec: Spec, work: Path) -> None:
 
 
 def step_quantize(work: Path) -> None:
-    from onnxruntime.quantization import QuantType, quantize_dynamic
+    """Rewrite the fp32 graph with int8 weights, in one pass, one weight at a time.
 
-    quantize_dynamic(
-        work / "fp32.onnx",
-        work / "model.onnx",
-        weight_type=QuantType.QInt8,
-        per_channel=True,
-    )
+    onnxruntime's own quantiser keeps several full copies of a 2.2 GB graph (shape inference,
+    reloads, float64 temporaries) and runs out of memory in 8 GB, so this does the same
+    rewrite directly:
+
+    - every MatMul with a constant 2-D weight (the Linear layers): the weight becomes int8
+      with one symmetric scale per output column, and the activation is quantised on the
+      fly. This is the node pattern onnxruntime's dynamic quantiser emits, which its graph
+      optimiser fuses into a single integer MatMul at load time:
+          DynamicQuantizeLinear(x) -> MatMulInteger -> Cast -> Mul(x_scale * w_scale)
+    - the word-embedding table (250k x 1024): int8 with one scale per token row:
+          Gather(int8 table, ids) -> Cast -> Mul(Gather(row scales, ids))
+
+    Attention's activation-by-activation MatMuls, LayerNorm and biases stay fp32.
+    """
+    import numpy as np
+    import onnx
+    from onnx import TensorProto, helper, numpy_helper
+
+    model = onnx.load(str(work / "fp32.onnx"))  # loads the external weight files too
+    graph = model.graph
+    inits = {i.name: i for i in graph.initializer}
+    uses: dict[str, int] = {}
+    for node in graph.node:
+        for name in node.input:
+            uses[name] = uses.get(name, 0) + 1
+
+    def take(name: str) -> np.ndarray:
+        array = numpy_helper.to_array(inits[name]).astype(np.float32, copy=False)
+        graph.initializer.remove(inits.pop(name))
+        return array
+
+    def add(array: np.ndarray, name: str) -> str:
+        graph.initializer.append(numpy_helper.from_array(array, name))
+        return name
+
+    nodes: list[onnx.NodeProto] = []
+    dynamic: dict[str, tuple[str, str, str]] = {}  # activation -> (x_q, x_scale, x_zero_point)
+    matmuls = embeddings = 0
+    for node in graph.node:
+        weight = node.input[1] if len(node.input) > 1 else ""
+        if (
+            node.op_type == "MatMul"
+            and weight in inits
+            and len(inits[weight].dims) == 2
+            and uses[weight] == 1
+        ):
+            w = take(weight)
+            scale = np.abs(w).max(axis=0) / 127.0
+            scale[scale == 0] = 1.0
+            w_q = np.clip(np.rint(w / scale), -127, 127).astype(np.int8)
+            del w
+            add(w_q, f"{weight}_quantized")
+            add(scale.astype(np.float32), f"{weight}_scale")
+            add(np.zeros(w_q.shape[1], dtype=np.int8), f"{weight}_zero_point")
+            x = node.input[0]
+            if x not in dynamic:
+                dynamic[x] = (f"{x}_quantized", f"{x}_scale", f"{x}_zero_point")
+                nodes.append(helper.make_node("DynamicQuantizeLinear", [x], list(dynamic[x])))
+            x_q, x_scale, x_zero = dynamic[x]
+            out = node.output[0]
+            nodes += [
+                helper.make_node(
+                    "MatMulInteger",
+                    [x_q, f"{weight}_quantized", x_zero, f"{weight}_zero_point"],
+                    [f"{out}_int32"],
+                ),
+                helper.make_node("Mul", [x_scale, f"{weight}_scale"], [f"{out}_scale"]),
+                helper.make_node("Cast", [f"{out}_int32"], [f"{out}_float"], to=TensorProto.FLOAT),
+                helper.make_node("Mul", [f"{out}_float", f"{out}_scale"], [out]),
+            ]
+            matmuls += 1
+        elif (
+            node.op_type == "Gather"
+            and node.input[1] == "input_ids"
+            and node.input[0] in inits
+            and len(inits[node.input[0]].dims) == 2
+            and inits[node.input[0]].dims[0] > 100_000
+        ):
+            table_name = node.input[0]
+            table = take(table_name)
+            rows = (np.abs(table).max(axis=1) / 127.0).astype(np.float32)
+            rows[rows == 0] = 1.0
+            table_q = np.empty(table.shape, dtype=np.int8)
+            for start in range(0, table.shape[0], 8192):
+                part = slice(start, start + 8192)
+                table_q[part] = np.clip(np.rint(table[part] / rows[part, None]), -127, 127)
+            del table
+            add(table_q, f"{table_name}_quantized")
+            add(rows, f"{table_name}_row_scale")
+            add(np.array([-1], dtype=np.int64), f"{table_name}_last_axis")
+            out = node.output[0]
+            nodes += [
+                helper.make_node("Gather", [f"{table_name}_quantized", "input_ids"], [f"{out}_q"]),
+                helper.make_node("Cast", [f"{out}_q"], [f"{out}_float"], to=TensorProto.FLOAT),
+                helper.make_node("Gather", [f"{table_name}_row_scale", "input_ids"], [f"{out}_s"]),
+                helper.make_node(
+                    "Unsqueeze", [f"{out}_s", f"{table_name}_last_axis"], [f"{out}_scale"]
+                ),
+                helper.make_node("Mul", [f"{out}_float", f"{out}_scale"], [out]),
+            ]
+            embeddings += 1
+        else:
+            nodes.append(node)
+    if matmuls == 0 or embeddings != 1:
+        raise SystemExit(f"unexpected graph: {matmuls} weight MatMuls, {embeddings} embeddings")
+    del graph.node[:]
+    graph.node.extend(nodes)
+    onnx.checker.check_model(model)
+    onnx.save(model, str(work / "model.onnx"))
+    print(f"quantised {matmuls} MatMul weights and the word embeddings to int8", flush=True)
 
 
 def _encode(tokenizer_path: Path, items: list[str] | list[tuple[str, str]]):
@@ -174,7 +278,12 @@ def _encode(tokenizer_path: Path, items: list[str] | list[tuple[str, str]]):
 
 
 def step_verify(spec: Spec, work: Path) -> None:
-    """Compare int8 onnxruntime with fp32 torch on a padded batch; record the agreement."""
+    """Compare int8 onnxruntime with fp32 torch; record the agreement in model.json.
+
+    The service runs one text at a time (ML_BATCH_SIZE=1), because activations are quantised
+    with one scale per tensor: in a padded batch a text's result depends on its neighbours.
+    So the gate is on single-text results; the batch effect is recorded for information.
+    """
     import numpy as np
     import onnxruntime as ort
     import torch
@@ -183,7 +292,7 @@ def step_verify(spec: Spec, work: Path) -> None:
     items = CHECK_TEXTS if spec.slot == "embed" else [(CHECK_QUERY, p) for p in CHECK_PASSAGES]
     ids, mask = _encode(work / "tokenizer.json", items)
     session = ort.InferenceSession(str(work / "model.onnx"), providers=["CPUExecutionProvider"])
-    int8 = session.run([spec.output], {"input_ids": ids, "attention_mask": mask})[0]
+    batched = session.run([spec.output], {"input_ids": ids, "attention_mask": mask})[0]
     single = np.concatenate(
         [
             session.run(
@@ -204,32 +313,34 @@ def step_verify(spec: Spec, work: Path) -> None:
 
     info: dict[str, object] = {}
     if spec.slot == "embed":
-        unit = int8 / np.linalg.norm(int8, axis=1, keepdims=True)
-        cosine = (unit * fp32).sum(axis=1)
-        padding = (unit * (single / np.linalg.norm(single, axis=1, keepdims=True))).sum(axis=1)
+
+        def unit(x: np.ndarray) -> np.ndarray:
+            return x / np.linalg.norm(x, axis=1, keepdims=True)
+
+        cosine = (unit(single) * unit(fp32)).sum(axis=1)
+        batch_effect = (unit(single) * unit(batched)).sum(axis=1)
         info = {
             "dim": int(fp32.shape[1]),
             "check_min_cosine_vs_fp32": round(float(cosine.min()), 4),
             "check_mean_cosine_vs_fp32": round(float(cosine.mean()), 4),
-            "check_min_cosine_padded_vs_single": round(float(padding.min()), 4),
+            "info_min_cosine_single_vs_padded_batch": round(float(batch_effect.min()), 4),
         }
-        ok = cosine.min() >= MIN_COSINE and padding.min() >= 0.999
+        ok = cosine.min() >= MIN_COSINE
     else:
-        s8, s32, s1 = (1 / (1 + np.exp(-x.astype(np.float64))) for x in (int8, fp32, single))
+        s8, s32, sb = (1 / (1 + np.exp(-x.astype(np.float64))) for x in (single, fp32, batched))
         info = {
             "dim": None,
             "check_max_score_diff_vs_fp32": round(float(np.abs(s8 - s32).max()), 4),
-            "check_max_score_diff_padded_vs_single": round(float(np.abs(s8 - s1).max()), 4),
-            "check_same_ranking_as_fp32": bool((np.argsort(-s8) == np.argsort(-s32)).all()),
+            "check_same_top_passage_as_fp32": int(np.argmax(s8)) == int(np.argmax(s32)),
             "check_scores_int8": [round(float(s), 4) for s in s8],
             "check_scores_fp32": [round(float(s), 4) for s in s32],
+            "info_max_score_diff_single_vs_padded_batch": round(float(np.abs(s8 - sb).max()), 4),
         }
         ok = (
             np.abs(s8 - s32).max() <= MAX_SCORE_DIFF
-            and np.abs(s8 - s1).max() <= 1e-3
-            # Either answer passage (Arabic or English) must come first, in both precisions.
+            # An answer passage (Arabic or English) comes first, the same one in both.
+            and int(np.argmax(s8)) == int(np.argmax(s32))
             and int(np.argmax(s8)) in {0, 2}
-            and int(np.argmax(s32)) in {0, 2}
         )
     print(f"[{spec.slot}] check: {json.dumps(info, ensure_ascii=False)}", flush=True)
     if not ok:

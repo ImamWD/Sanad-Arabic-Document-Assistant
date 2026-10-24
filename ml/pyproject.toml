@@ -55,3 +55,8 @@ python_version = "3.12"
 strict = true
 files = ["sanad_ml", "tests"]
 cache_dir = "/tmp/mypy_cache"
+
+# onnxruntime ships no type information.
+[[tool.mypy.overrides]]
+module = ["onnxruntime", "onnxruntime.*"]
+ignore_missing_imports = true

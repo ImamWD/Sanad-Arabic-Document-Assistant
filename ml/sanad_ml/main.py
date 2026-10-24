@@ -66,10 +66,10 @@ class TokenizeResponse(BaseModel):
 def config_from_env() -> EngineConfig:
     return EngineConfig(
         models_dir=Path(os.environ.get("ML_MODELS_DIR", "/opt/models")),
-        batch_size=int(os.environ.get("ML_BATCH_SIZE", "8")),
+        batch_size=int(os.environ.get("ML_BATCH_SIZE", "1")),
         embed_max_tokens=int(os.environ.get("ML_EMBED_MAX_TOKENS", "1024")),
         rerank_max_tokens=int(os.environ.get("ML_RERANK_MAX_TOKENS", "1024")),
-        threads=int(os.environ.get("ML_THREADS", "0")),
+        threads=int(os.environ.get("ML_THREADS", "4")),
         mem_arena=os.environ.get("ML_MEM_ARENA", "0") == "1",
     )
 
@@ -104,9 +104,7 @@ def create_app(load_engine: Callable[[], Engine], max_concurrency: int = 1) -> F
     @app.get("/health")
     async def health(request: Request) -> Health:
         loaded = engine(request)
-        return Health(
-            status="ok", embed_model=loaded.embed_model, rerank_model=loaded.rerank_model
-        )
+        return Health(status="ok", embed_model=loaded.embed_model, rerank_model=loaded.rerank_model)
 
     # Inference is CPU-bound and releases the GIL inside onnxruntime: run it off the loop.
     @app.post("/embed")

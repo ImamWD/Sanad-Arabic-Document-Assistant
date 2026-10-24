@@ -23,6 +23,10 @@ from tokenizers import Encoding, Tokenizer
 
 FloatArray = npt.NDArray[np.float32]
 
+# onnxruntime ships a telemetry client. The ml container has no route out anyway (internal
+# network), but nothing here should even try: no document content leaves the server.
+ort.disable_telemetry_events()
+
 
 class Engine(Protocol):
     """What the HTTP layer needs. Tests swap in a fake."""
@@ -41,10 +45,15 @@ class Engine(Protocol):
 @dataclass(frozen=True)
 class EngineConfig:
     models_dir: Path
-    batch_size: int = 8
+    # One text per inference run. Activations are quantised with one scale per tensor, so in a
+    # padded batch a text's vector (or score) would depend on the other texts in the batch.
+    # For chunk-length inputs the work is FLOP-bound, so batching would gain little anyway.
+    batch_size: int = 1
     embed_max_tokens: int = 1024
     rerank_max_tokens: int = 1024
-    threads: int = 0  # 0: onnxruntime picks (one per physical core)
+    # Measured on a 10-CPU Docker VM: 4 threads embed a 350-token text in 0.5 s, all 10 take
+    # 1.4 s (core contention). 4 also leaves CPU for the LLM. 0 lets onnxruntime decide.
+    threads: int = 4
     mem_arena: bool = False  # off: lower resident memory between requests, slightly slower
 
 
@@ -79,6 +88,9 @@ def _session(path: Path, config: EngineConfig) -> ort.InferenceSession:
     options = ort.SessionOptions()
     options.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
     options.enable_cpu_mem_arena = config.mem_arena
+    # Pre-packing keeps a second, re-laid-out copy of the int8 weights: ~160 MiB more for
+    # both models, and no measurable speed gain here.
+    options.add_session_config_entry("session.disable_prepacking", "1")
     if config.threads > 0:
         options.intra_op_num_threads = config.threads
     options.inter_op_num_threads = 1
@@ -139,9 +151,7 @@ class OnnxEngine:
         self._embed_session = _session(embed_dir / "model.onnx", config)
         self._rerank_session = _session(rerank_dir / "model.onnx", config)
         self._embed_tokenizer = _tokenizer(embed_dir / "tokenizer.json", config.embed_max_tokens)
-        self._rerank_tokenizer = _tokenizer(
-            rerank_dir / "tokenizer.json", config.rerank_max_tokens
-        )
+        self._rerank_tokenizer = _tokenizer(rerank_dir / "tokenizer.json", config.rerank_max_tokens)
         # Counting tokens for the chunker: no truncation, no special tokens.
         self._count_tokenizer = Tokenizer.from_file(str(embed_dir / "tokenizer.json"))
         self._count_tokenizer.no_truncation()

@@ -5,7 +5,6 @@ result for a text whatever batch it lands in and however much padding that batch
 """
 
 import json
-from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -23,7 +22,7 @@ DIM = 3
 
 
 def _tokenizer() -> Tokenizer:
-    tokenizer = Tokenizer(models.WordLevel(VOCAB, unk_token="<unk>"))
+    tokenizer = Tokenizer(models.WordLevel(VOCAB, unk_token="<unk>"))  # noqa: S106 - a token
     tokenizer.pre_tokenizer = pre_tokenizers.Whitespace()
     tokenizer.post_processor = processors.TemplateProcessing(
         single="<s> $A </s>",
@@ -55,7 +54,9 @@ def _masked_token_sum(weights: np.ndarray, output: str, reduce_axes: list[int]) 
             numpy_helper.from_array(np.array(reduce_axes, dtype=np.int64), "reduce"),
         ],
     )
-    return helper.make_model(graph, opset_imports=[helper.make_opsetid("", 17)])
+    # IR 8 goes with opset 17, as in the real export (onnx's default IR is newer than
+    # onnxruntime reads).
+    return helper.make_model(graph, opset_imports=[helper.make_opsetid("", 17)], ir_version=8)
 
 
 def _write_model(slot: Path, model: onnx.ModelProto, output: str, dim: int | None) -> None:
@@ -74,13 +75,30 @@ def models_dir(tmp_path: Path) -> Path:
     rerank_weights[VOCAB["water"]] = 2.0
     rerank_weights[VOCAB["points"]] = 1.0
     rerank_weights[VOCAB["budget"]] = -3.0
-    _write_model(tmp_path / "embed", _masked_token_sum(embed_weights, "embedding", [1]), "embedding", DIM)
-    _write_model(tmp_path / "rerank", _masked_token_sum(rerank_weights, "logit", [1, 2]), "logit", None)
+    _write_model(
+        tmp_path / "embed", _masked_token_sum(embed_weights, "embedding", [1]), "embedding", DIM
+    )
+    _write_model(
+        tmp_path / "rerank", _masked_token_sum(rerank_weights, "logit", [1, 2]), "logit", None
+    )
     return tmp_path
 
 
-def _engine(models_dir: Path, **overrides: int) -> OnnxEngine:
-    return OnnxEngine(replace(EngineConfig(models_dir=models_dir, threads=1), **overrides))
+def _engine(
+    models_dir: Path,
+    *,
+    batch_size: int = 1,
+    embed_max_tokens: int = 1024,
+    rerank_max_tokens: int = 1024,
+) -> OnnxEngine:
+    config = EngineConfig(
+        models_dir=models_dir,
+        batch_size=batch_size,
+        embed_max_tokens=embed_max_tokens,
+        rerank_max_tokens=rerank_max_tokens,
+        threads=1,
+    )
+    return OnnxEngine(config)
 
 
 def test_labels_and_dimension(models_dir: Path) -> None:
