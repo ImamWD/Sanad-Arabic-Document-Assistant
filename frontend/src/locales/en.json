@@ -73,6 +73,55 @@
     },
     "backToAsk": "Go to Ask"
   },
+  "ask": {
+    "form": {
+      "label": "Your question",
+      "placeholder": "Ask about the documents, in Arabic or English",
+      "hint": "Press Enter to send. Shift+Enter adds a new line.",
+      "submit": "Ask",
+      "submitting": "Answering…"
+    },
+    "stage": {
+      "starting": "Sending your question…",
+      "queued": "Waiting for the assistant to be free…",
+      "searching": "Searching the documents…",
+      "reading": "Reading the sources…",
+      "writing": "Writing the answer…"
+    },
+    "detail": {
+      "queued": "Questions ahead of yours: {{position}}",
+      "reading": "Sources found: {{sources}}"
+    },
+    "wait": {
+      "notice": "This answer may take about {{duration}}.",
+      "elapsed": "Elapsed: {{elapsed}} of about {{expected}}",
+      "overrun": "Still working, taking longer than usual ({{elapsed}} so far)."
+    },
+    "refusal": {
+      "gate": "The documents don't cover this question.",
+      "read": "Some passages were read, but nothing usable was found in them.",
+      "nearest": "You may want to check:"
+    },
+    "citations": {
+      "heading": "Sources",
+      "page": "Page {{page}}",
+      "convertedWord": "The page number refers to the converted PDF and may differ from Word.",
+      "convertedOther": "The page number refers to the converted PDF and may differ from the original file."
+    },
+    "history": {
+      "toggle": "History",
+      "heading": "Your questions",
+      "empty": "You haven't asked anything yet.",
+      "askedAt": "Asked on {{time}}",
+      "guestHint": "As a guest, you see only the questions asked in this session."
+    },
+    "outcome": {
+      "answered": "Answered",
+      "low_confidence": "Low confidence",
+      "no_answer": "Not answered"
+    },
+    "retry": "Try again"
+  },
   "errors": {
     "BAD_REQUEST": "The request could not be completed. Check the details and try again.",
     "NOT_FOUND": "The requested item was not found.",

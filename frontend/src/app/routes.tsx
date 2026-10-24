@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router';
 
+import { AskPage } from '../features/ask/AskPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { AppLayout } from './AppLayout';
 import { RequireAuth, RequireRole } from './guards';
@@ -21,7 +22,7 @@ export const routes: RouteObject[] = [
         element: <AppLayout />,
         children: [
           { index: true, element: <Navigate to="/ask" replace /> },
-          { path: 'ask', element: <PlaceholderPage id="ask" /> },
+          { path: 'ask', element: <AskPage /> },
           { path: 'library', element: <PlaceholderPage id="library" /> },
           { path: 'documents/:id', element: <DocumentPage /> },
           {

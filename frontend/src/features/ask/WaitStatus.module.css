@@ -1,0 +1,76 @@
+.wait {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-weight: 600;
+}
+
+.detail {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* A small beating dot beside the words: the stage is always said, never only shown. */
+.pulse {
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
+
+.notice {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.elapsed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* <progress> fills from the inline start, so it mirrors with the page direction. */
+.progress {
+  inline-size: min(100%, 24rem);
+  block-size: 0.5rem;
+  accent-color: var(--color-primary);
+}
+
+.elapsedText,
+.overrun {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.overrun {
+  color: var(--color-text);
+}
