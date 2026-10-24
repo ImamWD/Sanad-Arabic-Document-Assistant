@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import gc
 import json
-import os
 import shutil
 import subprocess
 import sys
@@ -52,9 +51,6 @@ CHECK_PASSAGES = [
     "The Foundation rehabilitated 42 rural water points in the Eastern Plateau in 2019.",
     "بلغ عدد المتطوعين 340 متطوعًا ومتطوعة.",
 ]
-# Largest |int8| a MatMul weight may take. 127 uses the full range; 63 (7 bits) can't
-# saturate the 16-bit pairwise sums of onnxruntime's x86 int8 kernel on CPUs without VNNI.
-WEIGHT_MAX = int(os.environ.get("QUANT_WEIGHT_MAX", "127"))
 # Fail the build if quantisation broke the model, not merely if it nudged it.
 MIN_COSINE = 0.95
 MAX_SCORE_DIFF = 0.15
@@ -66,12 +62,21 @@ class Spec:
     repo: str
     revision: str  # pinned commit: the weights never change under us
     output: str
+    # Largest |int8| a MatMul weight may take: 127 is the full range, 63 is 7 bits.
+    weight_max: int
 
 
+# Weight ranges measured against fp32 (see model.json), on arm64 and on x86 without VNNI:
+# - bge-m3 keeps the full range: min cosine 0.986 (arm64) and 0.985 (x86); 7 bits gave
+#   0.983 and 0.981.
+# - the reranker uses 7 bits: max score error 0.011 (arm64) and 0.010 (x86), against 0.026 and
+#   0.030 at full range. The refusal gate's thresholds sit on these scores.
 SPECS = {
-    "embed": Spec("embed", "BAAI/bge-m3", "5617a9f61b028005a4858fdac845db406aefb181", "embedding"),
+    "embed": Spec(
+        "embed", "BAAI/bge-m3", "5617a9f61b028005a4858fdac845db406aefb181", "embedding", 127
+    ),
     "rerank": Spec(
-        "rerank", "BAAI/bge-reranker-v2-m3", "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e", "logit"
+        "rerank", "BAAI/bge-reranker-v2-m3", "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e", "logit", 63
     ),
 }
 
@@ -150,7 +155,7 @@ def step_export(spec: Spec, work: Path) -> None:
     shutil.copyfile(src / "tokenizer.json", work / "tokenizer.json")
 
 
-def step_quantize(work: Path) -> None:
+def step_quantize(spec: Spec, work: Path) -> None:
     """Rewrite the fp32 graph with int8 weights, in one pass, one weight at a time.
 
     onnxruntime's own quantiser keeps several full copies of a 2.2 GB graph (shape inference,
@@ -200,9 +205,10 @@ def step_quantize(work: Path) -> None:
             and uses[weight] == 1
         ):
             w = take(weight)
-            scale = np.abs(w).max(axis=0) / WEIGHT_MAX
+            scale = np.abs(w).max(axis=0) / spec.weight_max
             scale[scale == 0] = 1.0
-            w_q = np.clip(np.rint(w / scale), -WEIGHT_MAX, WEIGHT_MAX).astype(np.int8)
+            limit = spec.weight_max
+            w_q = np.clip(np.rint(w / scale), -limit, limit).astype(np.int8)
             del w
             add(w_q, f"{weight}_quantized")
             add(scale.astype(np.float32), f"{weight}_scale")
@@ -350,6 +356,13 @@ def step_verify(spec: Spec, work: Path) -> None:
     if not ok:
         raise SystemExit(f"[{spec.slot}] int8 model disagrees with fp32; refusing to ship it")
     (work / "check.json").write_text(json.dumps(info), encoding="utf-8")
+    # The fp32 outputs for the check inputs, shipped with the model, so int8 fidelity can be
+    # measured on the machine that runs it (CPU kernels differ between arm64 and x86).
+    reference = {
+        "inputs": items,
+        "fp32": fp32.tolist() if spec.slot == "embed" else [float(s) for s in s32],
+    }
+    (work / "reference.json").write_text(json.dumps(reference, ensure_ascii=False), "utf-8")
 
 
 def _run(*args: str) -> None:
@@ -362,7 +375,7 @@ def main() -> None:
         if step == "export":
             step_export(SPECS[slot], work)
         elif step == "quantize":
-            step_quantize(work)
+            step_quantize(SPECS[slot], work)
         else:
             step_verify(SPECS[slot], work)
         return
@@ -385,12 +398,14 @@ def main() -> None:
         target.mkdir(parents=True, exist_ok=True)
         shutil.move(work / "model.onnx", target / "model.onnx")
         shutil.move(work / "tokenizer.json", target / "tokenizer.json")
+        shutil.move(work / "reference.json", target / "reference.json")
         check = json.loads((work / "check.json").read_text(encoding="utf-8"))
         info = {
             "name": spec.repo,
             "revision": spec.revision,
             "variant": VARIANT,
             "output": spec.output,
+            "weight_max": spec.weight_max,
             **check,
         }
         (target / "model.json").write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8")
