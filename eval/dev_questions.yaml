@@ -144,7 +144,7 @@ questions:
     expected_outcome: answered
     expected_answer: "1,200,000 دولار أمريكي لمدة 36 شهراً (القرار 2017/4/1)."
     vocab_shift: false
-    notes: "November 2017 board minutes (Windows-1256 TXT), p2, decision 2017/4/1."
+    notes: "November 2017 board minutes (Windows-1256 TXT), p2, decision 2017/4/1. The 2018 agreement and the 2021 evaluation show the same figure as the granted amount, but they do not answer what the board decided to request, so they are deliberately not listed."
   - id: D12
     language: ar
     kinds: [factual, numeric]

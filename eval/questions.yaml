@@ -43,6 +43,7 @@ questions:
     must_include: ["5,480,000"]
     expected_citations:
       - {file: budget-2024-final.pdf, page: 1}
+      - {file: budget-2024-final.pdf, page: 2}
       - {file: budget-2024-final.pdf, page: 3}
       - {file: budget-2024-final.pdf, page: 5}
       - {file: board-minutes-2023-12.pdf, page: 2}
@@ -121,11 +122,12 @@ questions:
     must_include: ["450,000"]
     expected_citations:
       - {file: yep-grant-agreement-2021.pdf, page: 3}
+      - {file: yep-grant-agreement-2021.pdf, page: 5}
       - {file: board-minutes-2021-06.docx, page: 3}
     expected_outcome: answered
     expected_answer: "450,000 دولار أمريكي لمدة 24 شهراً تبدأ في 1 تموز/يوليو 2021."
     vocab_shift: false
-    notes: "Bilingual (mixed) grant agreement Article 3, p3; board approval in the June 2021 minutes p3. Tests a Latin project code inside an Arabic question."
+    notes: "Bilingual (mixed) grant agreement Article 3, p3, and the budget total in Article 5, p5; board approval in the June 2021 minutes p3. Tests a Latin project code inside an Arabic question."
   - id: T09
     language: ar
     kinds: [factual, numeric, tatweel]
@@ -268,13 +270,14 @@ questions:
     must_include: ["22"]
     expected_citations:
       - {file: wash-final-evaluation-2021.pdf, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 3}
       - {file: wash-final-evaluation-2021.pdf, page: 5}
       - {file: annual-report-2021.pdf, page: 8}
       - {file: annual-report-2022.pdf, page: 8}
     expected_outcome: answered
     expected_answer: "22 water points, out of 24 planned; two sites were dropped because the water table was too low."
     vocab_shift: false
-    notes: "English question about Arabic documents. WASH-2018-01 final evaluation p2 and p5, annual report 2021 p8, and the 2022 follow-up on p8 (20 of the 22 points still working). 24 is the target, not the answer."
+    notes: "English question about Arabic documents. WASH-2018-01 final evaluation p2 and p5 (and p3, where the team inspects all 22 points), annual report 2021 p8, and the 2022 follow-up on p8 (20 of the 22 points still working). 24 is the target, not the answer."
   - id: T21
     language: ar
     kinds: [unanswerable, near_miss]
