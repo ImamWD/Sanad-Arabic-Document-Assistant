@@ -47,7 +47,8 @@ class EngineConfig:
     models_dir: Path
     # One text per inference run. Activations are quantised with one scale per tensor, so in a
     # padded batch a text's vector (or score) would depend on the other texts in the batch.
-    # For chunk-length inputs the work is FLOP-bound, so batching would gain little anyway.
+    # It is also the fastest on CPU: 30 rerank candidates of ~300 tokens took 7.7 s one at a
+    # time, 10.3 s in batches of 4 and 18.5 s in batches of 8 (padding and attention cost).
     batch_size: int = 1
     embed_max_tokens: int = 1024
     rerank_max_tokens: int = 1024
