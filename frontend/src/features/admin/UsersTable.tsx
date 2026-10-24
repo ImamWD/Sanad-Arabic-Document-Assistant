@@ -102,7 +102,7 @@ export function UsersTable({ onSaved, onEdit }: UsersTableProps) {
                     <td>
                       <Bidi className={styles.email} text={user.email} />
                     </td>
-                    <td>
+                    <td className={styles.nowrap}>
                       {t(`roles.${user.role}`)}
                       {user.is_guest && (
                         <span className={styles.badge}>{t('admin.users.roleFixed')}</span>
@@ -114,8 +114,8 @@ export function UsersTable({ onSaved, onEdit }: UsersTableProps) {
                         {user.is_active ? t('admin.users.active') : t('admin.users.inactive')}
                       </span>
                     </td>
-                    <td>{format.date(user.created_at)}</td>
-                    <td>
+                    <td className={styles.nowrap}>{format.date(user.created_at)}</td>
+                    <td className={styles.nowrap}>
                       {user.last_login_at
                         ? format.dateTime(user.last_login_at)
                         : t('admin.users.never')}
@@ -144,14 +144,16 @@ export function UsersTable({ onSaved, onEdit }: UsersTableProps) {
                   {open && (
                     <tr className={styles.editRow}>
                       <td colSpan={COLUMNS}>
-                        <EditUserForm
-                          id={formId(user.id)}
-                          user={user}
-                          isSelf={isSelf}
-                          onClose={(saved) => {
-                            close(user.id, saved);
-                          }}
-                        />
+                        <div className={styles.editPanel}>
+                          <EditUserForm
+                            id={formId(user.id)}
+                            user={user}
+                            isSelf={isSelf}
+                            onClose={(saved) => {
+                              close(user.id, saved);
+                            }}
+                          />
+                        </div>
                       </td>
                     </tr>
                   )}

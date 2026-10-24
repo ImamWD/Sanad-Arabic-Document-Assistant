@@ -30,6 +30,7 @@
 }
 
 .scroll {
+  container-type: inline-size;
   overflow-x: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-3);
@@ -73,6 +74,11 @@
 
 .email {
   overflow-wrap: anywhere;
+}
+
+/* Dates and the role (with its badge) stay on one line; names and emails wrap instead. */
+.nowrap {
+  white-space: nowrap;
 }
 
 .badge {
@@ -134,4 +140,11 @@
 
 .editRow > td {
   background: var(--color-background);
+}
+
+/* When the table scrolls sideways, the edit form stays within the visible part of the box. */
+.editPanel {
+  position: sticky;
+  inset-inline-start: var(--space-3);
+  max-inline-size: calc(100cqi - 2 * var(--space-3));
 }
