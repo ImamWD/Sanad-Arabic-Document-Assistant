@@ -284,3 +284,79 @@ def test_session_id_is_the_stored_session_hash(
     assert stored == hashlib.sha256(token.encode()).hexdigest()
     assert stored in known
     assert SESSION_COOKIE == "sanad_session"
+
+
+def test_editor_debug_gets_diagnostics(
+    client: TestClient, sessions: dict[str, str], corpus: dict[str, uuid.UUID]
+) -> None:
+    response = ask(client, sessions["editor"], WLP_QUESTION, debug=True)
+    body = response.json()
+    diag = body["diagnostics"]
+    assert diag["band"] == body["band"]
+    assert diag["llm_model"] == "grounded-model"
+    candidates = diag["candidates"]
+    assert [c["rank"] for c in candidates] == list(range(1, len(candidates) + 1))
+    assert diag["top_score"] == candidates[0]["rerank_score"]
+    wlp = next(
+        c
+        for c in candidates
+        if c["file"] == "wlp-donor-agreement-2022.pdf" and c["page_number"] == 3
+    )
+    assert wlp["document_id"] == str(corpus["wlp-donor-agreement-2022"])
+    assert wlp["dense_rank"] is not None or wlp["lexical_rank"] is not None
+    timings = diag["timings_ms"]
+    assert set(timings) == {"embed", "retrieve", "rerank", "first_token", "generate", "total"}
+    assert timings["first_token"] is not None and timings["generate"] is not None
+    # Ids, positions and scores only: no document text.
+    text = json.dumps(diag, ensure_ascii=False)
+    assert "رواتب" not in text and "84,000" not in text
+    assert AskResult.model_validate(body).diagnostics is not None
+
+
+def test_debug_is_ignored_for_viewer_and_guest(
+    client: TestClient, sessions: dict[str, str], corpus: dict[str, uuid.UUID]
+) -> None:
+    for who in ("viewer", "guest"):
+        body = ask(client, sessions[who], WLP_QUESTION, debug=True).json()
+        assert "diagnostics" not in body, who
+        assert body["outcome"] in ("answered", "low_confidence", "no_answer")
+
+
+def test_debug_on_a_gate_refusal(
+    client: TestClient,
+    sessions: dict[str, str],
+    corpus: dict[str, uuid.UUID],
+    llm: GroundedLlm,
+    set_env: Callable[..., None],
+) -> None:
+    set_env(t_refuse="0.99", t_confident="0.995")
+    body = ask(client, sessions["editor"], WLP_QUESTION, debug=True).json()
+    assert (body["outcome"], body["refusal_reason"]) == ("no_answer", "gate")
+    diag = body["diagnostics"]
+    assert diag["band"] == "refuse" and diag["candidates"]
+    assert diag["timings_ms"]["first_token"] is None
+    assert diag["timings_ms"]["generate"] is None
+    assert llm.prompts == []
+
+
+def test_debug_switched_off(
+    client: TestClient,
+    sessions: dict[str, str],
+    corpus: dict[str, uuid.UUID],
+    set_env: Callable[..., None],
+) -> None:
+    set_env(ask_debug_enabled="false")
+    body = ask(client, sessions["admin"], WLP_QUESTION, debug=True).json()
+    assert "diagnostics" not in body
+
+
+def test_stream_never_carries_diagnostics(
+    client: TestClient, sessions: dict[str, str], corpus: dict[str, uuid.UUID]
+) -> None:
+    response = client.post(
+        "/api/ask/stream",
+        json={"question": WLP_QUESTION, "debug": True},
+        headers=as_(sessions["editor"]),
+    )
+    final = parse_sse(response.text)[-1][1]
+    assert "diagnostics" not in final

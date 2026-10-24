@@ -84,6 +84,9 @@ class AskInput:
     session_id: str | None
     question: str
     filters: Filters = field(default_factory=Filters)
+    # Add `diagnostics` to `final` (the eval's retrieval and timing view). The route decides who
+    # may ask for it; the stream never does.
+    debug: bool = False
 
 
 def question_language(question: str, user: User) -> str:
@@ -100,6 +103,44 @@ def snippet(text: str, limit: int) -> str:
         return flat
     cut = flat.rfind(" ", 0, limit)
     return flat[: cut if cut > limit // 2 else limit].rstrip() + "…"
+
+
+def diagnostics(
+    retrieved: Retrieved,
+    band: Band,
+    llm_model: str,
+    done: Done | None,
+    total_ms: int,
+) -> dict[str, Any]:
+    """Every reranked candidate with its ranks and scores, the band and the step timings. Ids,
+    positions and scores only: never chunk text."""
+    timings = retrieved.timings_ms
+    return {
+        "candidates": [
+            {
+                "rank": rank,
+                "document_id": str(c.document_id),
+                "file": c.file,
+                "page_number": c.page_number,
+                "chunk_id": str(c.chunk_id),
+                "rerank_score": c.score,
+                "dense_rank": c.dense_rank,
+                "lexical_rank": c.lexical_rank,
+            }
+            for rank, c in enumerate(retrieved.candidates, start=1)
+        ],
+        "top_score": retrieved.top_score,
+        "band": band.value,
+        "timings_ms": {
+            "embed": timings.get("embed"),
+            "retrieve": timings.get("retrieve"),
+            "rerank": timings.get("rerank"),
+            "first_token": done.prompt_ms if done else None,
+            "generate": done.prompt_ms + done.output_ms if done else None,
+            "total": total_ms,
+        },
+        "llm_model": llm_model,
+    }
 
 
 def nearest_documents(candidates: Sequence[Candidate], limit: int) -> list[Candidate]:
@@ -168,6 +209,9 @@ class AskPipeline:
         started = time.monotonic()
         language = question_language(ask.question, ask.user)
 
+        def elapsed_ms() -> int:
+            return round((time.monotonic() - started) * 1000)
+
         def record(**fields: Any) -> QueryRecord:
             return QueryRecord(
                 user_id=ask.user.id,
@@ -175,7 +219,7 @@ class AskPipeline:
                 question=ask.question,
                 language=language,
                 filters=ask.filters.as_json(),
-                latency_ms=round((time.monotonic() - started) * 1000),
+                latency_ms=elapsed_ms(),
                 **fields,
             )
 
@@ -220,10 +264,12 @@ class AskPipeline:
                     nearest_document_ids=[c.document_id for c in nearest],
                 )
             )
-            yield Event(
-                "final",
-                self._final_payload(query_id, Outcome.NO_ANSWER, band, refused, [], nearest),
-            )
+            payload = self._final_payload(query_id, Outcome.NO_ANSWER, band, refused, [], nearest)
+            if ask.debug:
+                payload["diagnostics"] = diagnostics(
+                    retrieved, band, self._provider.model, None, elapsed_ms()
+                )
+            yield Event("final", payload)
             return
 
         prompt = build_prompt(
@@ -342,7 +388,9 @@ class AskPipeline:
             )
         )
         shown_nearest = nearest if validated.answer is None else []
-        yield Event(
-            "final",
-            self._final_payload(query_id, outcome, band, validated, context, shown_nearest),
-        )
+        payload = self._final_payload(query_id, outcome, band, validated, context, shown_nearest)
+        if ask.debug:
+            payload["diagnostics"] = diagnostics(
+                retrieved, band, self._provider.model, done, elapsed_ms()
+            )
+        yield Event("final", payload)

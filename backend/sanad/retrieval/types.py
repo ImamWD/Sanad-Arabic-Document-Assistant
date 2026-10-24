@@ -47,11 +47,18 @@ class Candidate:
     is_seed: bool
     language: str | None
     score: float  # reranker score, 0..1
+    # For the eval's diagnostics (E1): the document's file name (for seed documents, the
+    # manifest `file` the eval sets cite) and the chunk's place in each first-stage ranking.
+    file: str = ""
+    dense_rank: int | None = None
+    lexical_rank: int | None = None
 
 
 @dataclass(frozen=True)
 class Retrieved:
     candidates: list[Candidate]  # best reranked first
+    # Milliseconds spent embedding the question, in the dense and lexical queries, reranking.
+    timings_ms: dict[str, int] = field(default_factory=dict)
 
     @property
     def top_score(self) -> float | None:

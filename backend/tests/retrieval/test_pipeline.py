@@ -2,6 +2,8 @@
 holdback and post-validation (ROADMAP R1 acceptance, SYSTEM_DESIGN §6)."""
 
 import asyncio
+from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -317,3 +319,53 @@ def test_nearest_documents_are_distinct() -> None:
     other = make_candidate(score=0.3)
     assert nearest_documents([doc, same_doc, other], 3) == [doc, other]
     assert nearest_documents([doc, same_doc, other], 1) == [doc]
+
+
+async def debug_run(p: object, question: str = "كم شاباً حصل على عمل في 2021؟") -> list[Any]:
+    ask = AskInput(user=make_user(), session_id=None, question=question, debug=True)
+    return [event async for event in p.run(ask)]  # type: ignore[attr-defined]
+
+
+async def test_debug_adds_diagnostics_to_an_answer() -> None:
+    candidates = [
+        replace(c, file=f"doc-{i}.pdf", dense_rank=i + 1, lexical_rank=None)
+        for i, c in enumerate(STRONG)
+    ]
+    retriever = FakeRetriever(candidates)
+    retriever.timings_ms = {"embed": 5, "retrieve": 7, "rerank": 900}
+    p, _ = pipeline(retriever, FakeLlm(ANSWER))
+    final = (await debug_run(p))[-1].data
+    diag = final["diagnostics"]
+    assert [c["rank"] for c in diag["candidates"]] == [1, 2]
+    first = diag["candidates"][0]
+    assert first == {
+        "rank": 1,
+        "document_id": str(STRONG[0].document_id),
+        "file": "doc-0.pdf",
+        "page_number": 6,
+        "chunk_id": str(STRONG[0].chunk_id),
+        "rerank_score": 0.92,
+        "dense_rank": 1,
+        "lexical_rank": None,
+    }
+    assert (diag["top_score"], diag["band"], diag["llm_model"]) == (0.92, "answer", "fake-model")
+    timings = diag["timings_ms"]
+    assert (timings["embed"], timings["retrieve"], timings["rerank"]) == (5, 7, 900)
+    assert (timings["first_token"], timings["generate"]) == (1200, 1500)
+    assert timings["total"] >= 0
+    assert STRONG[0].text not in str(diag)
+
+
+async def test_debug_diagnostics_on_a_gate_refusal() -> None:
+    llm = FakeLlm(ANSWER)
+    p, _ = pipeline(FakeRetriever(TOO_WEAK), llm)
+    diag = (await debug_run(p))[-1].data["diagnostics"]
+    assert llm.prompts == []
+    assert len(diag["candidates"]) == 2 and diag["band"] == "refuse"
+    assert diag["timings_ms"]["first_token"] is None
+    assert diag["timings_ms"]["generate"] is None
+
+
+async def test_no_diagnostics_without_debug() -> None:
+    p, _ = pipeline(FakeRetriever(STRONG), FakeLlm(ANSWER))
+    assert "diagnostics" not in (await run(p))[-1].data

@@ -30,6 +30,8 @@ class RetrievalSettings(BaseSettings):
     snippet_chars: int = Field(default=300, ge=40)
     question_max_chars: int = Field(default=1000, ge=10)
     ask_ml_timeout_seconds: float = Field(default=120, gt=0)
+    # `debug: true` on POST /ask adds retrieval diagnostics for editors and admins (the eval).
+    ask_debug_enabled: bool = True
 
     @model_validator(mode="after")
     def _ordered_thresholds(self) -> Self:

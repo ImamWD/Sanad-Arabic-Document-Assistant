@@ -69,12 +69,13 @@ class FakeRetriever:
         self.candidates = sorted(candidates, key=lambda c: -c.score)
         self.error = error
         self.calls: list[tuple[User, str, Filters]] = []
+        self.timings_ms: dict[str, int] = {}
 
     async def retrieve(self, user: User, question: str, filters: Filters) -> Retrieved:
         self.calls.append((user, question, filters))
         if self.error is not None:
             raise self.error
-        return Retrieved(list(self.candidates))
+        return Retrieved(list(self.candidates), dict(self.timings_ms))
 
 
 @dataclass

@@ -27,7 +27,7 @@ from sanad.core.config import get_settings
 from sanad.core.db import DbSession
 from sanad.core.errors import ApiError, ErrorCode
 from sanad.core.models import DocCategory
-from sanad.core.security import CurrentUser
+from sanad.core.security import CurrentUser, Role, User
 from sanad.llm.providers import build_provider
 from sanad.llm.queue import GenerationQueue
 from sanad.llm.settings import get_llm_settings
@@ -69,6 +69,9 @@ class AskFilters(BaseModel):
 class AskRequest(BaseModel):
     question: QuestionText
     filters: AskFilters | None = None
+    # POST /ask only: retrieval diagnostics for editors and admins when ASK_DEBUG_ENABLED is on.
+    # Silently ignored for anyone else and on the stream.
+    debug: bool = False
 
 
 def get_pipeline(request: Request) -> AskPipeline:
@@ -91,7 +94,7 @@ Pipeline = Annotated[AskPipeline, Depends(get_pipeline)]
 
 
 async def _ask_input(
-    body: AskRequest, request: Request, user: CurrentUser, db: DbSession
+    body: AskRequest, request: Request, user: CurrentUser, db: DbSession, *, debug: bool = False
 ) -> AskInput:
     """Validate the request and release the request's db connection: the pipeline opens its own
     sessions, and an answer can take minutes on CPU."""
@@ -106,19 +109,34 @@ async def _ask_input(
         category=f.category.value if f.category else None,
     )
     return AskInput(
-        user=user, session_id=session_id_of(request), question=body.question, filters=filters
+        user=user,
+        session_id=session_id_of(request),
+        question=body.question,
+        filters=filters,
+        debug=debug and may_debug(user),
+    )
+
+
+def may_debug(user: User) -> bool:
+    return (
+        get_retrieval_settings().ask_debug_enabled
+        and not user.is_guest
+        and user.role in (Role.EDITOR, Role.ADMIN)
     )
 
 
 @router.post(
     "/ask",
     response_model=AskResult,
+    # `diagnostics` is left out entirely, not sent as null, unless it was asked for and allowed.
+    response_model_exclude_unset=True,
     responses={503: {"description": "SEARCH_UNAVAILABLE, LLM_UNAVAILABLE, ..."}},
 )
 async def ask(
     body: AskRequest, request: Request, user: CurrentUser, db: DbSession, pipeline: Pipeline
 ) -> Any:
-    async for event in pipeline.run(await _ask_input(body, request, user, db)):
+    ask_input = await _ask_input(body, request, user, db, debug=body.debug)
+    async for event in pipeline.run(ask_input):
         if event.name == "final":
             return event.data
         if event.name == "error":

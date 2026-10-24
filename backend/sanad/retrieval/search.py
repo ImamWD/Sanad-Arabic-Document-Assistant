@@ -9,6 +9,7 @@ and the guest retrieves seed documents only. A restricted document can't reach a
 answer, cited or not, because it never reaches the prompt.
 """
 
+import time
 import uuid
 from collections.abc import Sequence
 from dataclasses import replace
@@ -126,6 +127,7 @@ async def load_candidates(
                 is_seed=doc.is_seed,
                 language=doc.language.value if doc.language else None,
                 score=0.0,
+                file=doc.original_filename,
             )
         )
     return candidates
@@ -145,19 +147,46 @@ class SqlRetriever:
 
     async def retrieve(self, user: User, question: str, filters: Filters) -> Retrieved:
         s = self._settings
+        watch = _Laps()
         async with AsyncSession(self._engine) as db:
             # Nothing to search (an empty library, or filters that exclude everything): a gate
             # refusal, without waking the ml service.
             if not await db.scalar(select(exists(_chunks(user, filters)))):
                 return Retrieved([])
             vector = await self._ml.embed(question)
+            watch.lap("embed")
             dense = await dense_ids(db, user, filters, vector, s.dense_candidates)
             lexical = await lexical_ids(db, user, filters, question, s.lexical_candidates)
             fused = rrf([dense, lexical], k=s.rrf_k, limit=s.rerank_candidates)
             candidates = await load_candidates(db, user, filters, fused)
+            watch.lap("retrieve")
         scores = await self._ml.rerank(question, [rerank_passage(c) for c in candidates])
+        watch.lap("rerank")
+        dense_rank = {chunk_id: n for n, chunk_id in enumerate(dense, start=1)}
+        lexical_rank = {chunk_id: n for n, chunk_id in enumerate(lexical, start=1)}
         ranked = sorted(
-            (replace(c, score=score) for c, score in zip(candidates, scores, strict=True)),
+            (
+                replace(
+                    c,
+                    score=score,
+                    dense_rank=dense_rank.get(c.chunk_id),
+                    lexical_rank=lexical_rank.get(c.chunk_id),
+                )
+                for c, score in zip(candidates, scores, strict=True)
+            ),
             key=lambda c: -c.score,
         )
-        return Retrieved(ranked)
+        return Retrieved(ranked, watch.laps)
+
+
+class _Laps:
+    """Milliseconds per named step, each measured from the end of the previous one."""
+
+    def __init__(self) -> None:
+        self._last = time.monotonic()
+        self.laps: dict[str, int] = {}
+
+    def lap(self, name: str) -> None:
+        now = time.monotonic()
+        self.laps[name] = round((now - self._last) * 1000)
+        self._last = now
