@@ -19,11 +19,17 @@ test('?lang=en renders left-to-right English', async ({ page }) => {
 });
 
 test('switching language mirrors the page without calling the API', async ({ page }) => {
+  // Record only after the page has rendered and the boot session check (GET /api/me, F1) has
+  // settled: the switch itself must make no request.
+  const sessionCheck = page.waitForResponse((res) => new URL(res.url()).pathname === '/api/me');
+  await page.goto('/?lang=ar');
+  await sessionCheck;
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(ar.app.title);
+
   const apiCalls: string[] = [];
   page.on('request', (req) => {
     if (new URL(req.url()).pathname.startsWith('/api/')) apiCalls.push(req.url());
   });
-  await page.goto('/?lang=ar');
   await page.getByRole('button', { name: ar.language.switch }).click();
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');

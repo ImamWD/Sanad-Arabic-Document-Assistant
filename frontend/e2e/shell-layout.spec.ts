@@ -1,4 +1,4 @@
-// F1: the signed-in shell. GET /api/me is mocked per role (B2 provides the real endpoint).
+// F1: the signed-in shell. /api/me is mocked per role (B2 provides the real endpoint).
 import { expect, type Page, test } from '@playwright/test';
 
 import ar from '../src/locales/ar.json' with { type: 'json' };
@@ -22,8 +22,13 @@ function user(role: Role) {
   };
 }
 
+/** GET /api/me answers with the user; PATCH /api/me (the saved language) is accepted. */
 async function signIn(page: Page, role: Role) {
-  await page.route('**/api/me', (route) => route.fulfill({ json: user(role) }));
+  await page.route('**/api/me', (route) =>
+    route.request().method() === 'PATCH'
+      ? route.fulfill({ status: 204 })
+      : route.fulfill({ json: user(role) }),
+  );
   await page.route('**/api/auth/logout', (route) => route.fulfill({ status: 204 }));
 }
 
@@ -129,23 +134,40 @@ test('directional icons mirror in Arabic; others never do', async ({ page }) => 
   expect(await transform('globe')).toBe('none');
 });
 
-test('switching language in the shell makes no /api/* request', async ({ page }) => {
+test('switching language in the shell makes no GET, keeps the page, and saves the choice', async ({
+  page,
+}) => {
   await signIn(page, 'editor');
   await page.goto('/library?lang=ar');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(ar.pages.library.title);
 
-  const apiCalls: string[] = [];
+  const gets: string[] = [];
+  const saved: unknown[] = [];
   page.on('request', (req) => {
-    if (new URL(req.url()).pathname.startsWith('/api/')) apiCalls.push(req.url());
+    if (!new URL(req.url()).pathname.startsWith('/api/')) return;
+    if (req.method() === 'GET') gets.push(req.url());
+    else if (req.method() === 'PATCH') saved.push(req.postDataJSON());
   });
   await page.getByRole('button', { name: ar.language.switch }).click();
   await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
+  await expect(page).toHaveURL(/\/library/);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(en.pages.library.title);
   await page.getByRole('link', { name: en.shell.nav.ask }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(en.pages.ask.title);
   await page.getByRole('button', { name: en.language.switch }).click();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-  expect(apiCalls).toEqual([]);
+
+  expect(gets).toEqual([]);
+  await expect
+    .poll(() => saved)
+    .toEqual([{ preferred_language: 'en' }, { preferred_language: 'ar' }]);
+});
+
+test("a signed-in user's saved language applies when no language was picked", async ({ page }) => {
+  await signIn(page, 'viewer'); // preferred_language: ar
+  await page.goto('/ask');
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(ar.pages.ask.title);
 });
 
 test('signing out returns to the login page', async ({ page }) => {

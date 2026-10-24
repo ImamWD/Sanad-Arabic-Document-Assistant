@@ -20,15 +20,24 @@ const fail = (status: number, code: string) => ({
   json: { error: { code, params: {} } },
 });
 
-/** No session until a login or guest call succeeds. */
+/**
+ * No session until a login or guest call succeeds. Returns the bodies of PATCH /api/me (the
+ * saved language), which the shell sends for real users only.
+ */
 async function mockAuth(
   page: Page,
   login: { status: number; json: unknown } = { status: 200, json: VIEWER },
-) {
+): Promise<unknown[]> {
   let user: unknown = null;
-  await page.route('**/api/me', (route) =>
-    route.fulfill(user ? { json: user } : fail(401, 'UNAUTHENTICATED')),
-  );
+  const saved: unknown[] = [];
+  await page.route('**/api/me', async (route) => {
+    if (route.request().method() === 'PATCH') {
+      saved.push(route.request().postDataJSON());
+      await route.fulfill({ status: 204 });
+    } else {
+      await route.fulfill(user ? { json: user } : fail(401, 'UNAUTHENTICATED'));
+    }
+  });
   await page.route('**/api/auth/login', async (route) => {
     if (login.status === 200) user = login.json;
     await route.fulfill(login);
@@ -37,6 +46,7 @@ async function mockAuth(
     user = GUEST;
     await route.fulfill({ json: GUEST });
   });
+  return saved;
 }
 
 async function saveScreenshot(page: Page, name: string) {
@@ -87,12 +97,17 @@ test('Enter in the password field signs in and lands on Ask', async ({ page }) =
 });
 
 test('"Continue as guest" lands on Ask with viewer navigation', async ({ page }) => {
-  await mockAuth(page);
+  const saved = await mockAuth(page);
   await page.goto('/login?lang=en');
   await page.getByRole('button', { name: en.auth.login.guest }).click();
   await expect(page).toHaveURL(/\/ask$/);
   const nav = page.getByRole('navigation', { name: en.shell.nav.label });
   await expect(nav.getByRole('link')).toHaveText([en.shell.nav.ask, en.shell.nav.library]);
+
+  // The guest is a shared account: its language is never saved.
+  await page.getByRole('button', { name: en.language.switch }).click();
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  expect(saved).toEqual([]);
 });
 
 test('a failed login shows the translated error code, never server prose', async ({ page }) => {
@@ -127,4 +142,38 @@ test('switching language on the login page makes no /api/* request', async ({ pa
   await page.getByRole('button', { name: en.language.switch }).click();
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   expect(apiCalls).toEqual([]);
+});
+
+test('the demo opens in English', async ({ page }) => {
+  await mockAuth(page);
+  await page.goto('/');
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(en.app.title);
+});
+
+test('what was typed survives a language switch', async ({ page }) => {
+  await mockAuth(page);
+  await page.goto('/login?lang=en');
+  await page.getByLabel(en.auth.login.email).fill(VIEWER.email);
+  await page.getByRole('button', { name: en.language.switch }).click();
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  await expect(page.getByLabel(ar.auth.login.email)).toHaveValue(VIEWER.email);
+});
+
+test('a language picked before sign-in is kept and saved to the profile', async ({ page }) => {
+  const saved = await mockAuth(page, {
+    status: 200,
+    json: { ...VIEWER, preferred_language: 'en' },
+  });
+  await page.goto('/login');
+  await page.getByRole('button', { name: en.language.switch }).click();
+  await page.getByLabel(ar.auth.login.email).fill(VIEWER.email);
+  await page.getByLabel(ar.auth.login.password).fill('not-a-real-password');
+  await page.getByLabel(ar.auth.login.password).press('Enter');
+
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(ar.pages.ask.title);
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+  await expect.poll(() => saved).toEqual([{ preferred_language: 'ar' }]);
 });
