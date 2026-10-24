@@ -67,7 +67,7 @@ If the design and your task disagree, or a product decision is missing, **stop a
 ## Git and PRs
 
 - Branch `task/<ID>-<slug>` from `main`. Never commit to `main`, never force-push, never rewrite shared history.
-- **Push hold (OPEN_QUESTIONS P0):** do not push any branch and do not open a PR until the project owner lifts the hold. Commit locally. Your final report *is* the PR description, and the manager opens the PR once pushing is allowed.
+- **Pushing (the owner lifted the hold on 24 Oct 2026):** when your task is done, push your `task/<ID>-<slug>` branch and open a PR to `main` with `gh pr create`, using your final report as the body. **Never push to `main` and never merge a PR.** The manager verifies, then merges with the owner's go-ahead.
 - Keep commits small and conventional (`feat(ingest): …`, `fix(ask): …`, `test(text): …`).
 - Only touch files in your task's **Owns** list, plus the ROADMAP's shared append-only files (locale keys, `.env.example` settings, error codes, router lines, permission-matrix rows), which you may only add to. If you need to change anything else, ask first.
 - The PR description (your final report) must contain:

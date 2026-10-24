@@ -37,14 +37,15 @@ Last updated 24 Oct 2026, after the client's review of the decisions draft and t
 
 | # | Question | Needed for | Default |
 |---|---|---|---|
-| **P0** | **Hold.** The owner is still discussing scope, deadline and estimates with the client. When is it lifted? | Pushing branches, opening PRs, sending anything to the client | No pushes, no PRs, nothing sent until the owner says so. Executors are told this in CLAUDE.md. |
-| **P4** | **Approve renting GPUs for the benchmark**:<br>• Accounts on **RunPod** and **Vast.ai**; card payment, or crypto after KYC if a Palestinian card is declined.<br>• ~**$15 up front** (minimum top-ups: RunPod $10, Vast $5), of which ~$5–10 is used for three cards: RTX PRO 4000 Blackwell, L4, RTX 4090.<br>• Synthetic data only. Instances destroyed afterwards. | Deliverable 2 (measured time), target week 2 | No rental. Deliverable 2 becomes a clearly marked estimate. |
+| **P4** | **Approve renting one RTX PRO 4000 Blackwell for ~2–3 h** on Vast.ai: about $1 of use, but a $5 minimum top-up. Synthetic data only, and the instance is destroyed afterwards. This is narrowed from three cards because the owner's RTX 5080 PC now covers development speed. The 5080 can't stand in for the client's card: it has more memory bandwidth, so it would flatter the numbers by ~30%. | Deliverable 2 (measured time), target week 2 | No rental. Deliverable 2 becomes an estimate scaled from the 5080, clearly marked. |
+| **P6** | **Set up the RTX 5080 PC as the dev LLM server**:<br>1. Install Ollama.<br>2. Make it listen on the LAN (`OLLAMA_HOST=0.0.0.0:11434`), and allow port 11434 only from the local network.<br>3. Send the manager the PC's local IP. | S3 quality runs (week 1–2), then R1/E1 development, the week-4 baseline, E2 sweeps (week 6) and headline runs (week 8) | S3 and later tasks run on the Mac (Metal or CPU), which is slower. |
 | **P5** | **Create a free Google Gemini API key** (Google AI Studio; needs only a Google Cloud project, no card; officially available in Palestine). Put it in your local `.env` only, never committed. Optional: if you have a Claude Max or Team plan, its monthly API credits make Claude a free second reference. | S3, E1 and E2 reference runs on synthetic data | Skip the reference runs. |
 
 ### Answered 24 Oct 2026
 
 | # | Answer | Consequence |
 |---|---|---|
-| P1 | **The repo stays public, deliberately.** | `docs/brief.md` may be public. Still never commit client documents, secrets or anything under `data/`. The push hold is P0. |
+| P0 | **Push hold lifted** (24 Oct). | `main` pushed. Executors push their task branches and open PRs; the manager verifies and merges with the owner's go-ahead. |
+| P1 | **The repo stays public, deliberately.** | `docs/brief.md` may be public. Still never commit client documents, secrets or anything under `data/`. |
 | P2 | **Agents may download public files for testing**, with conditions: they go inside the project folder, they are git-ignored, and they are deleted when no longer needed. | Downloads go in `spikes/_downloads/` (git-ignored), listed in a committed manifest with a fetch script, and deleted after the manager's verification. Unchosen model weights are removed too. See CLAUDE.md. |
 | P3 | **Prefer a free API for QA.** Is Anthropic mandatory? **No.** | Benchmarks against a hosted reference model use the **Google Gemini API free tier** (`gemini-3.1-flash-lite`, `gemma-4-31b-it`) through the `openai_compat` adapter, on **synthetic data only**. Cohere's trial key is the backup. The `anthropic` adapter is built but needs no key. See the research note. |

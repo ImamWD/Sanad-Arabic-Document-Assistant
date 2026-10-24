@@ -3,10 +3,9 @@
 **How we work**
 - The project manager (Claude, this session) plans, reviews and verifies. Executor Claude Code agents implement.
 - Each task below is self-contained. Before starting, an executor reads [`CLAUDE.md`](../CLAUDE.md), [`brief.md`](brief.md), [`DECISIONS.md`](DECISIONS.md) (the client's approved decisions, which win over the brief), [`SYSTEM_DESIGN.md`](SYSTEM_DESIGN.md), and its own brief.
-- Each executor works on a local branch `task/<ID>-<slug>`.
-  - **Push hold:** no pushes and no PRs until the owner lifts the hold (OPEN_QUESTIONS P0).
-  - Until then, the executor's final report *is* the PR description.
-- The manager re-runs the **Verify** commands, reviews the diff against the acceptance criteria, and merges locally only when they pass.
+- Each executor works on a branch `task/<ID>-<slug>`. When done, it pushes that branch and opens a PR to `main`, with its final report as the PR description. The push hold was lifted by the owner on 24 Oct 2026.
+- Executors never push to `main` and never merge.
+- The manager re-runs the **Verify** commands, reviews the diff against the acceptance criteria, and merges only when they pass, with the owner's go-ahead.
 - No task is "done" on the executor's word alone.
 
 ## Timeline (8-week build, then GPU cutover)
@@ -19,7 +18,7 @@ Executor tasks usually take hours to a day of agent time. Elapsed time is driven
 
 | Week | Dates | Build | Client-facing |
 |---|---|---|---|
-| 1 | 26 Oct – 1 Nov | ✅ M0 (verified; merging after code review). C1a, then C1b. Start S1, S2, S3, S4, B1, F1. | Manager: GPU research and RFQ draft; choose the free reference API. **Ask the client for N1 (server details) by 31 Oct.** |
+| 1 | 26 Oct – 1 Nov | ✅ M0 and ✅ C1a merged (24 Oct). Started 24 Oct: C1b, B1, F1, S3. S1, S2 and S4 start once C1b's rendered PDFs merge. | Manager: GPU research and RFQ draft; choose the free reference API. **Ask the client for N1 (server details) by 31 Oct.** |
 | 2 | 2 – 8 Nov | Spike reports. B2 (schema and auth). F2 against a mocked stream. G1 GPU benchmark kit, plus the rented run if the owner approves it (P4). | **Deliverables 1–2**, if N1 and the rental are available. Client sends the 8 sample reports (N5). |
 | 3 | 9 – 15 Nov | B3 (ingestion and `ml`). R1 (ask, never-frozen stream, outcome summary). F3 (Library and Upload). | — |
 | 4 | 16 – 22 Nov | Integration. First E1 run, including the page-split failure category. | **Week-4 demo, on CPU**: guest or login → upload with live status → Arabic question → streamed answer with stages → citation → viewer at the page. **Deliverable 3.** The manager drafts an Arabic and English note for demo users ("answers take 30–90 s until the GPU arrives; the screen shows progress"), and the owner sends it. |
@@ -100,11 +99,11 @@ Throughout, *Verify* means the exact commands the manager will run. Executors ru
 ## M0 — Foundation ✅
 
 ### M0 · Scaffold, compose skeleton, lint gates
-**Status.** Built on `task/M0-scaffold`.
-- The manager re-ran every Verify command on 24 Oct, and all pass.
-- An extra probe with an inline style of `marginLeft` is also caught.
-
-Merging into `main` waits for the code-review findings.
+**Status.** ✅ Merged into `main` on 24 Oct, including the M0b fixes for the 14 confirmed review findings.
+- The manager re-ran every Verify command, plus 7 lint-bypass probes.
+- Tool containers can't see `data/` or `.env`.
+- Each worktree runs its own instance (`SANAD_INSTANCE`, `WEB_PORT`).
+- `docker-compose.dev.yml` reaches host-native Ollama.
 
 **Scope (as delivered)**
 - Compose services `db`, `api` (health only), `worker` (idle), `ml` (stub), `web` (nginx + Vite build).
@@ -112,11 +111,14 @@ Merging into `main` waits for the code-review findings.
 - `backend` network `internal: true`. `web` is the only published port.
 - Lint gates for i18n literal strings, physical CSS, inline physical styles and inline-disable bans, each with a self-test.
 - `make` targets: `up`, `down`, `lint`, `test`, `test-frontend` (vitest), `test-e2e` (Playwright on the running stack), `fmt`, `gen-api-types`.
-- A CI workflow. It has never run on GitHub, because of the push hold.
+- A CI workflow, which first runs on GitHub with the 24 Oct push.
 
 **Notes for later tasks**
 - Python tests run in `backend-dev`, never in the slim `api` image.
-- The compose project name is fixed to `sanad`, so parallel stacks need `-p <name>`.
+- `make` derives a per-worktree instance name and port automatically. Plain `docker compose` defaults to `sanad` on port 8080.
+- **Fast LLM for development.** The owner's PC with an **RTX 5080 (16 GB)** can serve Ollama over the LAN. Point `OLLAMA_BASE_URL` at it through `docker-compose.dev.yml`.
+  - It fits 7–14B 4-bit models, but not `gemma4:31b`.
+  - It is a dev accelerator only. Its timings are **not** the client's card: the 5080 has ~960 GB/s of memory bandwidth against ~672 GB/s on the RTX PRO 4000. G1 measures the real card class.
 
 ---
 
@@ -238,13 +240,13 @@ Background is in `docs/research/2026-10-24-gpu-and-hosted-apis.md` §2.
 - **Prompts.** R1 doesn't exist in week 2, so prompts are built the way R1 will build them: the system prompt plus each question's expected-citation pages and neighbouring seed chunks, about 4k tokens in total. The report says they are approximations. Once R1 merges, the script can call `POST /api/ask` for a confirmation run.
 - **Full-pipeline total.** Embedding, retrieval and rerank are timed separately (`ml` on CPU locally, and on GPU if a host allows a second container) and added to the LLM time. The report shows each stage and the total.
 - **Target definition:** met when **p90 total time per answer ≤ 15 s**. The median is also reported.
-- **Cards** (three, bracketing the decision):
-  - the RTX PRO 4000 Blackwell (the likely purchase; Vast, verified host)
-  - an L4 (the floor; RunPod Secure)
-  - an RTX 4090 with power limit ≥ 450 W (the ceiling)
+- **Cards.**
+  - Rent the **RTX PRO 4000 Blackwell**, the likely purchase, on a verified Vast host.
+  - The owner's RTX 5080 PC is used to develop and dry-run the kit, but its numbers are labelled "5080" and never presented as the client's card.
+  - If the client's chassis turns out to need a different card (N1), rent that one instead, e.g. the PRO 4500 Server Edition or the PRO 4000 SFF.
 
-  Each runs the S3 production model and the CPU demo model.
-- **Cost and approval.** About $5 of GPU time, a $10 budget and $15 up front (P4). **The rental is a paid action and needs the owner's approval.** The executor prepares and documents the run, and the owner rents the cards. Afterwards every instance and its disk are **destroyed**, and the report confirms this.
+  Each run uses the S3 production model and the CPU demo model.
+- **Cost and approval.** About $1 of GPU time and a $5 minimum top-up (P4). **The rental is a paid action and needs the owner's approval.** The executor prepares and documents the run, and the owner rents the card. Afterwards the instance and its disk are **destroyed**, and the report confirms this.
 
 **Owns.** `spikes/g1/`, `docs/spikes/G1-gpu-benchmark.md`.
 
