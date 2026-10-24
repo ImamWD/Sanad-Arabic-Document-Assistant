@@ -15,7 +15,7 @@ The prompt contract and the refusal tests are the most important part: excerpts 
 
 **Why `gemma4:e4b`.**
 - It is the only model in the test that passed **every** check with **both** prompt variants. It was the strongest small model, and it outscored the 9–14B models from the first round: qwen3:14b, gemma4:12b and qwen3.5:9b got 8–9 of 10.
-- It is also the fastest on CPU after qwen3.5:4b, which scored 5/10.
+- It is also the fastest model on the M5 CPU: a 34 s median, against 39 s for qwen3.5:4b, which scored 5/10.
 - The other small candidate, `qwen3.5:4b-q4_K_M`, answered both English questions in Arabic, gave two prose "no information" answers instead of `NO_ANSWER`, and dropped the citation on one answer, which post-validation turns into a refusal.
 
 ## Total RAM for the default configuration (for the README)
