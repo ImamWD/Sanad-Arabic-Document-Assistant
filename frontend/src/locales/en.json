@@ -122,6 +122,60 @@
     },
     "retry": "Try again"
   },
+  "admin": {
+    "intro": "Manage who can sign in and what each person can do. Accounts are never deleted: deactivate them instead.",
+    "retry": "Try again",
+    "notice": {
+      "created": "The account has been created.",
+      "saved": "Your changes have been saved."
+    },
+    "languages": {
+      "ar": "Arabic",
+      "en": "English"
+    },
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "role": "Role",
+      "language": "Language",
+      "active": "Account is active"
+    },
+    "users": {
+      "heading": "Users",
+      "status": "Status",
+      "created": "Created",
+      "lastLogin": "Last sign-in",
+      "actions": "Actions",
+      "active": "Active",
+      "inactive": "Inactive",
+      "never": "Never",
+      "you": "You",
+      "roleFixed": "Fixed",
+      "edit": "Edit",
+      "editUser": "Edit {{name}}"
+    },
+    "create": {
+      "open": "Add user",
+      "heading": "New user",
+      "missingFields": "Enter a name, an email address and a password.",
+      "submit": "Create user",
+      "submitting": "Creating…",
+      "cancel": "Cancel"
+    },
+    "edit": {
+      "label": "Edit {{name}}",
+      "selfHint": "You can't change your own role or deactivate your own account.",
+      "guestHint": "The guest account is always a viewer. Its role can't be changed.",
+      "save": "Save changes",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "confirmTitle": "Deactivate this account?",
+      "confirmBody": "The person will be signed out everywhere and can't sign in again until an administrator reactivates the account.",
+      "confirm": "Deactivate",
+      "back": "Go back"
+    }
+  },
   "errors": {
     "BAD_REQUEST": "The request could not be completed. Check the details and try again.",
     "NOT_FOUND": "The requested item was not found.",
