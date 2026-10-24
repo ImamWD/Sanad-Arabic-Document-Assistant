@@ -1,7 +1,7 @@
 # Sanad: base stack. `docker compose up -d --build` runs the whole system from a clean checkout.
 #
-# Isolation: every container that touches document content (db, api, worker, ml) is on the
-# `backend` network only, which is `internal: true` and has no route to the internet.
+# Isolation: every container that touches document content (db, api, worker, ml, ollama) is on
+# the `backend` network only, which is `internal: true` and has no route to the internet.
 # `web` is the one published port. The egress guarantee is tested against THIS file alone.
 # Do not add a docker-compose.override.yml: compose loads it automatically.
 #
@@ -9,11 +9,12 @@
 #   web   (edge)    serves the SPA and proxies /api; makes no outbound calls itself
 #   node  (egress)  tools profile; npm registry; mounts frontend/ only
 #   e2e   (edge)    tools profile; Playwright; mounts frontend/ only
+#   ollama-init (egress)  one-shot; pulls LLM weights into `ollama_models`; never sees a prompt
 # backend-dev and ml-dev are on `backend` (no internet); render has no network at all.
 #
 # docker-compose.dev.yml is the development override (relaxes isolation; see that file).
-# Not here yet (later tasks): ollama, ollama-init, and the opt-in override files
-# docker-compose.api-llm.yml and docker-compose.gpu.yml.
+# docker-compose.api-llm.yml lets api reach a hosted LLM: synthetic seed data only, never on a
+# server that holds client documents (see that file). Not here yet: docker-compose.gpu.yml.
 #
 # Settings come from .env if it exists (copy .env.example); every value has a default.
 #
@@ -120,6 +121,10 @@ services:
         condition: service_healthy
       init:
         condition: service_completed_successfully
+      # Not ollama-init: a restart must work offline, and until the first pull finishes an
+      # answer fails with LLM_UNAVAILABLE instead of the whole stack waiting.
+      ollama:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=4)"]
       interval: 5s
@@ -147,6 +152,47 @@ services:
       init:
         condition: service_completed_successfully
     restart: unless-stopped
+
+  # Local generation (DECISIONS D3), the only LLM used for real documents. It receives every
+  # prompt, so it is on the internal network only. Weights come from `ollama_models`.
+  ollama:
+    image: ollama/ollama:0.40.10
+    init: true
+    environment:
+      # One request at a time and one model in memory: each parallel slot adds a KV cache (S3).
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-30m}
+    volumes:
+      - ollama_models:/root/.ollama
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+  # One-shot, on every `up`: make sure the configured model is in `ollama_models`, then exit.
+  # Runs its own private Ollama on the egress network and never sees a prompt. If the model is
+  # already there it needs no network, so offline restarts work. The default is S3's text-only
+  # gemma4:e4b build (deploy/ollama-init.sh). The defaults of LLM_MODEL and OLLAMA_BASE_MODEL
+  # must match backend/sanad/llm/settings.py (a test checks).
+  ollama-init:
+    image: ollama/ollama:0.40.10
+    init: true
+    entrypoint: ["/bin/sh", "/opt/sanad/ollama-init.sh"]
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      LLM_MODEL: ${LLM_MODEL:-sanad-gemma4-e4b-text}
+      OLLAMA_BASE_MODEL: ${OLLAMA_BASE_MODEL:-gemma4:e4b-it-qat}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-8192}
+    volumes:
+      - ollama_models:/root/.ollama
+      - ./deploy/ollama-init.sh:/opt/sanad/ollama-init.sh:ro
+    networks: [egress]
+    restart: "no"
 
   web:
     build:
@@ -258,11 +304,16 @@ networks:
   # Published network for web (and the e2e browser that talks to it). Has internet access.
   edge: {}
   # Internet access for containers that never see document content: the node tools
-  # container today; ollama-init (pulls weights) later; api only in the opt-in API-LLM override.
+  # container, ollama-init (pulls weights), and api only in the opt-in API-LLM override.
   egress: {}
 
 volumes:
   db_data:
   # Uploaded documents and their PDF renditions (init, api, worker).
   files:
+  # LLM weights (ollama, ollama-init). Weights only, never document content, so every instance
+  # on this machine shares one copy instead of pulling several GB each. A clean-machine test
+  # can give itself a fresh one with OLLAMA_MODELS_VOLUME.
+  ollama_models:
+    name: ${OLLAMA_MODELS_VOLUME:-sanad-ollama-models}
   frontend_node_modules:

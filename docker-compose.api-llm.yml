@@ -1,0 +1,19 @@
+# Sanad API-LLM override: lets `api` call a hosted LLM. SYNTHETIC SEED DATA ONLY.
+#
+#   LLM_PROVIDER=openai_compat LLM_MODEL=<model> OPENAI_COMPAT_BASE_URL=<url> \
+#     docker compose -f docker-compose.yml -f docker-compose.api-llm.yml up -d
+#   LLM_PROVIDER=anthropic ANTHROPIC_API_KEY=... (LLM_MODEL defaults to claude-opus-5-5)
+#
+# The client decided that API mode is never used for their documents (DECISIONS D3, client
+# Q1). This file exists for benchmarks on the synthetic seed corpus, and must never be used
+# on a server that holds client documents: with it, api has a route to the internet.
+#
+# Even with this file applied by mistake, the code refuses: a hosted provider makes no call
+# and the answer fails with HOSTED_LLM_NON_SEED_DATA if any excerpt comes from a document that
+# is not part of the seed corpus (SYSTEM_DESIGN §9).
+
+services:
+  api:
+    networks: [backend, egress]
+    environment:
+      LLM_PROVIDER: ${LLM_PROVIDER:?set LLM_PROVIDER to openai_compat or anthropic}
