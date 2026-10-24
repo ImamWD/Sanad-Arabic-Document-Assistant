@@ -174,6 +174,8 @@ def test_guest_stream_order(sign_in: Any) -> None:
         lines = dict(line.split(": ", 1) for line in block.splitlines())
         data = json.loads(lines["data"])
         events.append(f"stage:{data['stage']}" if lines["event"] == "stage" else lines["event"])
+    if events[0] == "stage:queued":  # another answer was being generated: allowed, comes first
+        events = events[1:]
     assert events[:3] == ["stage:searching", "stage:reading", "eta"], events
     assert events[-1] == "final", events
     final = json.loads(body.strip().split("\n\n")[-1].split("data: ", 1)[1])

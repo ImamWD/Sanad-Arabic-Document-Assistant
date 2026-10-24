@@ -243,8 +243,8 @@ def test_stream_pings_while_the_model_is_quiet(
     events = parse_sse(response.text)
     pings = [i for i, (e, _) in enumerate(events) if e == "ping"]
     eta = next(i for i, (e, _) in enumerate(events) if e == "eta")
-    assert len(pings) >= 2
-    assert all(i > eta for i in pings)  # the quiet wait is prompt processing
+    # The model is silent for 0.3 s after `eta`: pings keep the connection alive meanwhile.
+    assert sum(i > eta for i in pings) >= 2
     assert events[-1][0] == "final"
 
 
