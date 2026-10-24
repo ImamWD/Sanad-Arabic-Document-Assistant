@@ -1,9 +1,10 @@
 """One pass over an eval set: preflight, ask every question, resolve and score each reply.
 
-Citations and candidates name documents by id. The runner maps ids to files through
-`GET /api/documents`: for seed documents `original_filename` is the manifest `file`, which is
-what `expected_citations` names. The diagnostics contract (`debug: true`, editors and admins)
-is in the module docstring of `sanad.eval.cli`.
+Pages are matched as `(file, page_number)`, where `file` is the document's
+`original_filename`: for seed documents that is the manifest `file` that `expected_citations`
+names. Diagnostics candidates carry `file` themselves; citations carry only `document_id`, so
+the runner maps ids to files through `GET /api/documents`. The diagnostics contract
+(`debug: true`, editors and admins) is in the module docstring of `sanad.eval.cli`.
 """
 
 from collections.abc import Callable, Iterable, Mapping, Sequence
@@ -45,6 +46,9 @@ class Row:
     timings_ms: dict[str, float] = field(default_factory=dict)
     answer: str | None = None
     candidates: list[dict[str, Any]] = field(default_factory=list)
+    # The best-ranked expected page among the candidates: rank, rerank score and the dense and
+    # lexical ranks before fusion. What E2 needs to see why a page scored low.
+    expected_candidate: dict[str, Any] | None = None
     llm_model: str | None = None
 
 
@@ -118,7 +122,9 @@ def _candidates(raw: list[Any], files: Mapping[str, str]) -> tuple[CandidatePage
                 rank=_int(item.get("rank")) or index + 1,
                 file=str(file) if file else None,
                 page=page,
-                score=_float(item.get("score", item.get("rerank_score"))),
+                score=_float(item.get("rerank_score", item.get("score"))),
+                dense_rank=_int(item.get("dense_rank")),
+                lexical_rank=_int(item.get("lexical_rank")),
             )
         )
     return tuple(sorted(pages, key=lambda c: c.rank))
@@ -167,6 +173,16 @@ def _str(value: Any) -> str | None:
     return value if isinstance(value, str) else None
 
 
+def _candidate_json(c: CandidatePage) -> dict[str, Any]:
+    return {
+        "rank": c.rank,
+        "page": page_label(c.file, c.page),
+        "rerank_score": c.score,
+        "dense_rank": c.dense_rank,
+        "lexical_rank": c.lexical_rank,
+    }
+
+
 def build_row(question: Question, reply: AskReply, files: Mapping[str, str]) -> Row:
     resolved = resolve(reply, files)
     score = score_item(question, resolved)
@@ -174,7 +190,12 @@ def build_row(question: Question, reply: AskReply, files: Mapping[str, str]) -> 
     timings = timings_of(data)
     total = timings.get("total")
     candidates = resolved.candidates or ()
-    model = _diagnostics(data).get("llm_model")
+    diagnostics = _diagnostics(data)
+    model = diagnostics.get("llm_model")
+    top_score = _float(diagnostics.get("top_score"))
+    if top_score is None and candidates:
+        top_score = candidates[0].score
+    expected = next((c for c in candidates if (c.file, c.page) in question.expected_pages), None)
     return Row(
         id=question.id,
         language=question.language,
@@ -191,17 +212,15 @@ def build_row(question: Question, reply: AskReply, files: Mapping[str, str]) -> 
         citation_ok=score.citation_ok,
         retrieved=score.retrieved,
         expected_rank=score.expected_rank,
-        top_score=candidates[0].score if candidates else None,
+        top_score=top_score,
         cited=[page_label(f, p) for f, p in resolved.cited],
         expected=[page_label(c.file, c.page) for c in question.expected_citations],
         server_ms=round(total) if total is not None else None,
         wall_ms=reply.wall_ms,
         timings_ms=timings,
         answer=resolved.answer,
-        candidates=[
-            {"rank": c.rank, "page": page_label(c.file, c.page), "score": c.score}
-            for c in candidates[:REPORTED_CANDIDATES]
-        ],
+        candidates=[_candidate_json(c) for c in candidates[:REPORTED_CANDIDATES]],
+        expected_candidate=_candidate_json(expected) if expected else None,
         llm_model=str(model) if model else None,
     )
 

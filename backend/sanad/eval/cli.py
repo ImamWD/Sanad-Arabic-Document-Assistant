@@ -13,17 +13,23 @@
    admins. Scoring: `sanad.eval.scoring`.
 4. Reports in eval/results/. The last line printed is `Score: X/N`.
 
-Diagnostics contract (R1, editors and admins, only with `debug: true`):
+Diagnostics contract (agreed with R1; editors and admins, only with `debug: true`):
 
     "diagnostics": {
-      "candidates": [{"rank": 1, "document_id": "<uuid>", "page_number": 6, "score": 0.83}],
-      "timings_ms": {"total": 34210, ...},
+      "candidates": [{"rank": 1, "document_id": "<uuid>", "file": "annual-report-2021.pdf",
+                      "page_number": 6, "chunk_id": "<uuid>", "rerank_score": 0.83,
+                      "dense_rank": 3, "lexical_rank": null}, ...],
+      "top_score": 0.83, "band": "answer",
+      "timings_ms": {"embed": 60, "retrieve": 140, "rerank": 7700, "first_token": 21000,
+                     "generate": 26000, "total": 34210},
       "llm_model": "..."
     }
 
-`candidates` are all reranked candidates, best first, on refusals too. Also accepted: `file`
-for `document_id`, `page` for `page_number`, `rerank_score` for `score`, and `timings_ms` at
-the top level. Without diagnostics, recall is reported as n/a.
+`candidates` are all reranked candidates (30 by default), best first, on every outcome
+including gate refusals; pages match as `(file, page_number)`. `first_token` and `generate`
+are null on gate refusals. Older names are still read if `file` or `rerank_score` is absent
+(`document_id` resolved through the documents list, `page`, `score`, a top-level
+`timings_ms`). Without diagnostics, recall is reported as n/a.
 
 Exit status: 0 when the run completed (whatever the score), 1 when the stack can't be used
 or a request failed during the run, 2 for a bad command line or eval set.

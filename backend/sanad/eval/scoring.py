@@ -75,7 +75,9 @@ class CandidatePage:
     rank: int  # 1 = best
     file: str | None  # None if the document id could not be resolved
     page: int | None
-    score: float | None
+    score: float | None  # reranker score, 0..1
+    dense_rank: int | None = None  # rank before fusion; None if that search missed it
+    lexical_rank: int | None = None
 
 
 @dataclass(frozen=True)

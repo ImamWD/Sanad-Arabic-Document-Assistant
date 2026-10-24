@@ -36,8 +36,8 @@ def files_of(*docs: dict[str, object]) -> dict[str, str]:
 # --- resolve ------------------------------------------------------------------------------
 
 
-def test_resolve_maps_document_ids_to_files() -> None:
-    ar21, ar20 = seed_document(AR21), seed_document(AR20)
+def test_resolve_matches_on_file_and_page_number() -> None:
+    ar21 = seed_document(AR21)
     data: dict[str, Any] = {
         "outcome": "answered",
         "band": "answer",
@@ -46,12 +46,13 @@ def test_resolve_maps_document_ids_to_files() -> None:
         "citations": [{"rank": 1, "document_id": ar21["id"], "page_number": 6}],
         "diagnostics": {
             "candidates": [
-                {"rank": 2, "document_id": ar21["id"], "page_number": 6, "score": 0.7},
-                {"rank": 1, "document_id": ar20["id"], "page_number": 3, "score": 0.8},
+                {"rank": 2, "file": AR21, "page_number": 6, "rerank_score": 0.7},
+                {"rank": 1, "file": AR20, "page_number": 3, "rerank_score": 0.8},
             ]
         },
     }
-    reply = resolve(AskReply(200, data, 10), files_of(ar21, ar20))
+    # Citations resolve through the documents list; candidates carry their own file.
+    reply = resolve(AskReply(200, data, 10), files_of(ar21))
     assert reply.cited == ((AR21, 6),)
     assert reply.candidates is not None
     assert [(c.rank, c.file, c.page, c.score) for c in reply.candidates] == [
@@ -60,15 +61,15 @@ def test_resolve_maps_document_ids_to_files() -> None:
     ]
 
 
-def test_resolve_accepts_the_tolerated_aliases() -> None:
+def test_resolve_accepts_the_older_names() -> None:
     data: dict[str, Any] = {
         "outcome": "no_answer",
         "answer": None,
         "citations": [],
         "timings_ms": {"total": 900, "rerank": 400.5, "note": "x"},
-        "diagnostics": {"candidates": [{"file": AR21, "page": 6, "rerank_score": 0.4}]},
+        "diagnostics": {"candidates": [{"document_id": "d1", "page": 6, "score": 0.4}]},
     }
-    reply = resolve(AskReply(200, data, 10), {})
+    reply = resolve(AskReply(200, data, 10), {"d1": AR21})
     assert reply.candidates is not None
     assert reply.candidates[0].file == AR21
     assert reply.candidates[0].page == 6
@@ -105,10 +106,19 @@ def test_build_row_records_the_refusal_reason_band_and_rank() -> None:
         "citations": [],
         "diagnostics": {
             "candidates": [
-                {"rank": 1, "document_id": ar20["id"], "page_number": 2, "score": 0.12},
-                {"rank": 2, "document_id": ar21["id"], "page_number": 6, "score": 0.10},
+                {"rank": 1, "file": AR20, "page_number": 2, "rerank_score": 0.12},
+                {
+                    "rank": 2,
+                    "file": AR21,
+                    "page_number": 6,
+                    "rerank_score": 0.10,
+                    "dense_rank": 9,
+                    "lexical_rank": None,
+                },
             ],
-            "timings_ms": {"total": 1500, "retrieval": 300},
+            "top_score": 0.125,
+            "band": "refuse",
+            "timings_ms": {"total": 1500, "retrieve": 300, "first_token": None, "generate": None},
             "llm_model": "fake-model",
         },
     }
@@ -116,7 +126,15 @@ def test_build_row_records_the_refusal_reason_band_and_rank() -> None:
     assert row.category == "false_refusal"
     assert (row.refusal_reason, row.band) == ("gate", "refuse")
     assert row.expected_rank == 2
-    assert row.top_score == 0.12
+    assert row.expected_candidate == {
+        "rank": 2,
+        "page": f"{AR21} p6",
+        "rerank_score": 0.10,
+        "dense_rank": 9,
+        "lexical_rank": None,
+    }
+    assert row.top_score == 0.125  # the server's own top_score wins
+    assert row.timings_ms == {"total": 1500.0, "retrieve": 300.0}  # nulls dropped
     assert row.server_ms == 1500
     assert row.wall_ms == 1600
     assert row.expected == [f"{AR21} p6"]

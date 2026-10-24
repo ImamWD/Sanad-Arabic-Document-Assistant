@@ -231,9 +231,19 @@ def _failure_detail(r: Row) -> str:
     if r.expected_outcome == "answered" and r.outcome in ("answered", "low_confidence"):
         parts.append("citation ok" if r.citation_ok else "no expected page cited")
     if r.retrieved is not None:
-        rank = f"best expected rank {r.expected_rank}" if r.expected_rank else "not retrieved"
-        parts.append(rank)
+        parts.append(_expected_candidate(r.expected_candidate))
     return "; ".join(parts)
+
+
+def _expected_candidate(c: Mapping[str, Any] | None) -> str:
+    if not c:
+        return "no expected page among the candidates"
+    score = c.get("rerank_score")
+    return (
+        f"best expected page at rank {c.get('rank')} (rerank "
+        f"{'n/a' if score is None else f'{score:.3f}'}, dense rank {c.get('dense_rank') or '-'}, "
+        f"lexical rank {c.get('lexical_rank') or '-'})"
+    )
 
 
 def _run_section(title: str, rows: Sequence[Row]) -> list[str]:

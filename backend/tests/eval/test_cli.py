@@ -142,6 +142,8 @@ def test_full_run_scores_and_categorises_every_item(
     }
     assert rows["A05"]["refusal_reason"] == "gate"
     assert rows["A07"]["missing_facts"] == ["36"]
+    assert rows["A07"]["expected_candidate"]["dense_rank"] == 3
+    assert rows["A05"]["expected_candidate"] is None
     assert rows["A10"]["error_code"] == "LLM_UNAVAILABLE"
     assert rows["A01"]["cited"] == [f"{AR21} p6"]
     assert rows["A01"]["expected"] == [f"{AR21} p6"]
@@ -170,6 +172,11 @@ def test_full_run_scores_and_categorises_every_item(
     assert "recall@5: 4/7" in md
     assert "| A06 | ar | factual, numeric | answered | no | retrieval |" in md
     assert "**A05** `false_refusal`: outcome no_answer; refusal_reason gate" in md
+    assert "no expected page among the candidates" in md
+    a07 = "best expected page at rank 1 (rerank 0.850, dense rank 3, lexical rank -)"
+    assert a07 in md
+    # Gate refusals (A05, A09) send null LLM timings, so only the 7 generations count.
+    assert "Stage `generate`: median 0.5 s, p90 0.9 s (n=7)" in md
     assert chr(0x2014) not in md  # owner rule: no em dash, not even as an empty cell
 
 

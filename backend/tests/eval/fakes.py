@@ -26,7 +26,16 @@ class Scripted:
     candidates: Sequence[Page] | None = ()  # None: send no diagnostics at all
     band: str | None = "answer"
     refusal_reason: str | None = None
-    timings: dict[str, float] = field(default_factory=lambda: {"total": 1200.0})
+    timings: dict[str, float | None] = field(
+        default_factory=lambda: {
+            "embed": 60.0,
+            "retrieve": 140.0,
+            "rerank": 500.0,
+            "first_token": 300.0,
+            "generate": 500.0,
+            "total": 1200.0,
+        }
+    )
     status: int = 200
     error_code: str | None = None
     llm_model: str | None = "fake-model"
@@ -40,11 +49,17 @@ def answer(text: str, *cites: Page, candidates: Sequence[Page] | None = None) ->
 
 
 def refuse(reason: str = "gate", candidates: Sequence[Page] | None = ()) -> Scripted:
+    """A refusal. A gate refusal never reaches the LLM, so its LLM timings are null."""
+    gate = reason == "gate"
+    timings: dict[str, float | None] = {"embed": 60.0, "retrieve": 140.0, "rerank": 500.0}
+    timings |= {"first_token": None, "generate": None} if gate else {"generate": 900.0}
+    timings["total"] = 700.0 if gate else 1600.0
     return Scripted(
         outcome="no_answer",
-        band="refuse" if reason == "gate" else "answer",
+        band="refuse" if gate else "answer",
         refusal_reason=reason,
         candidates=candidates,
+        timings=timings,
     )
 
 
@@ -174,16 +189,25 @@ class FakeSanad:
             "nearest_documents": [],
         }
         if body.get("debug") and self.role in ("editor", "admin") and reply.candidates is not None:
+            # The contract agreed with R1. Scores fall 0.05 per rank from 0.85; the dense rank
+            # is the rerank rank plus 2, and only even ranks were found by the lexical search.
+            candidates = [
+                {
+                    "rank": rank,
+                    "document_id": self.doc_id(file),
+                    "file": file,
+                    "page_number": page,
+                    "chunk_id": str(uuid.uuid4()),
+                    "rerank_score": round(0.9 - 0.05 * rank, 3),
+                    "dense_rank": rank + 2,
+                    "lexical_rank": rank if rank % 2 == 0 else None,
+                }
+                for rank, (file, page) in enumerate(reply.candidates, start=1)
+            ]
             data["diagnostics"] = {
-                "candidates": [
-                    {
-                        "rank": rank,
-                        "document_id": self.doc_id(file),
-                        "page_number": page,
-                        "score": round(0.9 - 0.05 * rank, 3),
-                    }
-                    for rank, (file, page) in enumerate(reply.candidates, start=1)
-                ],
+                "candidates": candidates,
+                "top_score": candidates[0]["rerank_score"] if candidates else None,
+                "band": reply.band,
                 "timings_ms": reply.timings,
                 "llm_model": reply.llm_model,
             }
