@@ -300,10 +300,11 @@ def html_runs(text: str) -> str:
     )
 
 
-# Mixed documents put an Arabic and an English clause in one block ("عنوان — Title", "البيان /
-# Item", an Arabic sentence followed by its English translation). Each clause is isolated in a
-# <bdi>, so it takes its own direction and its trailing punctuation stays with it.
-CLAUSE_SPLIT = re.compile(r"( — | / |(?<=[.؛:!?])\s+)")
+# Mixed documents put an Arabic and an English clause in one block: a heading whose two halves
+# are joined by a spaced em dash (U+2014), a table cell like "البيان / Item", or an Arabic
+# sentence followed by its English translation. Each clause is isolated in a <bdi>, so it
+# takes its own direction and its trailing punctuation stays with it.
+CLAUSE_SPLIT = re.compile(r"( \u2014 | / |(?<=[.؛:!?])\s+)")
 
 
 def html_inline(text: str, isolate: bool = False) -> str:

@@ -330,31 +330,31 @@ The corpus has 30 documents and 186 pages, dated 2015–2025:
 | doc_id | category | year | programme | lang | format | pages |
 |---|---|---|---|---|---|---|
 | `gep-enrolment-survey-2015` | survey | 2015 | GEP | ar | pdf | 4 |
-| `annual-report-2016` | annual_report | 2016 | — | ar | pdf | 6 |
-| `board-minutes-2017-11` | board_minutes | 2017 | — | ar | txt (windows-1256) | 3 |
+| `annual-report-2016` | annual_report | 2016 | none | ar | pdf | 6 |
+| `board-minutes-2017-11` | board_minutes | 2017 | none | ar | txt (windows-1256) | 3 |
 | `wash-baseline-survey-2017` | survey | 2017 | WASH | ar | pdf | 5 |
-| `budget-2018` | budget | 2018 | — | ar | docx | 4 |
+| `budget-2018` | budget | 2018 | none | ar | docx | 4 |
 | `wash-donor-agreement-2018` | donor_agreement | 2018 | WASH | ar | pdf | 6 |
 | `gep-donor-agreement-2019` | donor_agreement | 2019 | GEP | en | pdf | 6 |
-| `annual-report-2020` | annual_report | 2020 | — | ar | pdf | 12 |
+| `annual-report-2020` | annual_report | 2020 | none | ar | pdf | 12 |
 | `gep-midterm-evaluation-2020` | evaluation | 2020 | GEP | en | pdf | 6 |
-| `annual-report-2021` | annual_report | 2021 | — | ar | pdf | 16 |
-| `board-minutes-2021-06` | board_minutes | 2021 | — | ar | docx | 4 |
+| `annual-report-2021` | annual_report | 2021 | none | ar | pdf | 16 |
+| `board-minutes-2021-06` | board_minutes | 2021 | none | ar | docx | 4 |
 | `chp-household-survey-2021` | survey | 2021 | CHP | ar | pdf | 5 |
 | `wash-final-evaluation-2021` | evaluation | 2021 | WASH | ar | pdf | 7 |
 | `yep-grant-agreement-2021` | donor_agreement | 2021 | YEP | mixed | pdf | 6 |
-| `annual-report-2022` | annual_report | 2022 | — | ar | pdf | 14 |
+| `annual-report-2022` | annual_report | 2022 | none | ar | pdf | 14 |
 | `wlp-donor-agreement-2022` | donor_agreement | 2022 | WLP | ar | pdf | 5 |
 | `yep-employer-survey-2022` | survey | 2022 | YEP | mixed | pdf | 5 |
 | `yep-final-evaluation-2022` | evaluation | 2022 | YEP | ar | pdf | 8 |
-| `annual-report-2023-en` | annual_report | 2023 | — | en | pdf | 10 |
-| `board-minutes-2023-03` | board_minutes | 2023 | — | ar | pdf | 4 |
-| `board-minutes-2023-12` | board_minutes | 2023 | — | ar | pdf | 4 |
+| `annual-report-2023-en` | annual_report | 2023 | none | en | pdf | 10 |
+| `board-minutes-2023-03` | board_minutes | 2023 | none | ar | pdf | 4 |
+| `board-minutes-2023-12` | board_minutes | 2023 | none | ar | pdf | 4 |
 | `spc-donor-agreement-2023` | donor_agreement | 2023 | SPC | ar | docx | 5 |
 | `wlp-evaluation-2023` | evaluation | 2023 | WLP | ar | docx | 5 |
 | `yep-tracer-survey-2023` | survey | 2023 | YEP | ar | pdf | 5 |
-| `budget-2024-draft` | budget | 2024 | — | ar | pdf | 5 |
-| `budget-2024-final` | budget | 2024 | — | ar | pdf | 5 |
+| `budget-2024-draft` | budget | 2024 | none | ar | pdf | 5 |
+| `budget-2024-final` | budget | 2024 | none | ar | pdf | 5 |
 | `chp-evaluation-2024` | evaluation | 2024 | CHP | ar | pdf | 6 |
 | `spc-satisfaction-survey-2024` | survey | 2024 | SPC | ar | txt (utf-8) | 4 |
 | `yep-annual-report-2024` | annual_report | 2024 | YEP | ar | pdf | 6 |
@@ -398,7 +398,7 @@ It fails if any source's front matter differs from the manifest, if the page mar
 - **Amiri's optional ligatures are switched off** (`font-variant-ligatures`): pdfium dropped a letter from each one (تظ, مص…). Required ligatures (lam-alef) stay.
 - **Never KacstOne.** Its lam-meem ligature extracts as the wrong letters.
 
-**Mixed documents.** Each block's direction is set explicitly from its first strong character. Inside a block, clauses split at ` — `, ` / ` or a sentence end are each wrapped in `<bdi>`, so an English clause keeps its trailing punctuation and an Arabic clause its order. `dir="auto"` can't be used on the block itself: it skips text inside `<bdi>`, so a block whose every clause is isolated falls back to LTR.
+**Mixed documents.** Each block's direction is set explicitly from its first strong character. Inside a block, clauses split at a spaced em dash (U+2014), at ` / ` or at a sentence end are each wrapped in `<bdi>`, so an English clause keeps its trailing punctuation and an Arabic clause its order. `dir="auto"` can't be used on the block itself: it skips text inside `<bdi>`, so a block whose every clause is isolated falls back to LTR.
 
 ### How ingestion must convert DOCX and TXT
 
