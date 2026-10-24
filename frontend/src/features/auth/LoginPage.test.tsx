@@ -2,12 +2,15 @@ import { cleanup, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
+import { LANGUAGE_STORAGE_KEY } from '../../app/i18n';
 import { apiError, GUEST, json, renderApp, testUser } from '../../app/test-utils';
 import ar from '../../locales/ar.json';
 import en from '../../locales/en.json';
 
 beforeEach(() => {
   localStorage.clear();
+  // Start in Arabic through a stored choice: not explicit, so the profile language still applies.
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, 'ar');
   window.history.replaceState({}, '', '/');
 });
 
@@ -123,7 +126,7 @@ describe('login page', () => {
     await fillIn(actor);
     await actor.keyboard('{Enter}');
 
-    expect(await screen.findByText('الصفحة ٣')).toBeDefined();
+    expect(await screen.findByText('الصفحة 3')).toBeDefined();
     expect(router.state.location.pathname + router.state.location.search).toBe(
       '/documents/doc-7?page=3',
     );
@@ -133,6 +136,17 @@ describe('login page', () => {
     const { router } = await renderApp({ path: '/login', user: VIEWER });
     expect(await screen.findByRole('heading', { name: ar.pages.ask.title })).toBeDefined();
     expect(router.state.location.pathname).toBe('/ask');
+  });
+
+  it('keeps what was typed when the language switches', async () => {
+    const actor = userEvent.setup();
+    await renderApp({ path: '/login' });
+    await actor.type(await screen.findByLabelText(ar.auth.login.email), VIEWER.email);
+
+    await actor.click(screen.getByRole('button', { name: ar.language.switch }));
+
+    expect(document.documentElement.dir).toBe('ltr');
+    expect(screen.getByLabelText<HTMLInputElement>(en.auth.login.email).value).toBe(VIEWER.email);
   });
 
   it('offers the language switch before sign-in, and switching makes no request', async () => {

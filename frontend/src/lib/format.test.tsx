@@ -26,17 +26,17 @@ describe('locale tag', () => {
     expect(localeTag('en', 'arab')).toBe('en');
   });
 
-  it('reads VITE_AR_NUMBERING, defaulting to Arabic-Indic digits', () => {
+  it('reads VITE_AR_NUMBERING, defaulting to Latin digits (Q6)', () => {
     expect(parseArabicNumbering('latn')).toBe('latn');
     expect(parseArabicNumbering('arab')).toBe('arab');
-    expect(parseArabicNumbering(undefined)).toBe('arab');
-    expect(parseArabicNumbering('roman')).toBe('arab');
+    expect(parseArabicNumbering(undefined)).toBe('latn');
+    expect(parseArabicNumbering('roman')).toBe('latn');
   });
 });
 
 describe.each([
   {
-    name: 'Arabic, Arabic-Indic digits',
+    name: 'Arabic, Arabic-Indic digits (VITE_AR_NUMBERING=arab)',
     format: createFormat('ar', 'arab'),
     number: '١٬٢٣٤٫٥',
     date: '١٥ مارس ٢٠٢١',
@@ -46,7 +46,7 @@ describe.each([
     fiveMinutesAgo: 'قبل ٥ دقائق',
   },
   {
-    name: 'Arabic, Latin digits (VITE_AR_NUMBERING=latn)',
+    name: 'Arabic, Latin digits (the default)',
     format: createFormat('ar', 'latn'),
     number: '1,234.5',
     date: '15 مارس 2021',
@@ -104,11 +104,11 @@ describe('since() picks the largest unit that fits', () => {
 
 function Probe() {
   const format = useFormat();
-  return <output>{format.number(2021, { useGrouping: false })}</output>;
+  return <output>{format.date(MARCH_15, LONG_UTC)}</output>;
 }
 
 describe('useFormat()', () => {
-  it('follows the active language, with Arabic-Indic digits by default', async () => {
+  it('follows the active language, with Latin digits by default', async () => {
     window.history.replaceState({}, '', '/?lang=ar');
     const i18n = await initI18n();
     render(
@@ -116,9 +116,9 @@ describe('useFormat()', () => {
         <Probe />
       </I18nextProvider>,
     );
-    expect(screen.getByRole('status').textContent).toBe('٢٠٢١');
+    expect(plain(screen.getByRole('status').textContent)).toBe('15 مارس 2021');
 
     await act(() => i18n.changeLanguage('en'));
-    expect(screen.getByRole('status').textContent).toBe('2021');
+    expect(screen.getByRole('status').textContent).toBe('March 15, 2021');
   });
 });

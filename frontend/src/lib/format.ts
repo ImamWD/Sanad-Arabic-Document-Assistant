@@ -1,8 +1,11 @@
 import type { Language } from '../app/i18n';
 
-/** Digits in the Arabic UI (OPEN_QUESTIONS Q6): Arabic-Indic (١٢٣) or Latin (123). */
+/**
+ * Digits in the Arabic UI: Arabic-Indic (١٢٣) or Latin (123). The client chose Latin in both
+ * languages (Q6, BUILD_PLAN); `arab` is the opt-in.
+ */
 export type ArabicNumbering = 'arab' | 'latn';
-export const DEFAULT_ARABIC_NUMBERING: ArabicNumbering = 'arab';
+export const DEFAULT_ARABIC_NUMBERING: ArabicNumbering = 'latn';
 
 export function parseArabicNumbering(value: unknown): ArabicNumbering {
   return value === 'latn' || value === 'arab' ? value : DEFAULT_ARABIC_NUMBERING;

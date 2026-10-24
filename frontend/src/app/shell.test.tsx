@@ -6,10 +6,13 @@ import { apiFetch } from '../lib/api';
 import iconStyles from '../lib/Icon.module.css';
 import ar from '../locales/ar.json';
 import en from '../locales/en.json';
+import { LANGUAGE_STORAGE_KEY } from './i18n';
 import { apiError, GUEST, json, renderApp, testUser } from './test-utils';
 
 beforeEach(() => {
   localStorage.clear();
+  // Start in Arabic through a stored choice: not explicit, so the profile language still applies.
+  localStorage.setItem(LANGUAGE_STORAGE_KEY, 'ar');
   window.history.replaceState({}, '', '/');
   // Radix measures its popper with ResizeObserver, which jsdom lacks.
   vi.stubGlobal(
@@ -53,7 +56,7 @@ describe('routing', () => {
 
   it('opens a document at the requested page, with localised digits', async () => {
     await renderApp({ path: '/documents/doc-7?page=12', user: testUser('viewer') });
-    expect(await screen.findByText('الصفحة ١٢')).toBeDefined();
+    expect(await screen.findByText('الصفحة 12')).toBeDefined();
     expect(screen.getByText('doc-7').getAttribute('dir')).toBe('auto');
   });
 
@@ -118,11 +121,11 @@ describe('header', () => {
     expect(screen.getByRole('button', { name: user.name })).toBeDefined();
   });
 
-  it('switching language mirrors the shell without any request', async () => {
+  it('switching language mirrors the shell without any GET', async () => {
     const actor = userEvent.setup();
     const { calls } = await renderApp({ path: '/ask', user: testUser('admin') });
     await screen.findByRole('heading', { name: ar.pages.ask.title });
-    const before = calls.length;
+    const getsBefore = calls.filter((c) => c.method === 'GET').length;
 
     await actor.click(screen.getByRole('button', { name: ar.language.switch }));
 
@@ -134,7 +137,7 @@ describe('header', () => {
       en.shell.nav.upload,
       en.shell.nav.admin,
     ]);
-    expect(calls.length).toBe(before);
+    expect(calls.filter((c) => c.method === 'GET').length).toBe(getsBefore);
   });
 
   it('feeds Radix the active direction, and follows a switch', async () => {

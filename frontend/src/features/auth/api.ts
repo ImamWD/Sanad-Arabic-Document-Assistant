@@ -1,3 +1,4 @@
+import type { Language } from '../../app/i18n';
 import { ApiError, apiFetch } from '../../lib/api';
 import type { Credentials, Me } from './types';
 
@@ -24,4 +25,9 @@ export function loginAsGuest(): Promise<Me> {
 
 export function logout(): Promise<void> {
   return apiFetch<undefined>('/auth/logout', { method: 'POST' });
+}
+
+/** PATCH /api/me: save the user's interface language (SYSTEM_DESIGN §7, §8). */
+export function savePreferredLanguage(language: Language): Promise<unknown> {
+  return apiFetch<unknown>('/me', { method: 'PATCH', body: { preferred_language: language } });
 }

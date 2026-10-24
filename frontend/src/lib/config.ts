@@ -2,5 +2,5 @@
 // so components and tests never touch import.meta.env directly.
 import { parseArabicNumbering } from './format';
 
-/** VITE_AR_NUMBERING=arab|latn (default arab): digits in the Arabic UI. */
+/** VITE_AR_NUMBERING=latn|arab (default latn): digits in the Arabic UI. */
 export const AR_NUMBERING = parseArabicNumbering(import.meta.env.VITE_AR_NUMBERING);
