@@ -241,7 +241,7 @@ llm_perf_samples (                          -- measured speed on THIS machine â†
 2. **Normalise to PDF.**
    - PDF: used as-is.
    - DOCX and TXT: LibreOffice headless converts them to PDF, with Arabic fonts installed (Noto Naskh/Sans Arabic, Amiri, KACST; **verify** in S4).
-   - TXT encoding: try UTF-8, then UTF-8-BOM, then Windows-1256 (common for Arabic Windows exports).
+   - TXT encoding: the worker decodes the file itself (UTF-8, then UTF-8-BOM, then Windows-1256, which is common for Arabic Windows exports) and hands LibreOffice **UTF-8**. C1b found that LibreOffice does not detect Windows-1256 and produces mojibake. LibreOffice does honour form feeds (`\f`) as page breaks.
    - DOCX has no fixed pagination, so the PDF rendition *defines* its page numbers. They can differ slightly from Word's on-screen paging, and the README states this.
 3. **Extract** per-page text from the PDF with the library chosen in spike S1. Candidates: `pypdfium2`, `PyMuPDF`, `pdfminer.six` **(verify licence and Arabic quality)**.
 4. **Clean** with `sanad.text.arabic.clean_extracted`:

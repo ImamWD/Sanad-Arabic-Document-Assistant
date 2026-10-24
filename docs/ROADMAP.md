@@ -364,6 +364,8 @@ Background is in `docs/research/2026-10-24-gpu-and-hosted-apis.md` §2.
 - **Re-indexing** writes a new `index_generation` of chunks and switches retrieval to it atomically. It never creates a user-visible version, and old chunks stay while citations point at them.
 - **`ingestion_summary` report:** `python -m sanad.reports.ingestion_summary` prints counts by status and `error_code`. `NO_TEXT_LAYER` is the scanned-file count. It prints numbers and codes only.
 - **Real `ml` service:** `/embed` and `/rerank` using the S2 choice, with weights baked in at build time and offline at runtime.
+- **Conversion parity with C1b.** The worker image uses the same LibreOffice major version and the same Arabic fonts (Noto Naskh Arabic, Amiri) that C1b's `check_eval.py` used. TXT is decoded in Python first (utf-8 → utf-8-sig → cp1256) and passed to LibreOffice as UTF-8.
+  - **Acceptance:** the eval checker, run against the worker's own DOCX/TXT conversions, still reports 100%.
 
 **Owns.** `backend/sanad/ingest/`, `backend/sanad/reports/`, `backend/sanad/api/documents.py`, `ml/`, `backend/tests/ingest/`.
 
