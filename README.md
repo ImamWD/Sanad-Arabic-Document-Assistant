@@ -1,4 +1,4 @@
-# Sanad — Arabic Document Assistant
+# Sanad: Arabic Document Assistant
 
 Ask questions in Arabic or English and get answers drawn only from your organisation's own
 documents, with page-level citations. Runs entirely on your own server with `docker compose`.
