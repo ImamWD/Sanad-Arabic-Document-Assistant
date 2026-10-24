@@ -438,11 +438,16 @@ describe('history panel', () => {
     expect(await screen.findByText(en.ask.history.empty)).toBeDefined();
   });
 
-  it('is not offered to the shared guest account, who can still ask', async () => {
-    const { ask, send } = await openAsk({ ...GUEST, preferred_language: 'en' });
-    expect(screen.queryByRole('button', { name: en.ask.history.toggle })).toBeNull();
+  it('is there for the guest too, who asks like anyone else', async () => {
+    // For the shared guest account the server lists only this session's questions (R1).
+    const { ask, send, actor } = await openAsk(
+      { ...GUEST, preferred_language: 'en' },
+      { handlers: { 'GET /api/queries': () => json(200, []) } },
+    );
     await ask();
     await send('final', FINAL_ANSWERED);
     expect(screen.getByText(ANSWER_TEXT)).toBeDefined();
+    await actor.click(screen.getByRole('button', { name: en.ask.history.toggle }));
+    expect(await screen.findByText(en.ask.history.empty)).toBeDefined();
   });
 });

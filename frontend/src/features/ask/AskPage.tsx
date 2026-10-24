@@ -6,7 +6,6 @@ import { Bidi } from '../../lib/BidiText';
 import { cx } from '../../lib/cx';
 import { isTranslatedErrorCode } from '../../lib/errors';
 import { useFormat } from '../../lib/useFormat';
-import { useCurrentUser } from '../auth/session';
 import { AnswerText, AnswerView, LowConfidenceBanner } from './AnswerView';
 import styles from './AskPage.module.css';
 import type { AskState, ErrorInfo } from './askState';
@@ -71,36 +70,33 @@ function AskResult({ state, onRetry }: { state: AskState; onRetry: (question: st
 /** /ask, the landing page after sign-in (the guest's too). */
 export function AskPage() {
   const { t } = useTranslation();
-  const user = useCurrentUser();
   const { state, ask, show } = useAsk();
   const [historyOpen, setHistoryOpen] = useState(false);
   const historyId = useId();
-  // The guest is one shared account, so its history would be every visitor's questions.
-  const hasHistory = !user.is_guest;
 
   return (
-    <div className={cx(styles.layout, hasHistory && historyOpen && styles.withHistory)}>
+    <div className={cx(styles.layout, historyOpen && styles.withHistory)}>
       <section className={styles.main}>
         <header className={styles.header}>
           <h1 className={styles.title}>{t('pages.ask.title')}</h1>
-          {hasHistory && (
-            <button
-              type="button"
-              className={styles.historyToggle}
-              aria-expanded={historyOpen}
-              aria-controls={historyOpen ? historyId : undefined}
-              onClick={() => {
-                setHistoryOpen((open) => !open);
-              }}
-            >
-              {t('ask.history.toggle')}
-            </button>
-          )}
+          {/* Everyone has a history, the guest too: for the shared guest account the server
+              returns only the current session's questions (ROADMAP R1). */}
+          <button
+            type="button"
+            className={styles.historyToggle}
+            aria-expanded={historyOpen}
+            aria-controls={historyOpen ? historyId : undefined}
+            onClick={() => {
+              setHistoryOpen((open) => !open);
+            }}
+          >
+            {t('ask.history.toggle')}
+          </button>
         </header>
         <QuestionForm busy={state.phase === 'streaming'} onAsk={ask} />
         <AskResult state={state} onRetry={ask} />
       </section>
-      {hasHistory && historyOpen && <HistoryPanel id={historyId} onShow={show} />}
+      {historyOpen && <HistoryPanel id={historyId} onShow={show} />}
     </div>
   );
 }

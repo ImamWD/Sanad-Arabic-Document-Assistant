@@ -214,7 +214,7 @@ test('the guest goes from the login page to a cited page in three clicks', async
 
   await page.getByRole('button', { name: en.auth.login.guest }).click(); // 1
   await expect(page).toHaveURL(/\/ask$/);
-  await expect(page.getByRole('button', { name: en.ask.history.toggle })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: en.ask.history.toggle })).toBeVisible();
   await page.getByRole('textbox', { name: en.ask.form.label }).click(); // 2
   await page.keyboard.type(QUESTION);
   await page.keyboard.press('Enter');
