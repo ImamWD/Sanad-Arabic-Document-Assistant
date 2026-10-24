@@ -197,7 +197,7 @@ Brief as sent, plus these rulings:
 - **Endpoints:**
   - `POST /ask`
   - `POST /ask/stream` (SSE) with the SYSTEM_DESIGN §6 events: stages, `band` on `reading`, `eta`, `writing` on the first token, sentinel held back, `final` replaces the streamed text
-  - `GET /queries` (own history)
+  - `GET /queries` (own history). **The guest is one shared account**, so each query stores the session id (a nullable `session_id` column in `0003_queries`), and for the guest `GET /queries` returns only the current session's questions. A test logs in as guest twice and checks that the second session sees none of the first session's questions.
 - **Compose:** the `ollama` and `ollama-init` services (the S3 default model), `docker-compose.api-llm.yml`, and the nginx stream settings.
 
 **Owns.** `backend/sanad/{retrieval,llm}/`, `backend/sanad/api/{ask,queries}.py`, `backend/alembic/versions/0003_*`, `backend/tests/retrieval/`, and the compose items above.
