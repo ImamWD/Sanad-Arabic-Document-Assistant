@@ -55,6 +55,13 @@ MARKER = re.compile(r"\[(\d+)\]")
 NONSTANDARD_MARKER = re.compile(r"\[\s*\d+\s*[,،\-–]\s*\d+[^\]]*\]|\[[٠-٩]+\]|【\d+】")
 THINK_BLOCK = re.compile(r"<think>.*?(</think>|\Z)", re.S)
 SENTINEL = "NO_ANSWER"
+# A "soft refusal" says in prose that the excerpts lack the answer instead of emitting the
+# sentinel. With a citation attached, production would show it as an answer. Informational only.
+SOFT_REFUSAL_PHRASES = [
+    "لا توجد معلومات", "لا تتوفر معلومات", "لا تتضمن", "لا تحتوي", "لا تذكر", "لم تذكر", "لم يرد",
+    "لم أجد", "no information", "do not contain", "does not contain", "do not mention",
+    "does not mention", "not mentioned", "not provided", "not specified",
+]
 
 
 def norm_digits(text: str) -> str:
@@ -109,6 +116,7 @@ def score(prompt: dict, raw: str) -> dict[str, Any]:
         "markers_out_of_range": len(markers) - len(valid),
         "markers_nonstandard": len(NONSTANDARD_MARKER.findall(text)),
         "cited_excerpts": sorted(set(valid)),
+        "soft_refusal": not sentinel_exact and any(ph in text.lower() for ph in SOFT_REFUSAL_PHRASES),
     }
     if prompt["expected_outcome"] == "no_answer":
         s["pass"] = sentinel_exact
@@ -334,6 +342,8 @@ def summarise(rows: list[dict]) -> dict[str, Any]:
         "facts_ok": f"{sum(r['score'].get('facts_ok', False) for r in ans)}/{len(ans)}",
         "false_refusals": sum(r["score"]["outcome"] == "no_answer" for r in ans),
         "correct_refusals": f"{sum(r['score']['sentinel_exact'] for r in una)}/{len(una)}",
+        "soft_refusals": sum(r["score"]["soft_refusal"] for r in rows),
+        "unanswerable_answered_with_citation": sum(r["score"]["outcome"] == "answered" for r in una),
         "refusals_strict": f"{sum(r['score']['sentinel_strict'] for r in una)}/{len(una)}",
         "cites_support": f"{sum(r['score'].get('cites_support', False) for r in ans)}/{len(ans)}",
         "cited_sentence_ratio": round(statistics.mean(r["score"]["cited_sentence_ratio"] for r in ans if "cited_sentence_ratio" in r["score"]), 2) if ans else None,
@@ -374,7 +384,8 @@ def fmt(v: Any) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--model", required=True, help="model name or tag; comma-separate several")
+    ap.add_argument("--model", help="model name or tag; comma-separate several")
+    ap.add_argument("--rescore", nargs="+", metavar="RESULT_JSON", help="re-score saved runs with the current scorer; no model calls")
     ap.add_argument("--prompts", type=int, default=None, help="run only the first N prompts")
     ap.add_argument("--ids", default=None, help="comma-separated prompt ids, e.g. P02,P08")
     ap.add_argument("--provider", choices=["ollama", "openai_compat"], default="ollama")
@@ -391,6 +402,18 @@ def main() -> None:
     args = ap.parse_args()
 
     data = json.loads(PROMPTS.read_text(encoding="utf-8"))
+    if args.rescore:
+        by_id = {p["id"]: p for p in data["prompts"]}
+        for path in map(Path, args.rescore):
+            run = json.loads(path.read_text(encoding="utf-8"))
+            for r in run["results"]:
+                r["score"] = score(by_id[r["id"]], r["output"])
+            run["summary"] = summarise(run["results"])
+            path.write_text(json.dumps(run, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+            print(f"{run['run']['model']:28} {run['run']['label']:22} pass={run['summary']['pass']}/{run['summary']['prompts']}")
+        return
+    if not args.model:
+        ap.error("--model is required")
     prompts = data["prompts"]
     if args.ids:
         wanted = args.ids.split(",")
