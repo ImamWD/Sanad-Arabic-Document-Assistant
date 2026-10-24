@@ -10,6 +10,21 @@
     "NOT_FOUND": "The requested item was not found.",
     "METHOD_NOT_ALLOWED": "This action is not allowed.",
     "VALIDATION_ERROR": "Some fields are not valid. Review them and try again.",
-    "INTERNAL_ERROR": "Something went wrong on the server. Please try again later."
+    "INTERNAL_ERROR": "Something went wrong on the server. Please try again later.",
+    "UNAUTHENTICATED": "Your session has ended. Sign in again.",
+    "FORBIDDEN": "You don't have permission to do this.",
+    "INVALID_CREDENTIALS": "The email or password is incorrect.",
+    "RATE_LIMITED": "Too many attempts. Wait a moment and try again.",
+    "GUEST_DISABLED": "Guest access is turned off.",
+    "ACCOUNT_DISABLED": "This account has been deactivated. Ask an administrator to reactivate it.",
+    "CSRF_REJECTED": "The request was blocked for security reasons. Reload the page and try again.",
+    "EMAIL_TAKEN": "An account with this email already exists.",
+    "PASSWORD_TOO_SHORT": "The password must be at least {{min_length}} characters long.",
+    "CANNOT_CHANGE_OWN_ACCESS": "You can't remove your own administrator access or deactivate your own account.",
+    "GUEST_ROLE_FIXED": "The guest account is always read-only; its role can't be changed."
+  },
+  "answer": {
+    "refusal": "I couldn't find an answer to this in the available documents.",
+    "lowConfidence": "This answer is based on sources that may not fully match your question — check them before relying on it."
   }
 }
