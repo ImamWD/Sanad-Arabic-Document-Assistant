@@ -31,8 +31,14 @@ testpaths = ["tests"]
 addopts = ["-ra", "--strict-markers", "-p", "no:cacheprovider"]
 filterwarnings = ["error"]
 
+# backend-dev sets COVERAGE_RCFILE to this file, so these settings also apply when pytest runs
+# from the repo root (e.g. `pytest backend/tests/text --cov=sanad.text --cov-fail-under=100`).
 [tool.coverage.run]
+branch = true
 data_file = "/tmp/.coverage"
+
+[tool.coverage.report]
+show_missing = true
 
 [tool.mypy]
 python_version = "3.12"

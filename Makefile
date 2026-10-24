@@ -52,7 +52,7 @@ tools-build: ## Build the dev tool images
 lint: lint-backend lint-ml lint-frontend ## ruff + mypy, ESLint + stylelint + tsc + prettier, gate self-test
 
 lint-backend: tools-build
-	$(RUN) -w /app/backend backend-dev sh -c 'ruff check . && ruff format --check . && mypy'
+	$(RUN) --no-deps -w /app/backend backend-dev sh -c 'ruff check . && ruff format --check . && mypy'
 
 lint-ml: tools-build
 	$(RUN) -w /app/ml ml-dev sh -c 'ruff check . && ruff format --check . && mypy'
@@ -80,11 +80,11 @@ test-e2e: ## Playwright against the running stack (run `make up` first)
 # --- format / codegen ---------------------------------------------------------------------
 
 fmt: tools-build ## Auto-format and auto-fix Python and frontend code
-	$(RUN) backend-dev sh -c 'ruff check --fix backend ml && ruff format backend ml'
+	$(RUN) --no-deps backend-dev sh -c 'ruff check --fix backend ml && ruff format backend ml'
 	$(NODE) 'sh scripts/ensure-deps.sh && npm run format'
 
 gen-api-types: tools-build ## Regenerate frontend/src/api/{openapi.json,schema.d.ts} from the API
-	$(RUN) backend-dev python -m sanad.api.openapi > frontend/src/api/openapi.json
+	$(RUN) --no-deps backend-dev python -m sanad.api.openapi > frontend/src/api/openapi.json
 	$(NODE) 'sh scripts/ensure-deps.sh && npm run gen:api-types'
 
 check-api-types: gen-api-types ## Fail if the committed API types are stale

@@ -28,9 +28,15 @@ x-env-file: &env-file
     - path: .env
       required: false
 
+# api, worker and backend-dev. The app builds the database URL from these parts itself
+# (sanad.core.config), so the password may contain any character.
 x-backend-env: &backend-env
-  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-sanad}:${POSTGRES_PASSWORD:-sanad}@db:5432/${POSTGRES_DB:-sanad}
-  ML_BASE_URL: http://ml:8001
+  POSTGRES_HOST: ${POSTGRES_HOST:-db}
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+  POSTGRES_USER: ${POSTGRES_USER:-sanad}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sanad}
+  POSTGRES_DB: ${POSTGRES_DB:-sanad}
+  ML_BASE_URL: ${ML_BASE_URL:-http://ml:8001}
 
 x-backend-build: &backend-build
   context: ./backend
@@ -138,9 +144,17 @@ services:
     working_dir: /app
     volumes:
       - .:/app
+    <<: *env-file
+    # Same database and ml wiring as api, so DB-backed tests (B2, B3) work out of the box.
     environment:
+      <<: *backend-env
       LOG_LEVEL: WARNING
-    # Internal network: tests can reach db later, never the internet.
+      # Coverage settings (branch = true, …) apply whatever the working directory.
+      COVERAGE_RCFILE: /app/backend/pyproject.toml
+    depends_on:
+      db:
+        condition: service_healthy
+    # Internal network: tests reach db, never the internet.
     networks: [backend]
 
   ml-dev:
