@@ -25,6 +25,7 @@ from sqlalchemy import select, text
 from sanad.core.config import get_settings
 from sanad.documents.models import Chunk, DocStatus, Document
 from sanad.ingest.extract import extract_pages
+from sanad.ingest.settings import IngestSettings
 from sanad.text.arabic import clean_extracted, normalize_for_search
 from tests.ingest.conftest import REPO, SEED_ENTRIES, needs_seed_files
 
@@ -116,7 +117,8 @@ def test_chunks_sit_on_the_viewer_pdf_page_they_name(
             assert response.status_code == 200, entry["file"]
             pdf = Path(tmp) / f"{row.id}.pdf"
             pdf.write_bytes(response.content)
-            pages = clean_extracted([p.text for p in extract_pages(pdf)])
+            raw = extract_pages(pdf, IngestSettings().pdf_extractor)  # as the stack does
+            pages = clean_extracted([p.text for p in raw])
             assert len(pages) == entry["page_count"]
             chunks = conn.execute(
                 select(Chunk.page_number, Chunk.text).where(Chunk.document_id == row.id)

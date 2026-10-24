@@ -11,9 +11,10 @@ FROM ${UV_IMAGE} AS uv
 
 FROM ${PYTHON_IMAGE} AS base
 
-# LibreOffice (DOCX/TXT -> PDF) and Arabic fonts, for the worker. They sit in `base` so that
-# backend-dev, where scripts/check_eval.py runs, converts with the very same soffice and
-# fonts as the worker: fonts change line breaks, and line breaks change DOCX page numbers.
+# LibreOffice (DOCX/TXT -> PDF), poppler's pdftotext (PDF_EXTRACTOR=poppler) and Arabic fonts,
+# for the worker. They sit in `base` so that backend-dev, where scripts/check_eval.py runs,
+# converts and extracts with the very same binaries and fonts as the worker: fonts change line
+# breaks, and line breaks change DOCX page numbers.
 # Package set and Debian snapshot date match tools/render/Dockerfile (C1b's checker), so
 # every package version is fixed and identical to the renderer's.
 ARG DEBIAN_SNAPSHOT=20261020T000000Z
@@ -24,6 +25,7 @@ RUN sed -i \
  && apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Retries=5 update \
  && DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
       libreoffice-writer-nogui \
+      poppler-utils \
       fontconfig \
       fonts-noto-core \
       fonts-hosny-amiri \

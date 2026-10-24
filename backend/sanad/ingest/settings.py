@@ -7,6 +7,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from sanad.ingest.chunk import ChunkParams
+from sanad.ingest.extract import Extractor
 
 
 class IngestSettings(BaseSettings):
@@ -31,6 +32,9 @@ class IngestSettings(BaseSettings):
     ingest_scanned_page_share: float = Field(default=0.5, ge=0, le=1)
 
     libreoffice_timeout_seconds: float = Field(default=180, gt=0)
+
+    # Text extraction from PDFs (see sanad.ingest.extract): poppler or pdfium.
+    pdf_extractor: Extractor = Extractor.POPPLER
 
     # Worker: a claimed document whose stage hasn't moved for this long is stale (its worker
     # died); it is re-queued until it has been tried `worker_max_attempts` times.

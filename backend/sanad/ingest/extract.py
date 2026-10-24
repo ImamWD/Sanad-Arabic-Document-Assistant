@@ -1,11 +1,22 @@
-"""Per-page text from a PDF with pypdfium2 (SYSTEM_DESIGN §5.2 step 3), plus the checks that
-turn unusable files into readable failures (step 5).
+"""Per-page text from a PDF (SYSTEM_DESIGN §5.2 step 3), plus the checks that turn unusable
+files into readable failures (step 5).
 
-pdfium returns each page as lines (CRLF-separated) with no paragraph breaks. Chunking is
-paragraph-aligned (DECISIONS D1), so paragraph breaks are rebuilt from geometry: a vertical
-gap clearly larger than the page's usual line gap, a change of font size (a heading) or a
-jump back up the page (a new column or text box) starts a new paragraph, written as a blank
-line. The text itself is exactly pdfium's.
+pypdfium2 always opens the file: it decides FILE_CORRUPT and PDF_ENCRYPTED, the page count
+and the images on each page. The text comes from the extractor chosen by PDF_EXTRACTOR:
+
+- `poppler` (default): poppler's `pdftotext -enc UTF-8`, reading-order mode, run as a
+  subprocess (poppler is GPL; we never link it). It separates blocks with blank lines. It is
+  far more robust on Arabic than pdfium across fonts (C1b: 97.0% of words verbatim on the
+  shipped corpus, against pdfium's 95.9%, and 97.5% against 57.7% in Noto Naskh). Known
+  limits: with Amiri it splits a word after ر before ي or ب ("الر يحان"), and on fully
+  diacritised text it puts tashkeel before its letter.
+- `pdfium`: pypdfium2's text. It has no paragraph breaks, so they are rebuilt from
+  geometry: a vertical gap clearly larger than the page's usual line gap, a change of font
+  size (a heading) or a jump back up the page (a new column or text box) starts a new
+  paragraph, written as a blank line.
+
+If pdftotext fails or disagrees with pdfium about the page count, the document falls back to
+pdfium's text (logged), so a quirk of one library never loses a document.
 """
 
 from __future__ import annotations
@@ -13,9 +24,12 @@ from __future__ import annotations
 import itertools
 import logging
 import re
+import shutil
 import statistics
+import subprocess
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from enum import StrEnum
 from pathlib import Path
 
 import pypdfium2 as pdfium
@@ -35,6 +49,12 @@ _LINE_BREAK = re.compile(r"\r\n|\r|\n")
 # text, U+0002 in its bounded text. Both stand for the hyphen that was printed.
 _HYPHEN_MARKS = str.maketrans({"\ufffe": "-", "\x02": "-"})
 _SPACE = re.compile(r"\s+")
+PDFTOTEXT = "pdftotext"
+
+
+class Extractor(StrEnum):
+    POPPLER = "poppler"
+    PDFIUM = "pdfium"
 
 
 @dataclass(frozen=True)
@@ -139,7 +159,37 @@ def _page(pdf: pdfium.PdfDocument, index: int) -> RawPage:
         page.close()
 
 
-def extract_pages(path: Path) -> list[RawPage]:
+def _poppler_texts(path: Path, pages: int, timeout: float) -> list[str] | None:
+    """Per-page text from pdftotext, or None if it can't give exactly `pages` pages."""
+    if shutil.which(PDFTOTEXT) is None:
+        logger.warning("pdftotext is not installed; using pdfium text")
+        return None
+    try:
+        result = subprocess.run(  # noqa: S603 - fixed argument list, no shell
+            [PDFTOTEXT, "-enc", "UTF-8", str(path), "-"],
+            capture_output=True,
+            timeout=timeout,
+            check=False,
+        )
+    except subprocess.TimeoutExpired:
+        logger.warning("pdftotext timed out after %ss; using pdfium text", timeout)
+        return None
+    # pdftotext ends every page with a form feed, so this is exactly `-f N -l N` per page.
+    texts = result.stdout.decode("utf-8", "replace").split("\f")[:-1]
+    if result.returncode != 0 or len(texts) != pages:
+        logger.warning(
+            "pdftotext gave %d pages (exit %s) for %d; using pdfium text",
+            len(texts),
+            result.returncode,
+            pages,
+        )
+        return None
+    return [_LINE_BREAK.sub("\n", text) for text in texts]
+
+
+def extract_pages(
+    path: Path, extractor: Extractor = Extractor.POPPLER, timeout: float = 120
+) -> list[RawPage]:
     """Every page of the PDF in order; page i + 1 of the viewer is index i."""
     try:
         pdf = pdfium.PdfDocument(str(path))
@@ -151,11 +201,16 @@ def extract_pages(path: Path) -> list[RawPage]:
         if len(pdf) == 0:
             raise IngestionError(ErrorCode.FILE_CORRUPT)
         try:
-            return [_page(pdf, i) for i in range(len(pdf))]
+            pages = [_page(pdf, i) for i in range(len(pdf))]
         except pdfium.PdfiumError:
             raise IngestionError(ErrorCode.FILE_CORRUPT) from None
     finally:
         pdf.close()
+    if extractor is Extractor.POPPLER:
+        texts = _poppler_texts(path, len(pages), timeout)
+        if texts is not None:
+            pages = [replace(page, text=text) for page, text in zip(pages, texts, strict=True)]
+    return pages
 
 
 def text_chars(text: str) -> int:

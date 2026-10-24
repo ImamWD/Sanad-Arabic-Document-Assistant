@@ -46,7 +46,7 @@ def extract_document(
         to_pdf(
             original, file_type, resolve(files_dir, viewer), settings.libreoffice_timeout_seconds
         )
-    raw = extract_pages(resolve(files_dir, viewer))
+    raw = extract_pages(resolve(files_dir, viewer), settings.pdf_extractor)
     pages = clean_extracted([page.text for page in raw])
     check_text_layer(pages, raw, settings.ingest_min_page_chars, settings.ingest_scanned_page_share)
     language = DocLanguage(detect_language("\n".join(pages)))

@@ -1,12 +1,16 @@
-"""pypdfium2 extraction, paragraph geometry, and the text-layer checks."""
+"""PDF extraction (poppler and pdfium), paragraph geometry, and the text-layer checks."""
 
+import subprocess
 from pathlib import Path
+from typing import Any
 
 import pytest
 
 from sanad.core.errors import ErrorCode
+from sanad.ingest import extract
 from sanad.ingest.errors import IngestionError
 from sanad.ingest.extract import (
+    Extractor,
     RawPage,
     _Line,
     check_text_layer,
@@ -96,11 +100,52 @@ def test_a_file_that_is_not_a_pdf_is_corrupt_to_the_parser(tmp_path: Path) -> No
 
 
 @needs_seed_files
+@pytest.mark.parametrize("extractor", list(Extractor))
 @pytest.mark.parametrize(
     "entry", [e for e in SEED_ENTRIES if e["format"] == "pdf"], ids=lambda e: e["file"]
 )
-def test_seed_pdfs_extract_one_text_page_per_source_page(entry: dict[str, object]) -> None:
-    pages = extract_pages(SEED / "documents" / str(entry["file"]))
+def test_seed_pdfs_extract_one_text_page_per_source_page(
+    entry: dict[str, object], extractor: Extractor
+) -> None:
+    pages = extract_pages(SEED / "documents" / str(entry["file"]), extractor)
     assert len(pages) == entry["page_count"]
     assert all(page.text.strip() for page in pages)
     assert all("￾" not in page.text and "\x02" not in page.text for page in pages)
+    assert all("\f" not in page.text and "\r" not in page.text for page in pages)
+
+
+@needs_seed_files
+def test_poppler_keeps_codes_whole_and_separates_blocks() -> None:
+    pages = extract_pages(SEED / "documents" / "annual-report-2021.pdf", Extractor.POPPLER)
+    assert "FAKE-REG-2014-0417" in pages[2].text  # pdfium reorders it: -2014-0417REG-FAKE
+    assert "\n\n" in pages[2].text
+
+
+@needs_seed_files
+def test_poppler_failures_fall_back_to_pdfium(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    pdf = SEED / "documents" / "annual-report-2016.pdf"
+    pdfium_pages = extract_pages(pdf, Extractor.PDFIUM)
+
+    monkeypatch.setattr(extract, "PDFTOTEXT", "no-such-pdftotext")
+    assert extract_pages(pdf, Extractor.POPPLER) == pdfium_pages
+    assert "pdftotext is not installed" in caplog.text
+
+    monkeypatch.setattr(extract, "PDFTOTEXT", "pdftotext")
+    real_run = subprocess.run
+
+    def one_page_short(*args: Any, **kwargs: Any) -> Any:
+        result = real_run(*args, **kwargs)
+        result.stdout = result.stdout.split(b"\f", 1)[1]
+        return result
+
+    monkeypatch.setattr(subprocess, "run", one_page_short)
+    assert extract_pages(pdf, Extractor.POPPLER) == pdfium_pages
+    assert "using pdfium text" in caplog.text
+
+    def hang(*args: Any, **kwargs: Any) -> Any:
+        raise subprocess.TimeoutExpired(cmd="pdftotext", timeout=1)
+
+    monkeypatch.setattr(subprocess, "run", hang)
+    assert extract_pages(pdf, Extractor.POPPLER, timeout=1) == pdfium_pages
