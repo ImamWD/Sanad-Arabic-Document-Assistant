@@ -103,7 +103,9 @@ def profile(base: str, model: str) -> dict:
         if full_interval and (i + 1) % full_interval != 0:
             continue  # hybrid model: recurrent layer, fixed-size state instead of a KV cache
         sliding = bool(pattern[i]) if isinstance(pattern, list) and i < len(pattern) else False
-        kv_layers.append({"bytes_per_token": h * (k_len + v_len) * 2, "window": window if sliding else None})
+        k = (mi.get(f"{arch}.attention.key_length_swa") or k_len) if sliding else k_len
+        v = (mi.get(f"{arch}.attention.value_length_swa") or v_len) if sliding else v_len
+        kv_layers.append({"bytes_per_token": h * (k + v) * 2, "window": window if sliding else None})
     file_gb = sum(math.prod(t["shape"]) * BPW.get(t["type"], 16) / 8 for t in s["tensors"]) / 1e9
     return {
         "model": model,
