@@ -1,0 +1,5 @@
+/* Each paragraph takes its direction from its first strong character, like dir="auto". */
+.bidi {
+  unicode-bidi: plaintext;
+  text-align: start;
+}

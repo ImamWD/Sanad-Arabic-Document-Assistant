@@ -6,15 +6,28 @@
 :root {
   --font-sans: 'IBM Plex Sans Arabic', system-ui, sans-serif;
   --color-text: #1b1f24;
+  --color-text-muted: #57606a;
   --color-border: #d0d7de;
   --color-surface: #fff;
   --color-surface-hover: #f3f5f7;
   --color-background: #fafbfc;
+  --color-primary: #0f6e5c;
+  --color-primary-hover: #0b5a4b;
+  --color-primary-soft: #e3f2ee;
+  --color-on-primary: #fff;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
   --color-focus: #0b6bcb;
+  --space-1: 0.25rem;
   --space-2: 0.5rem;
+  --space-3: 0.75rem;
   --space-4: 1rem;
   --space-6: 1.5rem;
+  --space-8: 2rem;
   --radius-2: 0.375rem;
+  --radius-3: 0.75rem;
+  --shadow-1: 0 1px 2px rgb(27 31 36 / 8%);
+  --shadow-2: 0 8px 24px rgb(27 31 36 / 12%);
 
   color: var(--color-text);
   background: var(--color-background);
@@ -31,4 +44,16 @@
 
 body {
   margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }

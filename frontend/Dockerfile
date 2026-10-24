@@ -10,6 +10,9 @@ WORKDIR /app/frontend
 COPY frontend/package.json frontend/package-lock.json frontend/.npmrc ./
 RUN --mount=type=cache,target=/root/.npm npm ci --no-audit --no-fund
 COPY frontend/ ./
+# Digits in the Arabic UI (latn|arab), baked into the bundle: Vite exposes VITE_* variables
+# from the build environment. docker-compose.yml passes AR_NUMBERING from .env.
+ARG VITE_AR_NUMBERING=latn
 RUN npm run build
 
 FROM ${NGINX_IMAGE} AS runtime
