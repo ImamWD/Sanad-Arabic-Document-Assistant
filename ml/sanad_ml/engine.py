@@ -97,11 +97,29 @@ def _session(path: Path, config: EngineConfig) -> ort.InferenceSession:
     return ort.InferenceSession(str(path), options, providers=["CPUExecutionProvider"])
 
 
-def _tokenizer(path: Path, max_tokens: int) -> Tokenizer:
+def _tokenizer(path: Path, max_tokens: int | None) -> Tokenizer:
     tokenizer = Tokenizer.from_file(str(path))
-    tokenizer.enable_truncation(max_length=max_tokens)
+    if max_tokens is None:
+        tokenizer.no_truncation()
+    else:
+        tokenizer.enable_truncation(max_length=max_tokens)
     tokenizer.no_padding()
     return tokenizer
+
+
+def _encode_truncated(tokenizer: Tokenizer, texts: list[str], max_tokens: int) -> list[Encoding]:
+    """Encode single texts with the tokenizer's own special tokens, cut to `max_tokens`.
+
+    Truncation happens here rather than in the tokenizer, so the same tokenizer object can
+    also count tokens without a cap (each one holds ~280 MiB of vocabulary).
+    """
+    room = max_tokens - tokenizer.num_special_tokens_to_add(False)
+    encodings = []
+    for encoding in tokenizer.encode_batch(texts, add_special_tokens=False):
+        if len(encoding.ids) > room:
+            encoding.truncate(room)
+        encodings.append(tokenizer.post_process(encoding))
+    return encodings
 
 
 def _batches(lengths: Sequence[int], size: int) -> list[list[int]]:
@@ -150,12 +168,11 @@ class OnnxEngine:
         self._rerank_info = load_model_info(rerank_dir)
         self._embed_session = _session(embed_dir / "model.onnx", config)
         self._rerank_session = _session(rerank_dir / "model.onnx", config)
-        self._embed_tokenizer = _tokenizer(embed_dir / "tokenizer.json", config.embed_max_tokens)
+        # bge-m3's tokenizer both counts tokens for the chunker (uncapped) and feeds the
+        # embedder (capped per call). The reranker keeps its own: its whitespace normaliser
+        # differs, and a tokenizer must match the model it feeds.
+        self._embed_tokenizer = _tokenizer(embed_dir / "tokenizer.json", None)
         self._rerank_tokenizer = _tokenizer(rerank_dir / "tokenizer.json", config.rerank_max_tokens)
-        # Counting tokens for the chunker: no truncation, no special tokens.
-        self._count_tokenizer = Tokenizer.from_file(str(embed_dir / "tokenizer.json"))
-        self._count_tokenizer.no_truncation()
-        self._count_tokenizer.no_padding()
         self.embed_model = self._embed_info.label
         self.rerank_model = self._rerank_info.label
         self.dim = self._embed_info.dim or 0
@@ -168,7 +185,9 @@ class OnnxEngine:
     def embed(self, texts: Sequence[str]) -> FloatArray:
         if not texts:
             return np.zeros((0, self.dim), dtype=np.float32)
-        encodings = self._embed_tokenizer.encode_batch(list(texts))
+        encodings = _encode_truncated(
+            self._embed_tokenizer, list(texts), self._config.embed_max_tokens
+        )
         output = self._embed_info.output
 
         def run(feed: dict[str, npt.NDArray[np.int64]]) -> FloatArray:
@@ -199,5 +218,5 @@ class OnnxEngine:
         return [float(s) for s in _sigmoid(np.concatenate(rows))]
 
     def count_tokens(self, texts: Sequence[str]) -> list[int]:
-        encodings = self._count_tokenizer.encode_batch(list(texts), add_special_tokens=False)
+        encodings = self._embed_tokenizer.encode_batch(list(texts), add_special_tokens=False)
         return [len(e.ids) for e in encodings]

@@ -142,3 +142,15 @@ def test_long_inputs_are_truncated_not_rejected(models_dir: Path) -> None:
     long_text = " ".join(["girls"] * 50)
     assert engine.embed([long_text]).shape == (1, DIM)
     assert len(engine.rerank("water", [long_text])) == 1
+
+
+def test_truncation_keeps_the_tokenizers_own_special_tokens(models_dir: Path) -> None:
+    from sanad_ml.engine import _encode_truncated
+
+    tokenizer = _tokenizer()
+    capped = _tokenizer()
+    capped.enable_truncation(max_length=5)
+    texts = ["water points girls school budget 2021", "water", ""]
+    ours = [e.ids for e in _encode_truncated(tokenizer, texts, 5)]
+    assert ours == [e.ids for e in capped.encode_batch(texts)]
+    assert ours[0] == [0, VOCAB["water"], VOCAB["points"], VOCAB["girls"], 2]
