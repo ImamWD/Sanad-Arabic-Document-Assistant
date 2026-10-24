@@ -26,7 +26,7 @@ NODE := $(RUN) node sh -c
 UV_IMAGE := ghcr.io/astral-sh/uv:0.13.5-python3.12-trixie-slim
 
 .DEFAULT_GOAL := help
-.PHONY: help info up up-dev down logs lint lint-backend lint-ml lint-frontend test \
+.PHONY: help info up up-dev down logs lint lint-style lint-backend lint-ml lint-frontend test \
 	test-backend test-ml test-frontend test-e2e fmt gen-api-types check-api-types lock \
 	render-smoke render-seed check-eval tools-build
 
@@ -56,7 +56,10 @@ tools-build: ## Build the dev tool images
 
 # --- lint ---------------------------------------------------------------------------------
 
-lint: lint-backend lint-ml lint-frontend ## ruff + mypy, ESLint + stylelint + tsc + prettier, gate self-test
+lint: lint-style lint-backend lint-ml lint-frontend ## ruff + mypy, ESLint + stylelint + tsc + prettier, gate self-test
+
+lint-style: ## Owner writing rule: no em dash in code comments, UI text or README
+	sh scripts/check-no-em-dash.sh
 
 lint-backend: tools-build
 	$(RUN) --no-deps -w /app/backend backend-dev sh -c 'ruff check . && ruff format --check . && mypy'
