@@ -6,13 +6,23 @@ Spike report, 24 Oct 2026. Roadmap task S3. The scripts, prompts and raw results
 
 | Role | Model (pinned Ollama tag) | Why |
 |---|---|---|
-| **Production model** (RTX PRO 4000 Blackwell 24 GB) | **`gemma4:26b-a4b-it-qat`** (Gemma 4 26B-A4B, mixture-of-experts, QAT 4-bit, Apache 2.0) | Best quality in the test. It is the only model with **both** exact `NO_ANSWER` refusals (3/3) **and** no hijack by the injected instruction. It also scored the best blind grounding (no unsupported claim) and the best Arabic fluency (4.5/5). It is also by far the fastest: only ~3.8 B of its 25 B parameters run per token. **Estimated** p90 on the card is **~3.3 s** including retrieval, against a 15 s target. It needs ~15.4 GB at an 8k context, which leaves ~10 GB of the card: room for `ml` (~3 GB) and a longer context. |
+| **Production model** (RTX PRO 4000 Blackwell 24 GB) | **`gemma4:26b-a4b-it-qat`** (Gemma 4 26B-A4B, mixture-of-experts, QAT 4-bit, Apache 2.0) | Best quality in the test. On the base prompt it is the only model with **both** exact `NO_ANSWER` refusals (3/3) **and** no hijack by the injected instruction (with the sandwich prompt the 12B does both too). It also had the best blind grounding (no unsupported claim) and the joint-best Arabic fluency: 4.5/5 on 4 answers, against qwen3.5's 4.4 on 7. It is also by far the fastest: only ~3.8 B of its 25 B parameters run per token. **Estimated** p90 on the card is **~3.3 s** including retrieval, against a 15 s target. It needs ~15.4 GB at an 8k context, which leaves ~10 GB of the card: room for `ml` (~3 GB) and a longer context. |
 | **CPU demo model** (weeks 1–8) | **`gemma4:12b-it-qat`** (Gemma 4 12B, QAT 4-bit, Apache 2.0), **unless** the 26B measures inside the 30–90 s band on an x86 CPU (see below) | The best *measured* CPU option with exact refusals: 9/10, 3/3 `NO_ANSWER`, and 10/10 with the sandwich prompt. It is the same family, tokenizer and chat template as the production model, so the week-8 gap should be small. On the M5's 4 performance cores it took a **median 93 s and p90 105 s**, slightly above the band. The client's 16 cores should be faster at prompt processing, which is 93–97% of the time, but that is not measured. |
 
-**Switch condition for the CPU demo.** If `gemma4:26b-a4b-it-qat` measures at p90 ≤ 90 s on the client's server, or on an x86 box like it, use it as the CPU demo model as well. The demo and the week-8 score then run the same model, and D3's gap report is not needed.
-- It could not be measured on CPU here. llama.cpp repacks 4-bit weights for the CPU, so it needs ~30 GB of RAM in CPU mode; this Mac has 24 GB, shared with the other sessions' containers. The client's 64 GB server has room.
+**Open point: no measured candidate meets both CPU-demo requirements.** On the M5's 4 performance cores:
+- `gemma4:12b-it-qat` has exact refusals but is slightly out of the 30–90 s band (p90 105 s).
+- `qwen3.5:9b-q4_K_M` is in the band (p90 74 s) but soft-refuses.
+- The 26B was not measured on CPU.
+
+The demo model is needed for the **week-4 demo (16–22 Nov)**, so measure on x86 **before week 4**. That needs no client data and no cost: `run.py --cpu` on the owner's 5080 PC in CPU mode, or on the client's server once N1 arrives.
+- Measure both Gemma models.
+- If the 26B's p90 ≤ 90 s, it becomes the CPU demo model as well. The demo and the week-8 score then run the same model, and D3's gap report is not needed.
+- If only the 12B is in the band, keep the 12B.
+- If neither is, the manager chooses: the 12B and slightly longer waits, or qwen3.5:9b and its soft refusals (which R1 would then need to handle).
+
+**Why the 26B wasn't measured on CPU here.**
+- llama.cpp repacks 4-bit weights for the CPU, so the 26B needs ~30 GB of RAM in CPU mode. This Mac has 24 GB, shared with the other sessions' containers. The client's 64 GB server has room.
 - A rough estimate from the M5's Metal-to-CPU ratios is ~40–50 s per answer on the M5's 4 performance cores. That is an **estimate, not a measurement**.
-- The week-7 deployment dry run on a CPU server like the client's (or the client's server itself) should measure it, with `run.py --cpu`.
 
 **Not recommended**
 - `qwen3:14b`: hijacked by the injection with both prompt variants, weakest Arabic (fluency 3.2/5), and ~155 s per answer on the M5 CPU.
