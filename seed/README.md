@@ -88,12 +88,13 @@ Every item of personal data is visibly synthetic:
 | What | Where | Why |
 |---|---|---|
 | Fully diacritised passage | `annual-report-2021` p2 (board chair's foreword) | Normalisation (B1) |
-| Tatweel in headings | `annual-report-2021` p9 (`التعليــم`) and p11 (`الصحـة`), plus others listed per document | A search for التعليم must match التعليــم |
+| Tatweel in headings | `annual-report-2021` p9 (`التعليــم`) and p11 (`الصحـة`), `annual-report-2020` p9 (`الصحـة`), `annual-report-2022` p10 (`العيـش`) | A search for التعليم must match التعليــم |
 | Arabic-Indic digits | see the digits table above | Digit normalisation, S1 extraction |
 | Codes and URLs inside Arabic sentences | most documents | Bidi handling (F1), extraction (S1) |
 | Windows-1256 text file | `board-minutes-2017-11` | TXT encoding fallback (B3) |
 | Draft and final version of one budget | `budget-2024-draft` and `budget-2024-final` | Version supersede (DECISIONS D5) |
-| Quoted "ignore previous instructions"-style text inside a survey response | SPC 2024 survey and WLP 2025 market assessment (pages listed in §5) | Prompt-injection test (R1). Never on an eval-cited page. |
+| Quoted "ignore previous instructions"-style text inside a survey response | `spc-satisfaction-survey-2024` p3 (Arabic), `wlp-market-assessment-2025` p4 (English) | Prompt-injection test (R1). Never on an eval-cited page. |
+| Bilingual (Arabic plus English) documents | `yep-grant-agreement-2021`, `yep-employer-survey-2022` | Mixed-direction rendering, cross-lingual retrieval |
 
 ---
 
@@ -147,7 +148,7 @@ Each page must fit on one A4 page when rendered:
 | Mixed pages | budgeted proportionally |
 | Tables | at most **12 rows**. A page with a table carries at most about 120 to 150 words of prose. |
 
-Most pages use 40–75% of the budget, so C1b has room for fonts and line height. Because pages are deliberately under-filled, C1b must not merge pages.
+Across the corpus, pages use 23–86% of the word budget (median 47%, 90th percentile 61%), so C1b has room for fonts and line height. A few pages carry two short tables (a revenue table and an expenditure table), with at most 9 rows each. Because pages are deliberately under-filled, C1b must not merge pages.
 
 ### Body syntax (Markdown subset)
 
@@ -184,7 +185,8 @@ No raw HTML other than the page markers. No images.
 - The body is **plain text**, with no Markdown tables or `#` headings (lists use `-` or `1.`). Copy it verbatim after dropping the front matter.
 - Replace each page marker with a **form feed (U+000C)** between pages: no form feed before page 1 and none at the end.
 - Encode the file as the manifest `encoding` says: `utf-8` (no BOM) or `windows-1256`.
-- **Risk:** it is not yet verified that LibreOffice's text import breaks pages at form feeds. If it doesn't, TXT page numbers will drift. C1b must check this, and if needed fall back to keeping TXT pages short enough to stay aligned. Until then, eval items cite TXT pages only where the fact is not near a page boundary.
+- **Risk:** it is not yet verified that LibreOffice's text import breaks pages at form feeds. If it doesn't, TXT page numbers will drift. C1b must check this, and if needed fall back to keeping TXT pages short enough to stay aligned.
+- **Eval exposure:** TXT pages are kept short (about 140–190 words). The headline set cites no TXT page. The dev set cites `board-minutes-2017-11` p2 twice (D04, D11), and both facts sit mid-page.
 
 ---
 
@@ -299,9 +301,57 @@ Both files have the top-level keys `set` (`test` or `dev`), `version` and `quest
 
 ## 5. Document index
 
-See `manifest.json` for the full list. Pages carrying prompt-injection test lines (never cited by eval):
+The corpus has 30 documents and 186 pages, dated 2015–2025:
 
-| Document | Page |
+| Dimension | Breakdown |
 |---|---|
-| `spc-satisfaction-survey-2024` | to be filled with the full corpus |
-| `wlp-market-assessment-2025` | to be filled with the full corpus |
+| Category | 6 annual reports, 5 donor agreements, 5 evaluations, 7 surveys, 3 budgets, 4 sets of board minutes |
+| Language | 24 Arabic, 4 English, 2 mixed |
+| Target format | 24 PDF, 4 DOCX (all Arabic), 2 TXT (one UTF-8, one Windows-1256) |
+
+| doc_id | category | year | programme | lang | format | pages |
+|---|---|---|---|---|---|---|
+| `gep-enrolment-survey-2015` | survey | 2015 | GEP | ar | pdf | 4 |
+| `annual-report-2016` | annual_report | 2016 | — | ar | pdf | 6 |
+| `board-minutes-2017-11` | board_minutes | 2017 | — | ar | txt (windows-1256) | 3 |
+| `wash-baseline-survey-2017` | survey | 2017 | WASH | ar | pdf | 5 |
+| `budget-2018` | budget | 2018 | — | ar | docx | 4 |
+| `wash-donor-agreement-2018` | donor_agreement | 2018 | WASH | ar | pdf | 6 |
+| `gep-donor-agreement-2019` | donor_agreement | 2019 | GEP | en | pdf | 6 |
+| `annual-report-2020` | annual_report | 2020 | — | ar | pdf | 12 |
+| `gep-midterm-evaluation-2020` | evaluation | 2020 | GEP | en | pdf | 6 |
+| `annual-report-2021` | annual_report | 2021 | — | ar | pdf | 16 |
+| `board-minutes-2021-06` | board_minutes | 2021 | — | ar | docx | 4 |
+| `chp-household-survey-2021` | survey | 2021 | CHP | ar | pdf | 5 |
+| `wash-final-evaluation-2021` | evaluation | 2021 | WASH | ar | pdf | 7 |
+| `yep-grant-agreement-2021` | donor_agreement | 2021 | YEP | mixed | pdf | 6 |
+| `annual-report-2022` | annual_report | 2022 | — | ar | pdf | 14 |
+| `wlp-donor-agreement-2022` | donor_agreement | 2022 | WLP | ar | pdf | 5 |
+| `yep-employer-survey-2022` | survey | 2022 | YEP | mixed | pdf | 5 |
+| `yep-final-evaluation-2022` | evaluation | 2022 | YEP | ar | pdf | 8 |
+| `annual-report-2023-en` | annual_report | 2023 | — | en | pdf | 10 |
+| `board-minutes-2023-03` | board_minutes | 2023 | — | ar | pdf | 4 |
+| `board-minutes-2023-12` | board_minutes | 2023 | — | ar | pdf | 4 |
+| `spc-donor-agreement-2023` | donor_agreement | 2023 | SPC | ar | docx | 5 |
+| `wlp-evaluation-2023` | evaluation | 2023 | WLP | ar | docx | 5 |
+| `yep-tracer-survey-2023` | survey | 2023 | YEP | ar | pdf | 5 |
+| `budget-2024-draft` | budget | 2024 | — | ar | pdf | 5 |
+| `budget-2024-final` | budget | 2024 | — | ar | pdf | 5 |
+| `chp-evaluation-2024` | evaluation | 2024 | CHP | ar | pdf | 6 |
+| `spc-satisfaction-survey-2024` | survey | 2024 | SPC | ar | txt (utf-8) | 4 |
+| `yep-annual-report-2024` | annual_report | 2024 | YEP | ar | pdf | 6 |
+| `wlp-market-assessment-2025` | survey | 2025 | WLP | en | pdf | 5 |
+
+### Consistency notes for anyone editing the corpus
+
+- **Shared figures:** yearly beneficiary, expenditure, revenue, staff and volunteer figures are identical wherever they appear. So are programme results that recur across annual reports, evaluations, board minutes and agreements. The only deliberate inconsistency is the 2024 draft/final budget pair.
+- **Deliberately absent facts:** each unanswerable eval item depends on certain facts not appearing anywhere. Keep them out of every document:
+  - community-health figures for 2017–2019 (T21)
+  - water fees or tariffs (T22)
+  - girls' enrolment rates after the 2020 mid-term (T23)
+  - staff working-from-home policy (T24)
+  - per diem or field-allowance rates (T25)
+  - girls'-education figures for 2018 (D18)
+  - YEP income broken down by gender (D19)
+  - maternity leave (D20)
+- **New pages that repeat an eval fact:** if a new page contains an existing eval fact, add it to that item's `expected_citations`. Otherwise a correct answer citing the new page is scored wrong.

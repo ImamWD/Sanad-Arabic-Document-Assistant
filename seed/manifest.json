@@ -20,8 +20,14 @@
       "description_ar": "تدريب مهني ورقمي للشباب من 18 إلى 29 عاماً وربطهم بفرص العمل.",
       "description_en": "Vocational and digital skills training for young people aged 18–29, linked to job placement.",
       "regions": [
-        {"name_ar": "وادي الريم", "name_en": "Wadi Al-Reem"},
-        {"name_ar": "السنابل", "name_en": "Al-Sanabel"}
+        {
+          "name_ar": "وادي الريم",
+          "name_en": "Wadi Al-Reem"
+        },
+        {
+          "name_ar": "السنابل",
+          "name_en": "Al-Sanabel"
+        }
       ]
     },
     {
@@ -31,8 +37,14 @@
       "description_ar": "إنشاء نقاط المياه ووحدات الصرف الصحي وتأهيلها وتعزيز النظافة في القرى الريفية.",
       "description_en": "Building and rehabilitating water points and latrines, and promoting hygiene, in rural villages.",
       "regions": [
-        {"name_ar": "الهضبة الشرقية", "name_en": "Eastern Plateau"},
-        {"name_ar": "سهول النخيل", "name_en": "Palm Plains"}
+        {
+          "name_ar": "الهضبة الشرقية",
+          "name_en": "Eastern Plateau"
+        },
+        {
+          "name_ar": "سهول النخيل",
+          "name_en": "Palm Plains"
+        }
       ]
     },
     {
@@ -42,7 +54,10 @@
       "description_ar": "دعم التحاق الفتيات بالتعليم الأساسي واستمرارهن فيه عبر الحقائب المدرسية وتدريب المعلمين وتحسين المرافق.",
       "description_en": "Helping girls enrol and stay in basic education through school kits, teacher training and better school facilities.",
       "regions": [
-        {"name_ar": "سهل القمر", "name_en": "Sahl Al-Qamar"}
+        {
+          "name_ar": "سهل القمر",
+          "name_en": "Sahl Al-Qamar"
+        }
       ]
     },
     {
@@ -52,8 +67,14 @@
       "description_ar": "منح صغيرة وتدريب على إدارة المشاريع للنساء المعيلات لأسرهن.",
       "description_en": "Small grants and business training for women who head their households.",
       "regions": [
-        {"name_ar": "وادي الريم", "name_en": "Wadi Al-Reem"},
-        {"name_ar": "مرج الزعفران", "name_en": "Marj Al-Zaafaran"}
+        {
+          "name_ar": "وادي الريم",
+          "name_en": "Wadi Al-Reem"
+        },
+        {
+          "name_ar": "مرج الزعفران",
+          "name_en": "Marj Al-Zaafaran"
+        }
       ]
     },
     {
@@ -63,8 +84,14 @@
       "description_ar": "عيادات متنقلة ومتطوعو صحة مجتمعية يقدمون الرعاية الصحية الأولية في المناطق النائية.",
       "description_en": "Mobile clinics and community health volunteers bringing primary health care to remote areas.",
       "regions": [
-        {"name_ar": "سهول النخيل", "name_en": "Palm Plains"},
-        {"name_ar": "الهضبة الشرقية", "name_en": "Eastern Plateau"}
+        {
+          "name_ar": "سهول النخيل",
+          "name_en": "Palm Plains"
+        },
+        {
+          "name_ar": "الهضبة الشرقية",
+          "name_en": "Eastern Plateau"
+        }
       ]
     },
     {
@@ -74,8 +101,14 @@
       "description_ar": "تحويلات نقدية للأسر الأشد فقراً مع آلية لتلقي الشكاوى والتظلمات.",
       "description_en": "Cash transfers to the poorest households, with a complaints and appeals mechanism.",
       "regions": [
-        {"name_ar": "مرج الزعفران", "name_en": "Marj Al-Zaafaran"},
-        {"name_ar": "السنابل", "name_en": "Al-Sanabel"}
+        {
+          "name_ar": "مرج الزعفران",
+          "name_en": "Marj Al-Zaafaran"
+        },
+        {
+          "name_ar": "السنابل",
+          "name_en": "Al-Sanabel"
+        }
       ]
     }
   ],
@@ -95,17 +128,17 @@
       "replaces": null
     },
     {
-      "doc_id": "wash-baseline-survey-2017",
-      "file": "wash-baseline-survey-2017.pdf",
-      "source": "seed/sources/wash-baseline-survey-2017.md",
+      "doc_id": "annual-report-2016",
+      "file": "annual-report-2016.pdf",
+      "source": "seed/sources/annual-report-2016.md",
       "format": "pdf",
-      "title_ar": "المسح المرجعي لخدمات المياه والصرف الصحي في قرى الهضبة الشرقية 2017",
-      "title_en": "Baseline Survey of Water and Sanitation Services in Eastern Plateau Villages, 2017",
-      "category": "survey",
-      "year": 2017,
-      "programme": "WASH",
+      "title_ar": "التقرير السنوي 2016",
+      "title_en": "Annual Report 2016",
+      "category": "annual_report",
+      "year": 2016,
+      "programme": null,
       "language": "ar",
-      "page_count": 5,
+      "page_count": 6,
       "replaces": null
     },
     {
@@ -121,6 +154,76 @@
       "programme": null,
       "language": "ar",
       "page_count": 3,
+      "replaces": null
+    },
+    {
+      "doc_id": "wash-baseline-survey-2017",
+      "file": "wash-baseline-survey-2017.pdf",
+      "source": "seed/sources/wash-baseline-survey-2017.md",
+      "format": "pdf",
+      "title_ar": "المسح المرجعي لخدمات المياه والصرف الصحي في قرى الهضبة الشرقية 2017",
+      "title_en": "Baseline Survey of Water and Sanitation Services in Eastern Plateau Villages, 2017",
+      "category": "survey",
+      "year": 2017,
+      "programme": "WASH",
+      "language": "ar",
+      "page_count": 5,
+      "replaces": null
+    },
+    {
+      "doc_id": "budget-2018",
+      "file": "budget-2018.docx",
+      "source": "seed/sources/budget-2018.md",
+      "format": "docx",
+      "title_ar": "الموازنة التقديرية لعام 2018",
+      "title_en": "2018 Budget",
+      "category": "budget",
+      "year": 2018,
+      "programme": null,
+      "language": "ar",
+      "page_count": 4,
+      "replaces": null
+    },
+    {
+      "doc_id": "wash-donor-agreement-2018",
+      "file": "wash-donor-agreement-2018.pdf",
+      "source": "seed/sources/wash-donor-agreement-2018.md",
+      "format": "pdf",
+      "title_ar": "اتفاقية منحة المشروع WASH-2018-01 مع صندوق سدرة الوادي للتنمية",
+      "title_en": "Grant Agreement WASH-2018-01 with the Sidrat Al-Wadi Development Fund",
+      "category": "donor_agreement",
+      "year": 2018,
+      "programme": "WASH",
+      "language": "ar",
+      "page_count": 6,
+      "replaces": null
+    },
+    {
+      "doc_id": "gep-donor-agreement-2019",
+      "file": "gep-donor-agreement-2019.pdf",
+      "source": "seed/sources/gep-donor-agreement-2019.md",
+      "format": "pdf",
+      "title_ar": "اتفاقية منحة المشروع GEP-2019-02 مع صندوق ثورنفيل للتعليم",
+      "title_en": "Grant Agreement GEP-2019-02 with the Thornvale Education Trust",
+      "category": "donor_agreement",
+      "year": 2019,
+      "programme": "GEP",
+      "language": "en",
+      "page_count": 6,
+      "replaces": null
+    },
+    {
+      "doc_id": "annual-report-2020",
+      "file": "annual-report-2020.pdf",
+      "source": "seed/sources/annual-report-2020.md",
+      "format": "pdf",
+      "title_ar": "التقرير السنوي 2020",
+      "title_en": "Annual Report 2020",
+      "category": "annual_report",
+      "year": 2020,
+      "programme": null,
+      "language": "ar",
+      "page_count": 12,
       "replaces": null
     },
     {
@@ -180,6 +283,76 @@
       "replaces": null
     },
     {
+      "doc_id": "wash-final-evaluation-2021",
+      "file": "wash-final-evaluation-2021.pdf",
+      "source": "seed/sources/wash-final-evaluation-2021.md",
+      "format": "pdf",
+      "title_ar": "التقييم النهائي لمشروع المياه والإصحاح البيئي في قرى الهضبة الشرقية (WASH-2018-01)",
+      "title_en": "Final Evaluation of the Eastern Plateau Water, Sanitation and Hygiene Project (WASH-2018-01)",
+      "category": "evaluation",
+      "year": 2021,
+      "programme": "WASH",
+      "language": "ar",
+      "page_count": 7,
+      "replaces": null
+    },
+    {
+      "doc_id": "yep-grant-agreement-2021",
+      "file": "yep-grant-agreement-2021.pdf",
+      "source": "seed/sources/yep-grant-agreement-2021.md",
+      "format": "pdf",
+      "title_ar": "اتفاقية منحة المشروع YEP-2021-03 «مسارات رقمية» مع مؤسسة فارنهولت",
+      "title_en": "Grant Agreement YEP-2021-03 \"Digital Pathways\" with the Varnholt Foundation",
+      "category": "donor_agreement",
+      "year": 2021,
+      "programme": "YEP",
+      "language": "mixed",
+      "page_count": 6,
+      "replaces": null
+    },
+    {
+      "doc_id": "annual-report-2022",
+      "file": "annual-report-2022.pdf",
+      "source": "seed/sources/annual-report-2022.md",
+      "format": "pdf",
+      "title_ar": "التقرير السنوي 2022",
+      "title_en": "Annual Report 2022",
+      "category": "annual_report",
+      "year": 2022,
+      "programme": null,
+      "language": "ar",
+      "page_count": 14,
+      "replaces": null
+    },
+    {
+      "doc_id": "wlp-donor-agreement-2022",
+      "file": "wlp-donor-agreement-2022.pdf",
+      "source": "seed/sources/wlp-donor-agreement-2022.md",
+      "format": "pdf",
+      "title_ar": "اتفاقية تمويل المشروع WLP-2022-01 مع مؤسسة بيارق النور الخيرية",
+      "title_en": "Funding Agreement WLP-2022-01 with the Bayariq Al-Nour Charitable Foundation",
+      "category": "donor_agreement",
+      "year": 2022,
+      "programme": "WLP",
+      "language": "ar",
+      "page_count": 5,
+      "replaces": null
+    },
+    {
+      "doc_id": "yep-employer-survey-2022",
+      "file": "yep-employer-survey-2022.pdf",
+      "source": "seed/sources/yep-employer-survey-2022.md",
+      "format": "pdf",
+      "title_ar": "مسح أصحاب العمل في وادي الريم والسنابل 2022",
+      "title_en": "Employer Survey, Wadi Al-Reem and Al-Sanabel, 2022",
+      "category": "survey",
+      "year": 2022,
+      "programme": "YEP",
+      "language": "mixed",
+      "page_count": 5,
+      "replaces": null
+    },
+    {
       "doc_id": "yep-final-evaluation-2022",
       "file": "yep-final-evaluation-2022.pdf",
       "source": "seed/sources/yep-final-evaluation-2022.md",
@@ -191,6 +364,175 @@
       "programme": "YEP",
       "language": "ar",
       "page_count": 8,
+      "replaces": null
+    },
+    {
+      "doc_id": "annual-report-2023-en",
+      "file": "annual-report-2023-en.pdf",
+      "source": "seed/sources/annual-report-2023-en.md",
+      "format": "pdf",
+      "title_ar": "التقرير السنوي 2023 (النسخة الإنجليزية)",
+      "title_en": "Annual Report 2023",
+      "category": "annual_report",
+      "year": 2023,
+      "programme": null,
+      "language": "en",
+      "page_count": 10,
+      "replaces": null
+    },
+    {
+      "doc_id": "board-minutes-2023-03",
+      "file": "board-minutes-2023-03.pdf",
+      "source": "seed/sources/board-minutes-2023-03.md",
+      "format": "pdf",
+      "title_ar": "محضر اجتماع مجلس الإدارة رقم 1/2023",
+      "title_en": "Board of Directors Meeting Minutes No. 1/2023",
+      "category": "board_minutes",
+      "year": 2023,
+      "programme": null,
+      "language": "ar",
+      "page_count": 4,
+      "replaces": null
+    },
+    {
+      "doc_id": "board-minutes-2023-12",
+      "file": "board-minutes-2023-12.pdf",
+      "source": "seed/sources/board-minutes-2023-12.md",
+      "format": "pdf",
+      "title_ar": "محضر اجتماع مجلس الإدارة رقم 4/2023",
+      "title_en": "Board of Directors Meeting Minutes No. 4/2023",
+      "category": "board_minutes",
+      "year": 2023,
+      "programme": null,
+      "language": "ar",
+      "page_count": 4,
+      "replaces": null
+    },
+    {
+      "doc_id": "spc-donor-agreement-2023",
+      "file": "spc-donor-agreement-2023.docx",
+      "source": "seed/sources/spc-donor-agreement-2023.md",
+      "format": "docx",
+      "title_ar": "اتفاقية منحة المشروع SPC-2023-01 مع صندوق تلال العنبر للتنمية",
+      "title_en": "Grant Agreement SPC-2023-01 with the Tilal Al-Anbar Development Fund",
+      "category": "donor_agreement",
+      "year": 2023,
+      "programme": "SPC",
+      "language": "ar",
+      "page_count": 5,
+      "replaces": null
+    },
+    {
+      "doc_id": "wlp-evaluation-2023",
+      "file": "wlp-evaluation-2023.docx",
+      "source": "seed/sources/wlp-evaluation-2023.md",
+      "format": "docx",
+      "title_ar": "التقييم الداخلي لبرنامج سُبل العيش للنساء المعيلات (مستفيدات 2021–2022)",
+      "title_en": "Internal Evaluation of the Livelihoods Programme for Women Heads of Household (2021–2022 Participants)",
+      "category": "evaluation",
+      "year": 2023,
+      "programme": "WLP",
+      "language": "ar",
+      "page_count": 5,
+      "replaces": null
+    },
+    {
+      "doc_id": "yep-tracer-survey-2023",
+      "file": "yep-tracer-survey-2023.pdf",
+      "source": "seed/sources/yep-tracer-survey-2023.md",
+      "format": "pdf",
+      "title_ar": "دراسة تتبع خريجي برنامج تمكين الشباب للتوظيف لعام 2022",
+      "title_en": "Tracer Study of 2022 Graduates of the Youth Employment Empowerment Programme",
+      "category": "survey",
+      "year": 2023,
+      "programme": "YEP",
+      "language": "ar",
+      "page_count": 5,
+      "replaces": null
+    },
+    {
+      "doc_id": "budget-2024-draft",
+      "file": "budget-2024-draft.pdf",
+      "source": "seed/sources/budget-2024-draft.md",
+      "format": "pdf",
+      "title_ar": "الموازنة التقديرية لعام 2024 — مسودة للنقاش",
+      "title_en": "2024 Budget — Draft for Discussion",
+      "category": "budget",
+      "year": 2024,
+      "programme": null,
+      "language": "ar",
+      "page_count": 5,
+      "replaces": null
+    },
+    {
+      "doc_id": "budget-2024-final",
+      "file": "budget-2024-final.pdf",
+      "source": "seed/sources/budget-2024-final.md",
+      "format": "pdf",
+      "title_ar": "الموازنة التقديرية لعام 2024 — النسخة النهائية المعتمدة",
+      "title_en": "2024 Budget — Final Approved Version",
+      "category": "budget",
+      "year": 2024,
+      "programme": null,
+      "language": "ar",
+      "page_count": 5,
+      "replaces": "budget-2024-draft"
+    },
+    {
+      "doc_id": "chp-evaluation-2024",
+      "file": "chp-evaluation-2024.pdf",
+      "source": "seed/sources/chp-evaluation-2024.md",
+      "format": "pdf",
+      "title_ar": "التقييم المستقل لبرنامج الصحة المجتمعية 2021–2023",
+      "title_en": "Independent Evaluation of the Community Health Programme, 2021–2023",
+      "category": "evaluation",
+      "year": 2024,
+      "programme": "CHP",
+      "language": "ar",
+      "page_count": 6,
+      "replaces": null
+    },
+    {
+      "doc_id": "spc-satisfaction-survey-2024",
+      "file": "spc-satisfaction-survey-2024.txt",
+      "source": "seed/sources/spc-satisfaction-survey-2024.md",
+      "format": "txt",
+      "encoding": "utf-8",
+      "title_ar": "مسح رضا المستفيدين من المشروع SPC-2023-01 لعام 2024",
+      "title_en": "Recipient Satisfaction Survey, Project SPC-2023-01, 2024",
+      "category": "survey",
+      "year": 2024,
+      "programme": "SPC",
+      "language": "ar",
+      "page_count": 4,
+      "replaces": null
+    },
+    {
+      "doc_id": "yep-annual-report-2024",
+      "file": "yep-annual-report-2024.pdf",
+      "source": "seed/sources/yep-annual-report-2024.md",
+      "format": "pdf",
+      "title_ar": "التقرير السنوي لبرنامج تمكين الشباب للتوظيف 2024",
+      "title_en": "Youth Employment Empowerment Programme Annual Report 2024",
+      "category": "annual_report",
+      "year": 2024,
+      "programme": "YEP",
+      "language": "ar",
+      "page_count": 6,
+      "replaces": null
+    },
+    {
+      "doc_id": "wlp-market-assessment-2025",
+      "file": "wlp-market-assessment-2025.pdf",
+      "source": "seed/sources/wlp-market-assessment-2025.md",
+      "format": "pdf",
+      "title_ar": "تقييم السوق لمشاريع النساء المعيلات في وادي الريم ومرج الزعفران 2025",
+      "title_en": "Market Assessment for Women-Led Small Businesses in Wadi Al-Reem and Marj Al-Zaafaran, 2025",
+      "category": "survey",
+      "year": 2025,
+      "programme": "WLP",
+      "language": "en",
+      "page_count": 5,
       "replaces": null
     }
   ]
