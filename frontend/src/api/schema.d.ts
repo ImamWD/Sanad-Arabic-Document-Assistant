@@ -93,6 +93,148 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/documents': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List Documents
+     * @description The Library. Filters combine with AND; list-valued filters match any of their values.
+     *     `ids` serves the upload screen's status polling (archived ones included).
+     */
+    get: operations['list_documents_api_documents_get'];
+    put?: never;
+    /**
+     * Upload Document
+     * @description Upload one file. It is checked by content as well as extension, stored under a
+     *     generated name, and queued for the worker.
+     */
+    post: operations['upload_document_api_documents_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/documents/{document_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Document */
+    get: operations['get_document_api_documents__document_id__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update Document */
+    patch: operations['update_document_api_documents__document_id__patch'];
+    trace?: never;
+  };
+  '/api/documents/{document_id}/archive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Archive Document
+     * @description Out of the Library and retrieval; still reachable by id, so old citations open.
+     */
+    post: operations['archive_document_api_documents__document_id__archive_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/documents/{document_id}/file': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Document File
+     * @description The PDF the viewer shows (for DOCX and TXT, the LibreOffice rendition). Page numbers
+     *     in citations refer to this file.
+     */
+    get: operations['get_document_file_api_documents__document_id__file_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/documents/{document_id}/pages/{page_number}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get Document Page
+     * @description Cleaned text of one viewer page, with the spans of the chunks cut from it.
+     */
+    get: operations['get_document_page_api_documents__document_id__pages__page_number__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/documents/{document_id}/retry': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Retry Document
+     * @description Queue a failed document again, with a fresh set of attempts.
+     */
+    post: operations['retry_document_api_documents__document_id__retry_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/documents/{document_id}/unarchive': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Unarchive Document */
+    post: operations['unarchive_document_api_documents__document_id__unarchive_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/health': {
     parameters: {
       query?: never;
@@ -179,6 +321,131 @@ export interface components {
        */
       updated_at: string;
     };
+    /** Body_upload_document_api_documents_post */
+    Body_upload_document_api_documents_post: {
+      category?: components['schemas']['DocCategory'] | null;
+      /**
+       * File
+       * @description One PDF, DOCX or TXT file
+       */
+      file: string;
+      /** Programme Id */
+      programme_id?: string | null;
+      /**
+       * Restricted
+       * @default false
+       */
+      restricted: boolean;
+      /** Tags */
+      tags?: string[] | null;
+      /** Title */
+      title?: string | null;
+      /** Year */
+      year?: number | null;
+    };
+    /**
+     * DocCategory
+     * @description The client's six categories (Q5). There is no "other": NULL means uncategorised.
+     * @enum {string}
+     */
+    DocCategory:
+      | 'annual_report'
+      | 'donor_agreement'
+      | 'programme_evaluation'
+      | 'field_survey'
+      | 'budget'
+      | 'board_minutes';
+    /**
+     * DocLanguage
+     * @enum {string}
+     */
+    DocLanguage: 'ar' | 'en' | 'mixed';
+    /**
+     * DocStatus
+     * @enum {string}
+     */
+    DocStatus: 'queued' | 'extracting' | 'indexing' | 'ready' | 'failed';
+    /** DocumentList */
+    DocumentList: {
+      /** Items */
+      items: components['schemas']['DocumentOut'][];
+      /** Page */
+      page: number;
+      /** Page Size */
+      page_size: number;
+      /** Total */
+      total: number;
+    };
+    /** DocumentOut */
+    DocumentOut: {
+      category: components['schemas']['DocCategory'] | null;
+      /** Error Code */
+      error_code: string | null;
+      /** Error Params */
+      error_params: {
+        [key: string]: unknown;
+      } | null;
+      file_type: components['schemas']['FileType'];
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Is Archived */
+      is_archived: boolean;
+      /** Is Converted */
+      is_converted: boolean;
+      /** Is Seed */
+      is_seed: boolean;
+      language: components['schemas']['DocLanguage'] | null;
+      /** Original Filename */
+      original_filename: string;
+      /** Page Count */
+      page_count: number | null;
+      /** Programme Id */
+      programme_id: string | null;
+      /** Ready At */
+      ready_at: string | null;
+      /** Restricted */
+      restricted: boolean;
+      /** Size Bytes */
+      size_bytes: number;
+      status: components['schemas']['DocStatus'];
+      /** Tags */
+      tags: string[];
+      /** Title */
+      title: string;
+      /**
+       * Uploaded At
+       * Format: date-time
+       */
+      uploaded_at: string;
+      uploaded_by: components['schemas']['Uploader'];
+      /** Year */
+      year: number | null;
+    };
+    /**
+     * DocumentPatch
+     * @description Only the fields sent are changed; send null to clear category, year or programme.
+     */
+    DocumentPatch: {
+      category?: components['schemas']['DocCategory'] | null;
+      /** Programme Id */
+      programme_id?: string | null;
+      /** Restricted */
+      restricted?: boolean | null;
+      /** Tags */
+      tags?: string[] | null;
+      /** Title */
+      title?: string | null;
+      /** Year */
+      year?: number | null;
+    };
+    /**
+     * FileType
+     * @enum {string}
+     */
+    FileType: 'pdf' | 'docx' | 'txt';
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
@@ -229,6 +496,38 @@ export interface components {
     MeUpdate: {
       preferred_language: components['schemas']['Language'];
     };
+    /** PageChunk */
+    PageChunk: {
+      /** Char End */
+      char_end: number;
+      /** Char Start */
+      char_start: number;
+      /**
+       * Chunk Id
+       * Format: uuid
+       */
+      chunk_id: string;
+      /** Chunk Index */
+      chunk_index: number;
+    };
+    /** PageOut */
+    PageOut: {
+      /** Char Count */
+      char_count: number;
+      /** Chunks */
+      chunks: components['schemas']['PageChunk'][];
+      /**
+       * Document Id
+       * Format: uuid
+       */
+      document_id: string;
+      /** Page Count */
+      page_count: number;
+      /** Page Number */
+      page_number: number;
+      /** Text */
+      text: string;
+    };
     /**
      * ProbeStatus
      * @enum {string}
@@ -253,6 +552,16 @@ export interface components {
      * @enum {string}
      */
     Role: 'viewer' | 'editor' | 'admin';
+    /** Uploader */
+    Uploader: {
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      /** Name */
+      name: string;
+    };
     /** UserCreate */
     UserCreate: {
       /** Email */
@@ -454,6 +763,308 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  list_documents_api_documents_get: {
+    parameters: {
+      query?: {
+        /** @description Title search */
+        q?: string | null;
+        file_type?: components['schemas']['FileType'][] | null;
+        category?: components['schemas']['DocCategory'][] | null;
+        /** @description Only documents with no category */
+        uncategorised?: boolean;
+        year?: number | null;
+        year_from?: number | null;
+        year_to?: number | null;
+        programme_id?: string[] | null;
+        status?: components['schemas']['DocStatus'][] | null;
+        restricted?: boolean | null;
+        include_archived?: boolean;
+        ids?: string[] | null;
+        sort?: 'uploaded_at' | '-uploaded_at' | 'title' | '-title' | 'year' | '-year';
+        page?: number;
+        page_size?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentList'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  upload_document_api_documents_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'multipart/form-data': components['schemas']['Body_upload_document_api_documents_post'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  get_document_api_documents__document_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  update_document_api_documents__document_id__patch: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DocumentPatch'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  archive_document_api_documents__document_id__archive_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  get_document_file_api_documents__document_id__file_get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description The viewer PDF */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/pdf': unknown;
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  get_document_page_api_documents__document_id__pages__page_number__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+        page_number: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['PageOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  retry_document_api_documents__document_id__retry_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  unarchive_document_api_documents__document_id__unarchive_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        document_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DocumentOut'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
       };
     };
   };

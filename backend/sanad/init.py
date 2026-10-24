@@ -21,6 +21,7 @@ from sanad.core import passwords
 from sanad.core.config import Settings, get_settings
 from sanad.core.db import create_sync_engine
 from sanad.core.models import Language, Programme, Role, User
+from sanad.documents.seed import register_seed_documents
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,7 @@ def seed_accounts(db: Session, settings: Settings) -> None:
 STEPS: list[tuple[str, Step]] = [
     ("programmes", seed_programmes),
     ("accounts", seed_accounts),
+    ("seed documents", register_seed_documents),  # B3: needs the programmes and an admin
 ]
 
 

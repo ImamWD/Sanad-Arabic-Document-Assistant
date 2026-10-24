@@ -74,7 +74,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-      start_period: 5s
+      # B3: healthy once both int8 models are loaded (~10 s; longer on a slow disk).
+      start_period: 60s
     restart: unless-stopped
 
   # One-shot: migrate the schema, then run the idempotent init steps (programmes, demo
@@ -105,7 +106,12 @@ services:
     image: sanad-backend:${SANAD_INSTANCE:-sanad}
     <<: *env-file
     init: true
-    environment: *backend-env
+    environment:
+      <<: *backend-env
+      FILES_DIR: /data/files
+    # B3: uploads are written here; the worker reads them and writes the PDF renditions.
+    volumes:
+      - files:/data/files
     networks: [backend]
     depends_on:
       db:
@@ -128,7 +134,12 @@ services:
     <<: *env-file
     init: true
     command: ["python", "-m", "sanad.worker"]
-    environment: *backend-env
+    environment:
+      <<: *backend-env
+      FILES_DIR: /data/files
+    # B3: originals in, PDF renditions out (shared with api and init).
+    volumes:
+      - files:/data/files
     networks: [backend]
     depends_on:
       db:

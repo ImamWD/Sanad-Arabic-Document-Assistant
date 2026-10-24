@@ -140,7 +140,20 @@
     "EMAIL_TAKEN": "An account with this email already exists.",
     "PASSWORD_TOO_SHORT": "The password must be at least {{min_length}} characters long.",
     "CANNOT_CHANGE_OWN_ACCESS": "You can't remove your own administrator access or deactivate your own account.",
-    "GUEST_ROLE_FIXED": "The guest account is always read-only; its role can't be changed."
+    "GUEST_ROLE_FIXED": "The guest account is always read-only; its role can't be changed.",
+    "DUPLICATE_DOCUMENT": "This file has already been uploaded.",
+    "FILE_TOO_LARGE": "The file is larger than the upload limit.",
+    "UNSUPPORTED_TYPE": "This file type is not supported. Upload a PDF, Word (DOCX) or plain-text (TXT) file.",
+    "FILE_CORRUPT": "The file is damaged and cannot be read.",
+    "PDF_ENCRYPTED": "The PDF is password-protected. Remove the password and upload it again.",
+    "NO_TEXT_LAYER": "This file has no text layer (scanned image). Scanned documents cannot be searched yet.",
+    "EMPTY_DOCUMENT": "The file contains no text.",
+    "CONVERSION_FAILED": "The file could not be converted to PDF for viewing.",
+    "TXT_ENCODING_UNKNOWN": "The text file's character encoding could not be recognised. Save it as UTF-8 and upload it again.",
+    "WORKER_TIMEOUT": "Processing stopped before it finished. Use Retry to process the file again.",
+    "ML_UNAVAILABLE": "The indexing service is not available. Use Retry to process the file again.",
+    "DOCUMENT_NOT_READY": "This document is still being processed.",
+    "DOCUMENT_NOT_RETRYABLE": "Only a document that failed can be retried."
   },
   "answer": {
     "refusal": "I couldn't find an answer to this in the available documents.",

@@ -11,6 +11,7 @@ JSON (none for GET).
 """
 
 import uuid
+from collections.abc import Iterator
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -79,6 +80,53 @@ MATRIX: list[Row] = [
         ADMINS,
         {"preferred_language": "ar"},
         fill={"user_id": "viewer_id"},
+    ),
+    # --- B3 ---
+    Row(
+        "POST",
+        "/api/documents",
+        EDITORS,
+        {"title": "Matrix upload", "restricted": "false"},
+        files={"file": ("matrix-upload.pdf", b"%PDF-1.4 matrix upload", "application/pdf")},
+    ),
+    Row("GET", "/api/documents", SIGNED_IN),
+    Row("GET", "/api/documents/{document_id}", SIGNED_IN, fill={"document_id": "document_id"}),
+    Row(
+        "GET",
+        "/api/documents/{document_id}/file",
+        SIGNED_IN,
+        fill={"document_id": "document_id"},
+    ),
+    Row(
+        "GET",
+        "/api/documents/{document_id}/pages/{page_number}",
+        SIGNED_IN,
+        fill={"document_id": "document_id", "page_number": "page_one"},
+    ),
+    Row(
+        "PATCH",
+        "/api/documents/{document_id}",
+        EDITORS,
+        {"tags": ["matrix"]},
+        fill={"document_id": "document_id"},
+    ),
+    Row(
+        "POST",
+        "/api/documents/{document_id}/archive",
+        EDITORS,
+        fill={"document_id": "document_id"},
+    ),
+    Row(
+        "POST",
+        "/api/documents/{document_id}/unarchive",
+        EDITORS,
+        fill={"document_id": "document_id"},
+    ),
+    Row(
+        "POST",
+        "/api/documents/{document_id}/retry",
+        EDITORS,
+        fill={"document_id": "failed_document_id"},
     ),
 ]
 
@@ -150,3 +198,60 @@ def test_send_builds_each_body_kind() -> None:
     assert multipart["content_type"].startswith("multipart/form-data; boundary=")
     for part in ('name="title"', "Annual report", 'name="year"', "2023", 'filename="report.pdf"'):
         assert part in multipart["body"]
+
+
+# --- B3: documents for the rows above ------------------------------------------------------------
+
+
+@pytest.fixture
+def ids(
+    ids: dict[str, Any], engine: Any, tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[dict[str, Any]]:
+    """B2's ids plus a ready seed document (with its PDF and page 1) and a failed one."""
+    from sqlalchemy import insert as sql_insert
+    from sqlalchemy import select as sql_select
+
+    from sanad.core.models import User
+    from sanad.documents.models import Document, DocumentPage
+    from sanad.ingest.settings import get_ingest_settings
+
+    monkeypatch.setenv("FILES_DIR", str(tmp_path))
+    get_ingest_settings.cache_clear()
+    (tmp_path / "originals").mkdir()
+    rows = []
+    with engine.begin() as conn:
+        editor = conn.scalar(sql_select(User.id).where(User.email == "editor@sanad.example"))
+        for status in ("ready", "failed"):
+            document_id = uuid.uuid4()
+            (tmp_path / "originals" / f"{document_id}.pdf").write_bytes(b"%PDF-1.4 matrix")
+            rows.append(
+                {
+                    "id": document_id,
+                    "title": f"Matrix {status}",
+                    "title_norm": f"matrix {status}",
+                    "original_filename": "matrix.pdf",
+                    "file_path": f"originals/{document_id}.pdf",
+                    "viewer_path": f"originals/{document_id}.pdf",
+                    "file_type": "pdf",
+                    "uploaded_by": editor,
+                    "status": status,
+                    "error_code": "FILE_CORRUPT" if status == "failed" else None,
+                    "page_count": 1,
+                    "sha256": uuid.uuid4().hex * 2,
+                    "size_bytes": 15,
+                    "is_seed": True,
+                }
+            )
+        conn.execute(sql_insert(Document), rows)
+        conn.execute(
+            sql_insert(DocumentPage).values(
+                document_id=rows[0]["id"], page_number=1, text="", text_norm="", char_count=0
+            )
+        )
+    yield {
+        **ids,
+        "document_id": rows[0]["id"],
+        "failed_document_id": rows[1]["id"],
+        "page_one": 1,
+    }
+    get_ingest_settings.cache_clear()

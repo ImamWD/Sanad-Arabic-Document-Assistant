@@ -115,6 +115,8 @@ render-seed: ## Render seed/sources into seed/documents, seed/bad and seed/previ
 	$(COMPOSE) --profile tools build render
 	$(RUN) render python3 seed/render.py
 
-check-eval: ## Check eval/*.yaml against the rendered seed corpus (EVAL_ARGS="--extractor poppler")
-	$(COMPOSE) --profile tools build render
-	$(RUN) render python3 scripts/check_eval.py $(EVAL_ARGS) eval/questions.yaml eval/dev_questions.yaml
+# Runs in backend-dev: the worker's own LibreOffice, fonts and extractors (B3), so the check
+# covers the conversions and text ingestion really uses. Default: the worker's extractor.
+EVAL_ARGS ?= --extractor poppler
+check-eval: tools-build ## Check eval/*.yaml against the seed corpus as ingestion converts it (EVAL_ARGS="--extractor pdfium")
+	$(RUN) --no-deps backend-dev python scripts/check_eval.py $(EVAL_ARGS) eval/questions.yaml eval/dev_questions.yaml
