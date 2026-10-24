@@ -2,20 +2,41 @@
 # never needed. Tool containers (profile `tools`) bind-mount the repo, so they see the
 # working tree as it is, including uncommitted files.
 
+# --- instance -----------------------------------------------------------------------------
+# SANAD_INSTANCE is the compose project name and the tag of every image we build, so two
+# checkouts never share containers, volumes or images (see docker-compose.yml).
+#   main checkout: nothing is set here, so make and plain `docker compose` drive the same
+#                  stack: SANAD_INSTANCE=sanad, WEB_PORT=8080 (or whatever .env says).
+#   git worktree:  SANAD_INSTANCE=sanad-<directory name>, WEB_PORT derived from it (8100-8899).
+# Override either on the command line: make up SANAD_INSTANCE=sanad-demo WEB_PORT=8081
+GIT_DIR := $(shell cd "$$(git rev-parse --git-dir 2>/dev/null)" 2>/dev/null && pwd -P)
+GIT_COMMON_DIR := $(shell cd "$$(git rev-parse --git-common-dir 2>/dev/null)" 2>/dev/null && pwd -P)
+ifneq ($(GIT_DIR),$(GIT_COMMON_DIR))
+DIR_SLUG := $(shell basename "$(CURDIR)" | tr 'A-Z' 'a-z' | tr -c 'a-z0-9_\n-' '-')
+SANAD_INSTANCE ?= sanad-$(DIR_SLUG)
+WEB_PORT ?= $(shell printf '%s' '$(SANAD_INSTANCE)' | cksum | awk '{ print 8100 + $$1 % 800 }')
+export SANAD_INSTANCE WEB_PORT
+endif
+
 COMPOSE ?= docker compose
 RUN := $(COMPOSE) run --rm -T
 NODE := $(RUN) node sh -c
 UV_IMAGE := ghcr.io/astral-sh/uv:0.13.5-python3.12-trixie-slim
 
 .DEFAULT_GOAL := help
-.PHONY: help up down logs lint lint-backend lint-ml lint-frontend test test-backend test-ml \
-	test-frontend test-e2e fmt gen-api-types check-api-types lock render-smoke tools-build
+.PHONY: help info up down logs lint lint-backend lint-ml lint-frontend test test-backend \
+	test-ml test-frontend test-e2e fmt gen-api-types check-api-types lock render-smoke tools-build
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-18s %s\n", $$1, $$2}'
 
-up: ## Build and start the stack, wait until healthy (http://localhost:8080)
+info: ## Show which instance (compose project) and port this checkout uses
+	@echo "SANAD_INSTANCE=$${SANAD_INSTANCE:-sanad (compose default)}"
+	@echo "WEB_PORT=$${WEB_PORT:-8080 (compose default, unless .env sets it)}"
+
+up: ## Build and start the stack, wait until healthy, print its URL
 	$(COMPOSE) up -d --build --wait
+	@echo "Sanad is up: http://$$($(COMPOSE) port web 8080 | sed 's/^0\.0\.0\.0/localhost/')"
 
 down: ## Stop the stack (data volumes are kept)
 	$(COMPOSE) down
