@@ -1,26 +1,50 @@
 # Open questions
 
-The brief says to raise anything essential *before starting*. Each item has our default, which we'll build if we don't hear back. Every default is reversible.
+Last updated 24 Oct 2026, after the client's review of the decisions draft and the project owner's answers. Each open item has the default we'll build if we don't hear back. Every default is reversible.
 
-## For the client (Al-Mustaqbal Development Foundation)
+## Still open — client (Al-Mustaqbal Development Foundation)
 
 | # | Question | Why it matters | Our default |
 |---|---|---|---|
-| Q1 | **API-mode LLM sends excerpts off-server.** May we offer it at all? If yes, do you want automatic masking of national-ID and phone-number patterns before sending? | Conflicts with "no document content leaves the server". Excerpts can contain names, IDs and salaries. | Local only. API mode is built but off, and enabling it needs your written OK. |
-| Q2 | **Should some documents be restricted** (salary sheets, beneficiary lists) to Editors and Admins only? | As written, every Viewer can read every document. | No restriction in v1, but we'd recommend adding a small `restricted` flag. Your call. |
-| Q3 | **Roughly what share of the ~4,000 files are scanned images?** | OCR is out of scope. If a large share is scanned, v1 can't reach that knowledge. | We detect scans and report them clearly. We can produce a count after a dry run on your archive. |
-| Q4 | **Guest account on the production server:** keep it restricted to sample data, or disable it? | A shared read login on real data would expose personal data. | Guest sees only sample documents. |
+| **N1** | **Server make, model and chassis** (rack or tower), with photos of the inside if possible: free PCIe x16 slots, height and length clearance, PSU wattage, spare PCIe power connectors. The full checklist is in the [research note](research/2026-10-24-gpu-and-hosted-apis.md) §1. | Decides which 24 GB card physically fits and whether the PSU must be upgraded, so it decides the price (deliverable 1). Rack servers often accept only passively cooled data-centre cards. | We prepare RFQs for two card classes (data-centre and workstation) until we know. |
+| **N2** | **Date of the next board meeting**, when the GPU price has to be in hand. | Deadline for deliverables 1–2. | We target the end of week 2 (8 Nov). |
+| **N3** | **Donor agreement amendments:** is each amendment a **full consolidated text** of the agreement, or a **letter changing some clauses**? | A consolidated text can supersede the previous version. A partial letter must not, or the unchanged clauses disappear from answers (DECISIONS D5). | D5 as approved: a consolidated amendment is uploaded as a new version, and a letter as an ordinary document alongside the agreement. The schema carries an optional amendment link; its screens are built only if letters are the norm. |
+| **N8** | **Can the foundation buy VAT-exempt** (NGO registration or donor agreement terms)? Please also ask suppliers to show VAT and customs separately. | Changes the installed price by ~16%. | Quote with VAT shown separately. |
+| **N7** | **Overall deadline and final acceptance date.** The owner asked on 24 Oct; the reply is pending. | Fixes the January install and final acceptance; until then the ROADMAP timeline is provisional. | Final acceptance together with the GPU install, before 31 Jan 2027. |
+| **N4** | **Handling of the eight sample reports.** Parts of this project are built with AI coding assistants that run on a cloud service. If an assistant *reads* the text of your reports, that text leaves your control, which is the thing you've asked us to prevent. Do you agree to this procedure? (a) The reports stay on the project owner's machine, never in git and never sent to any API. (b) Only scripts that output **aggregate numbers** (rates and counts, no text, titles or names) are run on them. (c) Anything visual is inspected by the project owner personally. | Your privacy rule applies to the samples too, even if de-identified. | Procedure (a)+(b)+(c). The project owner runs the scripts himself if needed. |
+| **N5** | **How will the eight sample reports reach us, and when?** | The week-4 page-split report (deliverable 3) and the week-8 highlight rate (deliverable 5) need them. | By week 2 at the latest. |
+| **N6** | **Milestone dates.** We assume week 1 starts on **Mon 26 Oct 2026**, so the week-4 demo falls on ~19–22 Nov and the week-8 demo on ~17–20 Dec. Correct? | Fixes the plan in ROADMAP. | As assumed. |
+| Q2 | **Should some documents be restricted** (salary sheets, beneficiary lists) to Editors and Admins only? | As written, every Viewer can read every document. | No restriction in v1. We'd recommend a small `restricted` flag. |
 | Q5 | **"Type" in the Library:** file type (PDF/Word/Text) or document category (annual report, donor agreement, evaluation, survey, budget, board minutes)? | The brief uses "type" for both. | We store and filter on both. Please confirm the category list. |
 | Q6 | **Digits in the Arabic interface:** Arabic-Indic (١٢٣) or Latin (123)? | Affects every date and number shown. | Arabic-Indic (the `Intl` default for `ar`), switchable in config. |
-| Q7 | **Usage log retention:** how long should questions be kept, and is it fine that Admins can read every staff member's questions? | Questions can themselves contain personal data. | Kept indefinitely, visible to Admins. Retention is configurable. |
-| Q8 | **Target server hardware:** cores, RAM, and is there an NVIDIA GPU? | Determines which local model we can run and how fast answers are (DECISIONS D3). | We design for a CPU-only 16-core / 32 GB server and recommend a 24 GB GPU. |
+| Q7 | **Usage log retention:** how long should questions be kept, and may Admins read every staff member's questions? | Questions can themselves contain personal data. | Kept indefinitely, visible to Admins, retention configurable. |
 | Q9 | **Scale:** documents added per year and expected concurrent users? | Sizing, and whether one worker is enough. | ~4,000 documents now, under 20 concurrent users. |
-| Q10 | **Could you share 5–10 de-identified real documents** (ideally older Arabic PDFs)? | Generated test PDFs extract cleanly. Real ones often have reversed text or odd glyphs, so without real samples our evaluation score will overstate what you'll see. | We test on public Arabic reports from international organisations instead. |
 
-## For the project owner (Imam)
+## Answered — client (24 Oct 2026)
 
-| # | Question | Default |
+| # | Answer |
+|---|---|
+| Q1 | **No API mode for documents**, now or later, unless their policy changes. The API path stays in code behind the override file, for benchmarking on synthetic data only. |
+| Q3 | Scanned files fail clearly ("no text layer"). The client wants **the count** after the first full ingestion run on the archive (deliverable 4). |
+| Q4 | Guest sees **sample documents only**. |
+| Q8 | **REVISED.** The server has 16 cores and **64 GB** of RAM. The **GPU is approved in principle** once we provide a local installed price (in writing) and a measured or clearly estimated answer time. Build on CPU in weeks 1–8; the GPU must be in place **before 31 January**. |
+| Q10 | The client refers to **"our eight sample reports"**, so real samples are coming. Delivery and handling are in N4 and N5. |
+| — | Production speed target: **under 15 s per answer**. The Ask screen must never look frozen (stream, show stages, warn when more than ~20 s is expected). |
+
+## Project owner (Imam)
+
+### Open
+
+| # | Question | Needed for | Default |
+|---|---|---|---|
+| **P0** | **Hold.** The owner is still discussing scope, deadline and estimates with the client. When is it lifted? | Pushing branches, opening PRs, sending anything to the client | No pushes, no PRs, nothing sent until the owner says so. Executors are told this in CLAUDE.md. |
+| **P4** | **Approve renting GPUs for the benchmark**:<br>• Accounts on **RunPod** and **Vast.ai**; card payment, or crypto after KYC if a Palestinian card is declined.<br>• ~**$15 up front** (minimum top-ups: RunPod $10, Vast $5), of which ~$5–10 is used for three cards: RTX PRO 4000 Blackwell, L4, RTX 4090.<br>• Synthetic data only. Instances destroyed afterwards. | Deliverable 2 (measured time), target week 2 | No rental. Deliverable 2 becomes a clearly marked estimate. |
+| **P5** | **Create a free Google Gemini API key** (Google AI Studio; needs only a Google Cloud project, no card; officially available in Palestine). Put it in your local `.env` only, never committed. Optional: if you have a Claude Max or Team plan, its monthly API credits make Claude a free second reference. | S3, E1 and E2 reference runs on synthetic data | Skip the reference runs. |
+
+### Answered 24 Oct 2026
+
+| # | Answer | Consequence |
 |---|---|---|
-| P1 | The GitHub repo is **public**. Keep it public? The brief (client name) is in `docs/brief.md`, and no client documents will ever be committed. | Keep public, but don't push `docs/brief.md` until you confirm. |
-| P2 | May executor agents **download public Arabic PDFs** (e.g. UN or NGO annual reports) for extraction tests? They are kept out of git. | Ask for each batch. |
-| P3 | An **Anthropic API key** for the S3 quality baseline and for API mode testing, used on synthetic seed data only. | Skip the API baseline until a key is available. |
+| P1 | **The repo stays public, deliberately.** | `docs/brief.md` may be public. Still never commit client documents, secrets or anything under `data/`. The push hold is P0. |
+| P2 | **Agents may download public files for testing**, with conditions: they go inside the project folder, they are git-ignored, and they are deleted when no longer needed. | Downloads go in `spikes/_downloads/` (git-ignored), listed in a committed manifest with a fetch script, and deleted after the manager's verification. Unchosen model weights are removed too. See CLAUDE.md. |
+| P3 | **Prefer a free API for QA.** Is Anthropic mandatory? **No.** | Benchmarks against a hosted reference model use the **Google Gemini API free tier** (`gemini-3.1-flash-lite`, `gemma-4-31b-it`) through the `openai_compat` adapter, on **synthetic data only**. Cohere's trial key is the backup. The `anthropic` adapter is built but needs no key. See the research note. |
