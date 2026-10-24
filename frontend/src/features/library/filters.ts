@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router';
 
 import type { LibraryFilters } from './types';
@@ -70,21 +70,31 @@ export function useLibraryFilters() {
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => filtersFromParams(params), [params]);
 
+  // The router renders each navigation in a transition, so a second change can arrive before
+  // the first is on screen (Clear filters, then a year typed at once), even through a handler
+  // from an older render. Each change therefore starts from the newest query string asked
+  // for, kept in refs, not from a render's params; otherwise the second change would bring
+  // back what the first one removed.
+  const shown = useRef(params.toString());
+  const pending = useRef<string[]>([]);
+  useLayoutEffect(() => {
+    shown.current = params.toString();
+    const index = pending.current.indexOf(shown.current);
+    // Ours: drop it and anything older. Not ours (the back button): start from the URL.
+    pending.current = index >= 0 ? pending.current.slice(index + 1) : [];
+  }, [params]);
+
   /** Change some filters; any change other than the page goes back to page 1. */
   const update = useCallback(
     (change: Partial<LibraryFilters>) => {
-      setParams(
-        (current) => {
-          const next = { ...filtersFromParams(current), page: 1, ...change };
-          const out = filtersToParams(next);
-          // Keep anything else in the URL (?lang= and so on).
-          for (const [key, value] of current) {
-            if (!KNOWN_KEYS.has(key)) out.set(key, value);
-          }
-          return out;
-        },
-        { replace: true },
-      );
+      const current = new URLSearchParams(pending.current.at(-1) ?? shown.current);
+      const out = filtersToParams({ ...filtersFromParams(current), page: 1, ...change });
+      // Keep anything else in the URL (?lang= and so on).
+      for (const [key, value] of current) {
+        if (!KNOWN_KEYS.has(key)) out.set(key, value);
+      }
+      pending.current = [...pending.current, out.toString()];
+      setParams(out, { replace: true });
     },
     [setParams],
   );

@@ -66,14 +66,16 @@ function SelectField({
   children: ReactNode;
 }) {
   const id = useId();
+  // The URL changes in a transition; the field shows the choice at once in the meantime.
+  const [draft, setDraft] = useDraft(value, onChange);
   return (
     <div className={styles.field}>
       <label htmlFor={id}>{label}</label>
       <select
         id={id}
-        value={value}
+        value={draft}
         onChange={(event) => {
-          onChange(event.target.value);
+          setDraft(event.target.value);
         }}
       >
         {children}
@@ -95,6 +97,9 @@ export function LibraryFilters({ filters, onChange }: LibraryFiltersProps) {
     },
     SEARCH_DELAY_MS,
   );
+  const [archived, setArchived] = useDraft(filters.includeArchived ? '1' : '', (value) => {
+    onChange({ includeArchived: value === '1' });
+  });
   const any = <option value="">{t('library.filters.any')}</option>;
 
   return (
@@ -208,9 +213,9 @@ export function LibraryFilters({ filters, onChange }: LibraryFiltersProps) {
         <label className={styles.check}>
           <input
             type="checkbox"
-            checked={filters.includeArchived}
+            checked={archived === '1'}
             onChange={(event) => {
-              onChange({ includeArchived: event.target.checked });
+              setArchived(event.target.checked ? '1' : '');
             }}
           />
           {t('library.filters.includeArchived')}
