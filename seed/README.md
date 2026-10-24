@@ -224,6 +224,19 @@ Document entry fields:
 | `page_count` | equals the number of page markers |
 | `replaces` | `doc_id` of the earlier version this document supersedes, else `null` |
 | `encoding` | **only on `txt` entries:** `utf-8` or `windows-1256` |
+| `restricted` | `true` when only Editors and Admins may see the document: it is excluded from retrieval for Viewers and the guest (BUILD_PLAN Q2). On every entry. |
+| `archived` | `true` when the document is kept but excluded from retrieval. On every entry. |
+
+### Restricted and archived documents
+
+| Document | Flag | Why |
+|---|---|---|
+| `wlp-donor-agreement-2022` | `restricted` | A donor agreement whose budget lists the project team's salaries. Its p3 table has **رواتب فريق المشروع: 84,000** USD, a figure no other document contains. R1's restricted-access test asks for it: a Viewer gets a refusal, an Editor the answer. |
+| `budget-2024-draft` | `archived` | Versioning is deferred to v2, so the draft stays out of retrieval instead of contradicting the final. |
+
+- No eval item cites either document.
+- The checker fails if an item cites an archived document, or if an answered item cites only restricted documents.
+- `budget-2018` holds the 2018 salary scale and would be the obvious restricted document, but it is the only source for T12, so it stays open.
 
 ### Version pair (DECISIONS D5)
 
@@ -402,31 +415,58 @@ soffice --headless --norestore -env:UserInstallation=file:///tmp/<profile> \
   "--infilter=Text (encoded):UTF8,LF,,," --convert-to pdf --outdir <out> <file>.txt
 ```
 
-**DOCX page numbers depend on the converter.** Headline items T06, T07, T08 and T12 (and dev items D10 and D15) cite DOCX pages. Those numbers come from LibreOffice 25.2 (the `render` image's Debian snapshot) laying out the DOCX with these fonts:
-- Noto Naskh Arabic
-- Noto Serif
-- DejaVu Sans, as the fallback for Latin digits and punctuation inside Arabic runs (`pdffonts` lists it)
+**DOCX page numbers depend on the converter.** Headline items T07 and T12, and dev items D10, D15, D24 and D25, cite DOCX pages. Those numbers come from the `render` image (Debian snapshot 2026-10-20):
 
-A worker that lacks those fonts, or runs another LibreOffice version, can paginate differently and silently break those citations. B3 should install the same fonts and run `check_eval.py` against the worker image.
+| Component | Version (Debian package) | Used for |
+|---|---|---|
+| LibreOffice | 25.2.3.2 (`libreoffice-writer-nogui 4:25.2.3-2+deb13u8`) | DOCX and TXT to PDF |
+| Noto Naskh Arabic, Noto Serif | `fonts-noto-core 20201225-2` | DOCX Arabic and Latin |
+| DejaVu Sans, DejaVu Sans Mono | `fonts-dejavu-core 2.37-8` | fallback for Latin digits and punctuation in Arabic runs; Arabic in TXT |
+| Liberation Mono | `fonts-liberation 1:2.1.5-3` | TXT text |
+| Amiri | `fonts-hosny-amiri 1.001-1` | PDF Arabic (Chromium 155.0.8059.79) |
+| poppler-utils | 25.03.0 | `--extractor poppler` |
+| pypdfium2 | 5.14.0 (hash-pinned, same as `backend/uv.lock`) | `--extractor pdfium` |
+
+A worker that lacks those fonts, or runs another LibreOffice version, can paginate differently and silently break those citations. B3 installs the same fonts and re-runs `check_eval.py` in the worker image.
 
 Without the decode step, LibreOffice reads the Windows-1256 file as mojibake. TXT import sets the text in Liberation Mono, with DejaVu Sans Mono for Arabic. In that font, lam-alef extracts reversed with both poppler and pdfium (دولار comes out as `دوالر`). No eval fact on a TXT page contains lam-alef, but B3 and S4 should look at the TXT import font.
 
 ### Check
 
 ```sh
-docker compose run --rm <container with LibreOffice and pypdfium2> \
-  python scripts/check_eval.py eval/questions.yaml eval/dev_questions.yaml
+make check-eval                                  # pdfium (the default)
+make check-eval EVAL_ARGS="--extractor poppler"
+# which run, in the render image:
+docker compose run --rm render python3 scripts/check_eval.py eval/questions.yaml eval/dev_questions.yaml
 ```
 
+The script makes no assumption about its container: `--extractor pdfium|poppler`, `--seed DIR`, `--soffice CMD` and `--pdftotext CMD` are plain options. Once the worker image has LibreOffice, the fonts and poppler (B3), the same command runs in `backend-dev`.
+
 - **Corpus checks:** every source's front matter equals its manifest entry, and every viewer PDF has `page_count` pages. Each rendered page also holds its own source page's text: the first and last four reliable words of source page N must be on rendered page N. Words written with tashkeel or containing lam-alef aren't reliable, so they're skipped, and a page without enough words uses its numbers. Every run also has a negative control: compared with the next page's text, every page must fail this check, so a one-page shift can't go unnoticed.
-- **Eval checks:** the citation semantics of §4, plus no citation of a superseded document and no cited page beyond `page_count`.
-- **Matching:** facts match after folding digits (Latin, Arabic-Indic, Persian), Arabic separators, tashkeel, tatweel, presentation forms and bidi controls. Numbers match as whole numbers. The fold is local to the checker until B1's `sanad.text.arabic` merges.
-- **Informational line:** the share of source words that pypdfium2 extracts verbatim on their page. It is currently 95.9%.
+- **Eval checks:** the citation semantics of §4. Also: no citation of a superseded or archived document, no cited page beyond `page_count`, and every answered item cites at least one document that isn't restricted.
+- **Matching:** facts match after `fold_for_matching`, which folds digits (Latin, Arabic-Indic, Persian), Arabic separators, tashkeel, tatweel, presentation forms and bidi controls. Numbers match as whole numbers. The fold is local test tooling until B1's `sanad.text.arabic` merges.
+- **Informational lines:** extraction quality (source words found verbatim on their page, letter-reversed words, other misses in words with lam-alef) and extraction time per 100 pages.
 
-### Extraction findings for S1
+### Extraction findings: pdfium vs poppler
 
-- **pypdfium2 mangles words written with tashkeel in Chromium PDFs.** Chromium wraps every base+mark cluster in `/ActualText`, and pdfium reorders letters around it.
-  - The fully diacritised foreword (`annual-report-2021` p2) comes out scrambled whatever the font. LibreOffice PDFs fail the same way.
-  - Poppler (`pdftotext`) extracts the same page in order, apart from stray spaces before hamza marks.
-- **pdfium inserts spaces after non-joining letters** (`و يعمل`), and **splits lam-alef-hamza** (الإلكتروني comes out as `لكتروني الإ`).
-- **pdfium doesn't mirror brackets** in RTL lines: `(اسم مستعار)` extracts as `) اسم مستعار(`.
+Both extractors were run over the whole corpus, and over a scratch build that set Arabic in Noto Naskh instead of Amiri. "Verbatim" counts the 19,449 source words (three letters or more) found as written on their page.
+
+| Build | Extractor | Checks (before the D22 edit) | Verbatim | Letter-reversed | Other lam-alef misses | Time per 100 pages |
+|---|---|---|---|---|---|---|
+| **Amiri (shipped)** | pdfium | 676/678 | 95.9% | 132 | 94 | 0.12–0.19 s |
+| **Amiri (shipped)** | poppler | 676/678 | 97.0% | 1 | 77 | 0.19–0.30 s |
+| Noto Naskh (scratch) | pdfium | 543/678 | 57.7% | 7,743 | 65 | 0.11 s |
+| Noto Naskh (scratch) | poppler | 675/678 | 97.5% | 3 | 53 | 0.18 s |
+
+On the shipped build, the two failing checks were D22 (formerly T03) on `annual-report-2021` p2, with both extractors. D22 no longer cites that page, and every check now passes with either extractor: 674/674. Timings vary from run to run (one process, laptop, arm64); poppler's include one `pdftotext` process per document.
+
+- **pdfium is sensitive to the font.** Chromium wraps every multi-glyph cluster in `/ActualText`, and pdfium reorders letters around those spans in RTL text. Noto Naskh draws dotted letters as base glyph plus dots, so nearly every letter is such a cluster. Amiri limits it to letters with tashkeel.
+- **pdfium is weak on tashkeel.** On the shipped build it gets 155 of 834 words written with tashkeel verbatim; poppler gets 664. It also:
+  - puts a space after non-joining letters (`و يعمل`)
+  - splits lam-alef-hamza (الإلكتروني comes out as `لكتروني الإ`)
+  - doesn't mirror brackets (`) اسم مستعار(`)
+- **Poppler fails differently.**
+  - It puts tashkeel before its letter and a space after a cluster with stacked marks (العَطَّار comes out as `العط ار`). So the fully diacritised `annual-report-2021` p2 loses the names with both extractors; D22 no longer cites that page.
+  - On the Amiri build it splits words after ر before ي or ب (`الر يحان`, `ر بحية`). These are 387 words pdfium gets and poppler doesn't, including the organisation name. Poppler gets 592 words pdfium doesn't.
+- **Licences:** pypdfium2 is Apache-2.0 / BSD-3-Clause (PDFium is BSD-3-Clause). poppler-utils is GPL-2.0-or-later, which only matters if it is linked into the product; it would be called as a separate CLI process.
+- **LibreOffice PDFs (DOCX, TXT):** TXT is 94.7% verbatim with both extractors (its lam-alef reverses in DejaVu Sans Mono), and DOCX is 95.7% with pdfium and 97.3% with poppler.
