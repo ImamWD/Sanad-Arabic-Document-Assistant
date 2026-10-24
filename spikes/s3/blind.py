@@ -58,7 +58,7 @@ def pack(args: argparse.Namespace) -> None:
         out.append(f"**Question:** {p['question']}\n")
         out.append("<details><summary>Excerpts</summary>\n")
         for e in p["excerpts"]:
-            out.append(f"**[{e['n']}]** {e['title']} — p. {e['page']}\n\n{e['text']}\n")
+            out.append(f"**[{e['n']}]** {e['title']} (p. {e['page']})\n\n{e['text']}\n")
         out.append("</details>\n")
         for a in sorted(items, key=lambda x: x["id"]):
             out.append(f"\n### {a['id']}\n\n{a['text']}\n")

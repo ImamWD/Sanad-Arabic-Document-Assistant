@@ -270,7 +270,7 @@ def build(spec: dict) -> dict:
     blocks = []
     for e in excerpts:
         page_label = f"p. {e['page']}" if e["language"] == "en" else f"ص {e['page']}"
-        blocks.append(f"[{e['n']}] {e['title']} — {page_label}\n{e['text']}")
+        blocks.append(f"[{e['n']}] {e['title']} ({page_label})\n{e['text']}")
     user = "Excerpts:\n\n" + "\n\n".join(blocks) + f"\n\nQuestion: {spec['question']}"
 
     return {
