@@ -42,6 +42,10 @@ services:
     <<: *host-access
     environment:
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    # backend-dev mounts the whole repo and, with this file, can reach the internet. Hide
+    # data/ (real client documents) behind an empty, read-only tmpfs so it can't leave here.
+    tmpfs:
+      - /app/data:ro,size=64k
 
 networks:
   devhost: {}

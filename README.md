@@ -55,6 +55,8 @@ SANAD_INSTANCE=sanad-demo WEB_PORT=8081 docker compose up -d --build   # same, w
 
 Plain `docker compose` inside a worktree still means the default `sanad` instance, i.e. the
 same stack as the main checkout. Use `make`, or set `SANAD_INSTANCE`, to keep them apart.
+Don't use `COMPOSE_PROJECT_NAME` or `-p` instead: they rename the project but not the image
+tags, so two instances would overwrite each other's images.
 
 ### Development override
 
