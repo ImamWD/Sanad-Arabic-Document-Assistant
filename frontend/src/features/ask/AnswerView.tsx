@@ -83,7 +83,11 @@ function CitationCard({ citation }: { citation: Citation }) {
       <Link className={styles.card} to={to}>
         <span className={styles.cardHead}>
           <span className={styles.rank}>{format.number(citation.rank)}</span>
-          <Bidi className={styles.cardTitle} text={citation.title} />
+          {/* The block follows the page's direction, so the title lines up with the UI; the
+              inline <Bidi> inside keeps the title's own reading order. */}
+          <span className={styles.cardTitle}>
+            <Bidi text={citation.title} />
+          </span>
           <span className={styles.page}>
             {t('ask.citations.page', { page: format.number(citation.page_number) })}
           </span>

@@ -59,9 +59,9 @@
   background: var(--color-primary-soft);
 }
 
-.item .question {
+/* Lines up with the page; the inline <Bidi> inside keeps the question's reading order. */
+.question {
   overflow-wrap: anywhere;
-  text-align: match-parent;
 }
 
 .meta {

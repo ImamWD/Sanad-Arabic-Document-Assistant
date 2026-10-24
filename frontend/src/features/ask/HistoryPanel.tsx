@@ -67,7 +67,9 @@ export function HistoryPanel({ id, onShow }: HistoryPanelProps) {
                 open(query.id);
               }}
             >
-              <Bidi className={styles.question} text={query.question} />
+              <span className={styles.question}>
+                <Bidi text={query.question} />
+              </span>
               <span className={styles.meta}>
                 <span className={styles[query.outcome]}>{t(`ask.outcome.${query.outcome}`)}</span>
                 {query.created_at && <span>{format.dateTime(query.created_at)}</span>}
