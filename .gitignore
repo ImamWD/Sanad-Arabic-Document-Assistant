@@ -1,0 +1,4 @@
+.DS_Store
+.env
+data/
+spikes/_downloads/
