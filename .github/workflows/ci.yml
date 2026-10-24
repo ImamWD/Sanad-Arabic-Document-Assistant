@@ -1,0 +1,51 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Lint and unit tests (all in containers)
+        run: make lint test
+
+      - name: API types are up to date
+        run: make check-api-types
+
+      - name: Stack comes up healthy
+        run: |
+          make up
+          curl -fsS localhost:8080/api/health
+
+      - name: No egress from api (base compose file only)
+        run: |
+          if docker compose exec -T api python -c "import urllib.request;urllib.request.urlopen('https://example.com',timeout=5)"; then
+            echo "api reached the internet" >&2
+            exit 1
+          fi
+
+      - name: End-to-end (lang / dir)
+        run: make test-e2e
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose logs --no-color --tail=200
+
+      - name: Tear down
+        if: always()
+        run: docker compose down -v

@@ -1,0 +1,9 @@
+# Context is the repo root; send only what the web image needs.
+*
+!deploy/nginx.conf
+!frontend/
+frontend/node_modules
+frontend/dist
+frontend/coverage
+frontend/playwright-report
+frontend/test-results

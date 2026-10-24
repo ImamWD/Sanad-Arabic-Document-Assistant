@@ -1,0 +1,15 @@
+{
+  "app": {
+    "title": "Sanad — Document Assistant"
+  },
+  "language": {
+    "switch": "العربية"
+  },
+  "errors": {
+    "BAD_REQUEST": "The request could not be completed. Check the details and try again.",
+    "NOT_FOUND": "The requested item was not found.",
+    "METHOD_NOT_ALLOWED": "This action is not allowed.",
+    "VALIDATION_ERROR": "Some fields are not valid. Review them and try again.",
+    "INTERNAL_ERROR": "Something went wrong on the server. Please try again later."
+  }
+}

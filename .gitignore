@@ -1,4 +1,49 @@
-.DS_Store
+# --- secrets and client data (the repo is public) ---
 .env
+.env.*
+!.env.example
 data/
 spikes/_downloads/
+
+# --- OS / editors ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# --- model weights (baked into images or pulled into volumes, never committed) ---
+# Note: *.pdf / *.docx are NOT ignored; the seed corpus commits rendered documents.
+*.safetensors
+*.gguf
+*.ggml
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.bin
+/models/
+/hf_cache/
+.cache/huggingface/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
+*.tsbuildinfo
+
+# --- tool output ---
+tools/render/out/
