@@ -486,7 +486,7 @@ questions:
     language: ar
     kinds: [overview, colloquial, cross_document]
     question: "احكيلي عن مشروع المياه بالمناطق الريفية، شو اللي انعمل فيه؟"
-    must_include: ["المياه"]
+    must_include: ["مياه"]
     expected_citations:
       - {file: wash-baseline-survey-2017.pdf, page: 1}
       - {file: wash-baseline-survey-2017.pdf, page: 2}
@@ -521,7 +521,7 @@ questions:
     expected_outcome: answered
     expected_answer: "مشروع المياه والإصحاح البيئي WASH-2018-01: نقاط مياه آمنة ومراحيض في قرى الهضبة الشرقية، وقصّر رحلة جلب الماء."
     vocab_shift: true
-    notes: "R1c: dialect, non-corpus wording, and only part of the project's long name (بالمناطق الريفية). Overview item. expected_citations are every page of the programme's own documents plus the annual-report pages (not covers) that name the programme."
+    notes: "R1c: dialect, non-corpus wording, and only part of the project's long name (بالمناطق الريفية). Overview item. The fact is مياه without the article, so an answer that says نقطة مياه counts (first written as المياه, which missed a good answer in the R1c before run). expected_citations are every page of the programme's own documents plus the annual-report pages (not covers) that name the programme."
   - id: D34
     language: en
     kinds: [overview, english, cross_document]
