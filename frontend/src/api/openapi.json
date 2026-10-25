@@ -68,6 +68,177 @@
         "title": "AdminUser",
         "type": "object"
       },
+      "AskFilters": {
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DocCategory"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "programme_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Programme Id"
+          },
+          "year_from": {
+            "anyOf": [
+              {
+                "maximum": 2100.0,
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year From"
+          },
+          "year_to": {
+            "anyOf": [
+              {
+                "maximum": 2100.0,
+                "minimum": 1900.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year To"
+          }
+        },
+        "title": "AskFilters",
+        "type": "object"
+      },
+      "AskRequest": {
+        "properties": {
+          "debug": {
+            "default": false,
+            "title": "Debug",
+            "type": "boolean"
+          },
+          "filters": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AskFilters"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "title": "AskRequest",
+        "type": "object"
+      },
+      "AskResult": {
+        "description": "`POST /ask`, and the `final` event of `POST /ask/stream`. `answer` is null exactly when\nthe outcome is no_answer: streamed text is never kept as the answer. `diagnostics` is there\nonly when an editor or admin asked for it with `debug` (and ASK_DEBUG_ENABLED is on).",
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Band"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/CitationOut"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "diagnostics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diagnostics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "nearest_documents": {
+            "items": {
+              "$ref": "#/components/schemas/NearestDocumentOut"
+            },
+            "title": "Nearest Documents",
+            "type": "array"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/Outcome"
+          },
+          "query_id": {
+            "format": "uuid",
+            "title": "Query Id",
+            "type": "string"
+          },
+          "refusal_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RefusalReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "query_id",
+          "outcome",
+          "band",
+          "refusal_reason",
+          "answer",
+          "citations",
+          "nearest_documents"
+        ],
+        "title": "AskResult",
+        "type": "object"
+      },
+      "Band": {
+        "enum": [
+          "refuse",
+          "low_confidence",
+          "answer"
+        ],
+        "title": "Band",
+        "type": "string"
+      },
       "Body_upload_document_api_documents_post": {
         "properties": {
           "category": {
@@ -147,6 +318,240 @@
           "file"
         ],
         "title": "Body_upload_document_api_documents_post",
+        "type": "object"
+      },
+      "CitationOut": {
+        "properties": {
+          "char_end": {
+            "title": "Char End",
+            "type": "integer"
+          },
+          "char_start": {
+            "title": "Char Start",
+            "type": "integer"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "file_type": {
+            "title": "File Type",
+            "type": "string"
+          },
+          "is_converted": {
+            "title": "Is Converted",
+            "type": "boolean"
+          },
+          "page_number": {
+            "title": "Page Number",
+            "type": "integer"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "snippet": {
+            "title": "Snippet",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "rank",
+          "document_id",
+          "title",
+          "page_number",
+          "snippet",
+          "char_start",
+          "char_end",
+          "file_type",
+          "is_converted"
+        ],
+        "title": "CitationOut",
+        "type": "object"
+      },
+      "DiagnosticCandidate": {
+        "properties": {
+          "chunk_id": {
+            "format": "uuid",
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "dense_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dense Rank"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "file": {
+            "title": "File",
+            "type": "string"
+          },
+          "lexical_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lexical Rank"
+          },
+          "page_number": {
+            "title": "Page Number",
+            "type": "integer"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "rerank_score": {
+            "title": "Rerank Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "rank",
+          "document_id",
+          "file",
+          "page_number",
+          "chunk_id",
+          "rerank_score",
+          "dense_rank",
+          "lexical_rank"
+        ],
+        "title": "DiagnosticCandidate",
+        "type": "object"
+      },
+      "DiagnosticTimings": {
+        "description": "Milliseconds. `first_token` and `generate` are null when the LLM wasn't called.",
+        "properties": {
+          "embed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Embed"
+          },
+          "first_token": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Token"
+          },
+          "generate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generate"
+          },
+          "rerank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rerank"
+          },
+          "retrieve": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrieve"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "embed",
+          "retrieve",
+          "rerank",
+          "first_token",
+          "generate",
+          "total"
+        ],
+        "title": "DiagnosticTimings",
+        "type": "object"
+      },
+      "Diagnostics": {
+        "description": "Retrieval and timing for the eval (E1). Ids, positions and scores only, never text.",
+        "properties": {
+          "band": {
+            "$ref": "#/components/schemas/Band"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/DiagnosticCandidate"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "llm_model": {
+            "title": "Llm Model",
+            "type": "string"
+          },
+          "timings_ms": {
+            "$ref": "#/components/schemas/DiagnosticTimings"
+          },
+          "top_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top Score"
+          }
+        },
+        "required": [
+          "candidates",
+          "top_score",
+          "band",
+          "timings_ms",
+          "llm_model"
+        ],
+        "title": "Diagnostics",
         "type": "object"
       },
       "DocCategory": {
@@ -596,6 +1001,35 @@
         "title": "MeUpdate",
         "type": "object"
       },
+      "NearestDocumentOut": {
+        "properties": {
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "title"
+        ],
+        "title": "NearestDocumentOut",
+        "type": "object"
+      },
+      "Outcome": {
+        "enum": [
+          "answered",
+          "low_confidence",
+          "no_answer",
+          "error"
+        ],
+        "title": "Outcome",
+        "type": "string"
+      },
       "PageChunk": {
         "properties": {
           "char_end": {
@@ -704,6 +1138,44 @@
         "title": "ProgrammeOut",
         "type": "object"
       },
+      "QuerySummary": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/Outcome"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "question",
+          "outcome",
+          "created_at"
+        ],
+        "title": "QuerySummary",
+        "type": "object"
+      },
+      "RefusalReason": {
+        "enum": [
+          "gate",
+          "sentinel",
+          "no_valid_citation"
+        ],
+        "title": "RefusalReason",
+        "type": "string"
+      },
       "Role": {
         "enum": [
           "viewer",
@@ -712,6 +1184,86 @@
         ],
         "title": "Role",
         "type": "string"
+      },
+      "StoredAnswer": {
+        "description": "`GET /queries/{id}`: a stored question with its validated answer.",
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "band": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Band"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/CitationOut"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "nearest_documents": {
+            "items": {
+              "$ref": "#/components/schemas/NearestDocumentOut"
+            },
+            "title": "Nearest Documents",
+            "type": "array"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/Outcome"
+          },
+          "query_id": {
+            "format": "uuid",
+            "title": "Query Id",
+            "type": "string"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "refusal_reason": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RefusalReason"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "query_id",
+          "outcome",
+          "band",
+          "refusal_reason",
+          "answer",
+          "citations",
+          "nearest_documents",
+          "question",
+          "created_at"
+        ],
+        "title": "StoredAnswer",
+        "type": "object"
       },
       "Uploader": {
         "properties": {
@@ -983,6 +1535,87 @@
         "summary": "Update User",
         "tags": [
           "admin"
+        ]
+      }
+    },
+    "/api/ask": {
+      "post": {
+        "operationId": "ask_api_ask_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AskResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "description": "SEARCH_UNAVAILABLE, LLM_UNAVAILABLE, ..."
+          }
+        },
+        "summary": "Ask",
+        "tags": [
+          "ask"
+        ]
+      }
+    },
+    "/api/ask/stream": {
+      "post": {
+        "operationId": "ask_stream_api_ask_stream_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {}
+            },
+            "description": "SSE events"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ask Stream",
+        "tags": [
+          "ask"
         ]
       }
     },
@@ -1819,6 +2452,101 @@
         "summary": "List Programmes",
         "tags": [
           "programmes"
+        ]
+      }
+    },
+    "/api/queries": {
+      "get": {
+        "operationId": "list_queries_api_queries_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/QuerySummary"
+                  },
+                  "title": "Response List Queries Api Queries Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Queries",
+        "tags": [
+          "queries"
+        ]
+      }
+    },
+    "/api/queries/{query_id}": {
+      "get": {
+        "operationId": "get_query_api_queries__query_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "query_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Query Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoredAnswer"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "Not one of the caller's questions"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Query",
+        "tags": [
+          "queries"
         ]
       }
     }

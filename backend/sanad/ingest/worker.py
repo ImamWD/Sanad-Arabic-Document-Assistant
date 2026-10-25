@@ -28,11 +28,18 @@ from sqlalchemy import and_, delete, func, insert, select, update
 
 from sanad.core.config import Settings, get_settings
 from sanad.core.errors import ErrorCode
-from sanad.documents.models import Chunk, DocStatus, Document, DocumentPage
+from sanad.core.models import Programme
+from sanad.documents.models import Chunk, DocLanguage, DocStatus, Document, DocumentPage
 from sanad.ingest.errors import IngestionError
 from sanad.ingest.filetypes import FileType
 from sanad.ingest.ml_client import MlClient, MlService, MlUnavailableError
-from sanad.ingest.pipeline import Extracted, Indexed, extract_document, index_pages
+from sanad.ingest.pipeline import (
+    Extracted,
+    Indexed,
+    embedding_context,
+    extract_document,
+    index_pages,
+)
 from sanad.ingest.settings import IngestSettings, get_ingest_settings
 from sanad.text.arabic import normalize_for_search
 
@@ -150,6 +157,16 @@ class Worker:
         if owned is None:
             raise _ReleaseError("claim lost")
 
+    def _embedding_context(self, claim: Claim, language: DocLanguage) -> str:
+        """The document's title, programme (named in the document's language) and year."""
+        with self.engine.connect() as conn:
+            title, year, name_ar, name_en = conn.execute(
+                select(Document.title, Document.year, Programme.name_ar, Programme.name_en)
+                .outerjoin(Programme, Programme.id == Document.programme_id)
+                .where(Document.id == claim.document_id)
+            ).one()
+        return embedding_context(title, name_en if language is DocLanguage.EN else name_ar, year)
+
     def heartbeat(self, claim: Claim) -> None:
         with self.engine.begin() as conn:
             self._check(conn, claim)
@@ -167,7 +184,11 @@ class Worker:
             )
             self._store_pages(claim, extracted)
             indexed = index_pages(
-                extracted.pages, self.ml, self.settings, lambda: self.heartbeat(claim)
+                extracted.pages,
+                self.ml,
+                self.settings,
+                lambda: self.heartbeat(claim),
+                context=self._embedding_context(claim, extracted.language),
             )
             self._store_chunks(claim, indexed)
         except IngestionError as exc:

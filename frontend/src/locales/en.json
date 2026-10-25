@@ -207,7 +207,10 @@
     "WORKER_TIMEOUT": "Processing stopped before it finished. Use Retry to process the file again.",
     "ML_UNAVAILABLE": "The indexing service is not available. Use Retry to process the file again.",
     "DOCUMENT_NOT_READY": "This document is still being processed.",
-    "DOCUMENT_NOT_RETRYABLE": "Only a document that failed can be retried."
+    "DOCUMENT_NOT_RETRYABLE": "Only a document that failed can be retried.",
+    "SEARCH_UNAVAILABLE": "Searching the documents is not possible right now. Try again in a moment.",
+    "LLM_UNAVAILABLE": "The answer service is not available right now. Try again in a moment.",
+    "HOSTED_LLM_NON_SEED_DATA": "This server is set up to send excerpts to an external AI service, which is only allowed for the sample documents. No question was sent. Ask an administrator."
   },
   "answer": {
     "refusal": "I couldn't find an answer to this in the available documents.",

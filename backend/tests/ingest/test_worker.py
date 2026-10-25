@@ -16,12 +16,15 @@ from sqlalchemy import func, select, text, update
 from sqlalchemy.orm import Session
 
 from sanad.core.errors import ErrorCode
+from sanad.core.models import Programme
 from sanad.documents.models import Chunk, DocStatus, Document, DocumentPage
 from sanad.ingest import worker as worker_module
 from sanad.ingest.filetypes import FileType
 from sanad.ingest.ml_client import MlClient, MlUnavailableError
+from sanad.ingest.pipeline import EMBEDDING_INPUT_FORMAT, embedding_context
 from sanad.ingest.settings import IngestSettings
 from sanad.ingest.worker import Claim, Worker
+from sanad.text.arabic import normalize_for_search
 from tests.ingest.conftest import BAD, SEED, SEED_ENTRIES, DocumentFactory, needs_seed_files
 
 DIM = 1024
@@ -36,6 +39,7 @@ class FakeMl:
         self.up = up
         self.fail_embed = fail_embed
         self.embedded = 0
+        self.inputs: list[str] = []
         self.on_embed: Callable[[], None] = lambda: None
 
     def healthy(self) -> bool:
@@ -57,6 +61,7 @@ class FakeMl:
             vector[seed] = 1.0
             vectors.append(vector)
         self.embedded += len(texts)
+        self.inputs.extend(texts)
         on_batch()
         return self.model, vectors
 
@@ -124,7 +129,7 @@ def test_a_seed_pdf_goes_to_ready_with_pages_and_chunks(
         for chunk in chunks:
             # Every chunk is a slice of the cleaned text of its own viewer page.
             assert chunk.text == page_text[chunk.page_number][chunk.char_start : chunk.char_end]
-            assert chunk.embedding_model == FakeMl.model
+            assert chunk.embedding_model == f"{FakeMl.model}+{EMBEDDING_INPUT_FORMAT}"
             assert len(chunk.embedding) == DIM
             assert chunk.token_count <= 512
         # The generated tsvector indexes the normalised text: tatweel is gone.
@@ -376,3 +381,43 @@ def test_run_processes_queued_work_and_stops(
     assert not thread.is_alive()
     assert [c.document_id for c in seen] == [document.id]
     assert seen[0].file_type is FileType.PDF
+
+
+@needs_seed_files
+def test_the_embedding_sees_the_document_context_but_the_chunk_text_is_unchanged(
+    worker: Worker, engine: sqlalchemy.Engine, make_document: DocumentFactory, ml: FakeMl
+) -> None:
+    """R1: the embedding input is `title | programme | year` + newline + chunk text. The stored
+    text, its span and every citation slice stay exactly as they were."""
+    entry = next(e for e in SEED_ENTRIES if e["file"] == "annual-report-2021.pdf")
+    with Session(engine) as db:
+        programme = db.scalar(select(Programme).where(Programme.code == "YEP"))
+        assert programme is not None
+        programme_id, name_ar = programme.id, programme.name_ar
+    document = make_document(
+        source=SEED / "documents" / entry["file"],
+        status=DocStatus.QUEUED,
+        title="التقرير السنوي 2021",
+        year=2021,
+        programme_id=programme_id,
+    )
+
+    assert run_one(worker) is DocStatus.READY
+
+    header = f"التقرير السنوي 2021 | {name_ar} | 2021"
+    with Session(engine) as db:
+        chunks = db.scalars(
+            select(Chunk).where(Chunk.document_id == document.id).order_by(Chunk.chunk_index)
+        ).all()
+        assert ml.inputs == [f"{header}\n{c.text}" for c in chunks]
+        for chunk in chunks:
+            assert not chunk.text.startswith(header)
+            assert chunk.text_norm == normalize_for_search(chunk.text)
+
+
+def test_embedding_context_leaves_out_what_a_document_lacks() -> None:
+    title, programme = "اتفاقية تمويل", "برنامج سُبل العيش للنساء المعيلات"
+    assert embedding_context(title, programme, 2022) == f"{title} | {programme} | 2022"
+    assert embedding_context("Annual Report 2023", None, 2023) == "Annual Report 2023 | 2023"
+    memo = "مذكرة داخلية"
+    assert embedding_context(f"  {memo.replace(' ', chr(10))} ", None, None) == memo

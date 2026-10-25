@@ -53,13 +53,33 @@ def extract_document(
     return Extracted(viewer_path=viewer, pages=pages, language=language)
 
 
+# How the embedded text is built, recorded in `chunks.embedding_model` after the ml model's own
+# label, so vectors made another way can be told apart (and re-indexed).
+EMBEDDING_INPUT_FORMAT = "ctx1"
+
+
+def embedding_context(title: str, programme: str | None, year: int | None) -> str:
+    """`title | programme | year`, without the parts a document doesn't have.
+
+    The embedding sees this line before every chunk of the document. A budget-table row rarely
+    names its programme or its agreement; the document does (R1: for a question about one
+    agreement's salary line, its chunk went from 55th to 3rd in vector search). Only the
+    embedding input changes: the stored chunk text, its span, `text_norm` and every citation
+    stay exactly as they were.
+    """
+    parts = (" ".join(title.split()), " ".join((programme or "").split()), str(year or ""))
+    return " | ".join(part for part in parts if part)
+
+
 def index_pages(
     pages: list[str],
     ml: MlService,
     settings: IngestSettings,
     heartbeat: Callable[[], None] = lambda: None,
+    context: str = "",
 ) -> Indexed:
-    """Cleaned pages -> D1 chunks -> bge-m3 vectors."""
+    """Cleaned pages -> D1 chunks -> bge-m3 vectors of `context` + newline + chunk text."""
     chunks = chunk_document(pages, ml.count_tokens, settings.chunk_params)
-    model, vectors = ml.embed([c.text for c in chunks], heartbeat)
-    return Indexed(chunks=chunks, vectors=vectors, model=model)
+    inputs = [f"{context}\n{c.text}" if context else c.text for c in chunks]
+    model, vectors = ml.embed(inputs, heartbeat)
+    return Indexed(chunks=chunks, vectors=vectors, model=f"{model}+{EMBEDDING_INPUT_FORMAT}")
