@@ -16,5 +16,9 @@ export function openPdf(data: Uint8Array): PDFDocumentLoadingTask {
     // The CSP has no 'wasm-unsafe-eval': skip the WebAssembly decoders instead of tripping it.
     useWasm: false,
     enableXfa: false,
+    // pdf.js draws each glyph from the embedded font itself. Handing the rebuilt fonts to the
+    // browser instead dropped letters and commas from the seed corpus's Arabic pages (Amiri
+    // subsets): "الإيرادات" came out as "الإيرا ا ت" and 2,780,000 as 2 780 000.
+    disableFontFace: true,
   });
 }
