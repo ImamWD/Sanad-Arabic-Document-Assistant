@@ -3,7 +3,14 @@ import { expect, type Page, test } from '@playwright/test';
 
 import ar from '../src/locales/ar.json' with { type: 'json' };
 import en from '../src/locales/en.json' with { type: 'json' };
-import { type MockDocument, mockLibrary, PROGRAMMES, seedLibrary, signInAs } from './library-mock';
+import {
+  makeDoc,
+  type MockDocument,
+  mockLibrary,
+  PROGRAMMES,
+  seedLibrary,
+  signInAs,
+} from './library-mock';
 
 const row = (page: Page, doc: MockDocument) => page.locator(`tr[data-document-id="${doc.id}"]`);
 const visibleRows = (page: Page) => page.locator('tbody tr');
@@ -211,4 +218,23 @@ test('switching language keeps the filters and the rows, and makes no GET', asyn
   await expect(row(page, docs.wlpAgreement)).toContainText(PROGRAMMES[1]?.name_ar ?? '');
   await expect(row(page, docs.wlpAgreement)).toContainText(ar.documents.restricted);
   expect(gets).toEqual([]);
+});
+
+test('a code inside an Arabic title never breaks across lines, at any width', async ({ page }) => {
+  // A line break at the hyphen put "(-WASH" on one line and "(2018-01" on the next.
+  const wash = makeDoc({
+    title: 'التقييم النهائي لمشروع المياه والإصحاح البيئي في قرى الهضبة الشرقية (WASH-2018-01)',
+    original_filename: 'wash-final-evaluation-2021.pdf',
+    category: 'programme_evaluation',
+  });
+  await signInAs(page, 'viewer');
+  await mockLibrary(page, { role: 'viewer', documents: [wash] });
+  await page.goto('/library?lang=en');
+  const code = row(page, wash).locator('bdi', { hasText: 'WASH-2018-01' });
+  await expect(code).toHaveText('WASH-2018-01');
+  for (let width = 700; width <= 1100; width += 10) {
+    await page.setViewportSize({ width, height: 900 });
+    const lines = await code.evaluate((el) => el.getClientRects().length);
+    expect(lines, `at ${String(width)} px`).toBe(1);
+  }
 });

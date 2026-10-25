@@ -3,3 +3,8 @@
   unicode-bidi: plaintext;
   text-align: start;
 }
+
+/* Inside an isolated run: a code, a word of a phrase or a piece of a URL never wraps. */
+.nowrap {
+  white-space: nowrap;
+}

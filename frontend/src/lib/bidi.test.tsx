@@ -92,6 +92,45 @@ describe('<Bidi>', () => {
     ]);
   });
 
+  it('never wraps inside a code, so "WASH-2018-01" stays whole and in order', () => {
+    const { container } = render(
+      <Bidi text="التقييم النهائي لمشروع المياه في قرى الهضبة الشرقية (WASH-2018-01)" />,
+    );
+    const code = container.querySelector('bdi');
+    expect(code?.textContent).toBe('WASH-2018-01');
+    expect(code?.classList.contains(styles.nowrap ?? '')).toBe(true);
+    expect(code?.children).toHaveLength(0);
+  });
+
+  it('lets a URL wrap only after a slash', () => {
+    const { container } = render(<Bidi text={FIXTURE} />);
+    const url = container.querySelectorAll('bdi')[1];
+    expect(url?.textContent).toBe('https://example.org/r');
+    const pieces = [...(url?.querySelectorAll('span') ?? [])];
+    expect(pieces.map((el) => el.textContent)).toEqual(['https:/', '/', 'example.org/', 'r']);
+    expect(pieces.every((el) => el.classList.contains(styles.nowrap ?? ''))).toBe(true);
+    // A break opportunity between the pieces, and nowhere else.
+    expect([...(url?.childNodes ?? [])].map((node) => node.nodeName)).toEqual([
+      'SPAN',
+      'WBR',
+      'SPAN',
+      'WBR',
+      'SPAN',
+      'WBR',
+      'SPAN',
+    ]);
+  });
+
+  it('lets an English phrase wrap only between its words', () => {
+    const { container } = render(<Bidi text="قدّم برنامج Youth Employment-Plus Programme دعمًا" />);
+    const phrase = container.querySelector('bdi');
+    expect(phrase?.textContent).toBe('Youth Employment-Plus Programme');
+    expect(phrase?.classList.contains(styles.nowrap ?? '')).toBe(false);
+    const words = [...(phrase?.querySelectorAll('span') ?? [])];
+    expect(words.map((el) => el.textContent)).toEqual(['Youth', 'Employment-Plus', 'Programme']);
+    expect(words.every((el) => el.classList.contains(styles.nowrap ?? ''))).toBe(true);
+  });
+
   it('renders markup in content as text, never as HTML', () => {
     const { container } = render(<Bidi text={'نص <img src=x onerror=alert(1)> نص'} />);
     expect(container.querySelector('img')).toBeNull();

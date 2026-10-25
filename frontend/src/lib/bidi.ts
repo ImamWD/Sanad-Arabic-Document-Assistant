@@ -36,6 +36,13 @@ function trimRun(token: string): string {
   return run;
 }
 
+const WHOLE_URL = new RegExp(`^${URL_PATTERN}$`, 'u');
+
+/** Whether an isolated run is a URL (it may wrap after a slash; a code never wraps). */
+export function isUrl(run: string): boolean {
+  return WHOLE_URL.test(run);
+}
+
 export function hasRtl(text: string): boolean {
   return RTL_SCRIPT.test(text);
 }

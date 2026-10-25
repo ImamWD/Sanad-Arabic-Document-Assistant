@@ -149,6 +149,23 @@ test("switching language keeps the page and the reader's place, and makes no GET
   expect(gets).toEqual([]);
 });
 
+test('a code in the title stays on one line, at any width', async ({ page }) => {
+  const wash = makeDoc({
+    title: 'التقييم النهائي لمشروع المياه والإصحاح البيئي في قرى الهضبة الشرقية (WASH-2018-01)',
+    page_count: 2,
+  });
+  await signInAs(page, 'viewer');
+  await mockDocument(page, wash);
+  await page.goto(`/documents/${wash.id}?page=1&lang=en`);
+  const code = page.getByRole('heading', { level: 1 }).locator('bdi');
+  await expect(code).toHaveText('WASH-2018-01');
+  for (let width = 600; width <= 1100; width += 10) {
+    await page.setViewportSize({ width, height: 900 });
+    const lines = await code.evaluate((el) => el.getClientRects().length);
+    expect(lines, `at ${String(width)} px`).toBe(1);
+  }
+});
+
 test('a document still being processed is not opened', async ({ page }) => {
   const queued = makeDoc({ title: 'Annual Report 2022', status: 'indexing', page_count: null });
   await signInAs(page, 'viewer');
