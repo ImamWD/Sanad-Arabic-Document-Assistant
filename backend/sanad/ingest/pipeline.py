@@ -62,9 +62,10 @@ def embedding_context(title: str, programme: str | None, year: int | None) -> st
     """`title | programme | year`, without the parts a document doesn't have.
 
     The embedding sees this line before every chunk of the document. A budget-table row rarely
-    names its programme or its agreement; the document does (R1: a donor agreement's salary
-    line was out of reach until its title came with it). Only the embedding input changes:
-    the stored chunk text, its span, `text_norm` and every citation stay exactly as they were.
+    names its programme or its agreement; the document does (R1: for a question about one
+    agreement's salary line, its chunk went from 55th to 3rd in vector search). Only the
+    embedding input changes: the stored chunk text, its span, `text_norm` and every citation
+    stay exactly as they were.
     """
     parts = (" ".join(title.split()), " ".join((programme or "").split()), str(year or ""))
     return " | ".join(part for part in parts if part)
