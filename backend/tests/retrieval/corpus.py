@@ -20,8 +20,9 @@ from pathlib import Path
 from typing import Any
 
 import sqlalchemy
-from sqlalchemy import insert
+from sqlalchemy import insert, select
 
+from sanad.core.models import Programme
 from sanad.documents.models import Chunk, Document, DocumentPage
 from sanad.text.arabic import lexical_terms, normalize_for_search, search_tokens
 
@@ -51,6 +52,7 @@ def fake_rerank_score(question: str, passage: str) -> float:
 class FakeMl:
     embedded: list[str] = field(default_factory=list)
     reranked: list[list[str]] = field(default_factory=list)
+    rerank_queries: list[str] = field(default_factory=list)
 
     async def embed(self, text: str) -> list[float]:
         self.embedded.append(text)
@@ -58,6 +60,7 @@ class FakeMl:
 
     async def rerank(self, query: str, passages: Sequence[str]) -> list[float]:
         self.reranked.append(list(passages))
+        self.rerank_queries.append(query)
         return [fake_rerank_score(query, p) for p in passages]
 
 
@@ -74,6 +77,7 @@ class Doc:
     status: str = "ready"
     year: int | None = None
     category: str | None = None
+    programme: str | None = None  # programme code from seed/manifest.json
 
 
 SEED_SOURCES = Path(__file__).resolve().parents[3] / "seed" / "sources"
@@ -107,6 +111,7 @@ CORPUS: list[Doc] = [
         restricted=True,
         year=2022,
         category="donor_agreement",
+        programme="WLP",
     ),
     Doc(
         "spc-donor-agreement-2023",
@@ -115,6 +120,7 @@ CORPUS: list[Doc] = [
         file_type="docx",
         year=2023,
         category="donor_agreement",
+        programme="SPC",
     ),
     Doc(
         "wash-donor-agreement-2018",
@@ -122,6 +128,7 @@ CORPUS: list[Doc] = [
         seed_pages("wash-donor-agreement-2018", 5),
         year=2018,
         category="donor_agreement",
+        programme="WASH",
     ),
     Doc(
         "annual-report-2021",
@@ -176,6 +183,8 @@ CORPUS: list[Doc] = [
 def insert_corpus(engine: sqlalchemy.Engine, uploaded_by: uuid.UUID) -> dict[str, uuid.UUID]:
     """Insert CORPUS (documents, pages, chunks with fake embeddings); return ids by slug."""
     ids: dict[str, uuid.UUID] = {}
+    with engine.connect() as conn:
+        programmes = dict(conn.execute(select(Programme.code, Programme.id)).all())
     docs: list[dict[str, Any]] = []
     pages: list[dict[str, Any]] = []
     chunks: list[dict[str, Any]] = []
@@ -193,6 +202,7 @@ def insert_corpus(engine: sqlalchemy.Engine, uploaded_by: uuid.UUID) -> dict[str
                 "file_type": doc.file_type,
                 "category": doc.category,
                 "year": doc.year,
+                "programme_id": programmes[doc.programme] if doc.programme else None,
                 "uploaded_by": uploaded_by,
                 "page_count": max(doc.pages),
                 "status": doc.status,

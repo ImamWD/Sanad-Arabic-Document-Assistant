@@ -19,9 +19,9 @@ from sqlalchemy import ColumnElement, Select, and_, exists, func, literal_column
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.sql.elements import ColumnClause
 
-from sanad.core.models import User
+from sanad.core.models import Programme, User
 from sanad.documents.access import retrievable_chunks
-from sanad.documents.models import Chunk, Document
+from sanad.documents.models import Chunk, DocLanguage, Document
 from sanad.retrieval.fuse import rrf
 from sanad.retrieval.ml import AskMl
 from sanad.retrieval.settings import RetrievalSettings
@@ -103,16 +103,17 @@ async def load_candidates(
     if not ids:
         return []
     stmt = (
-        select(Chunk, Document)
+        select(Chunk, Document, Programme.name_ar, Programme.name_en)
         .join(Document, Document.id == Chunk.document_id)
+        .outerjoin(Programme, Programme.id == Document.programme_id)
         .where(scope(user, filters), Chunk.id.in_(ids))
     )
-    rows = {chunk.id: (chunk, doc) for chunk, doc in (await db.execute(stmt)).all()}
+    rows = {row[0].id: row for row in (await db.execute(stmt)).all()}
     candidates = []
     for chunk_id in ids:
         if chunk_id not in rows:
             continue
-        chunk, doc = rows[chunk_id]
+        chunk, doc, name_ar, name_en = rows[chunk_id]
         candidates.append(
             Candidate(
                 chunk_id=chunk.id,
@@ -128,6 +129,8 @@ async def load_candidates(
                 language=doc.language.value if doc.language else None,
                 score=0.0,
                 file=doc.original_filename,
+                programme=name_en if doc.language is DocLanguage.EN else name_ar,
+                year=doc.year,
             )
         )
     return candidates

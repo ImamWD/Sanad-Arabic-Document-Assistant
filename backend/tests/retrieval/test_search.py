@@ -184,3 +184,16 @@ async def test_candidates_carry_what_the_citation_card_needs(
         "ar",
     )
     assert spc.char_end == len(spc.text)
+
+
+async def test_candidates_carry_programme_and_year(
+    aengine: AsyncEngine, users: dict[str, User], corpus: dict[str, uuid.UUID]
+) -> None:
+    retriever = SqlRetriever(aengine, FakeMl(), RetrievalSettings())
+    result = await retriever.retrieve(users["editor"], WLP_QUESTION, Filters())
+    wlp = next(c for c in result.candidates if c.document_id == corpus["wlp-donor-agreement-2022"])
+    assert wlp.year == 2022
+    assert wlp.programme == "برنامج سُبل العيش للنساء المعيلات"
+    english = await retriever.retrieve(users["editor"], "How many volunteers?", Filters())
+    report = next(c for c in english.candidates if c.file == "annual-report-2023-en.pdf")
+    assert (report.programme, report.year) == (None, 2023)
