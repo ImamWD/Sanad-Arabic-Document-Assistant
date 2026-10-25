@@ -68,6 +68,16 @@ describe('wait notice', () => {
     expect(progress().getAttribute('max')).toBe(String(seconds));
   });
 
+  it('puts the Arabic dual where its nominative form reads right (manager ruling)', async () => {
+    // Intl gives the nominative dual (دقيقتان), so the sentence places the duration where the
+    // nominative is correct: after the colon, and after والمتوقع.
+    await show('ar', eta(120));
+    expect(screen.getByText('المدة المتوقعة لهذه الإجابة: دقيقتان تقريبًا.')).toBeDefined();
+    expect(
+      screen.getByText(`مضى ${formatFor('ar').duration(0)}، والمتوقع دقيقتان تقريبًا`),
+    ).toBeDefined();
+  });
+
   it('never shows a number above 90 seconds, however large the estimate', async () => {
     await show('en', eta(1474 / 3, false, 125));
     expect(screen.getByText(fill(en.ask.wait.notice, { duration: '8 minutes' }))).toBeDefined();
