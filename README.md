@@ -180,7 +180,7 @@ cp .env.example .env
 | **Bilingual interface** | Arabic (right to left) and English (left to right), fully mirrored. Switch at any time without losing your place. `?lang=ar` and `?lang=en` work on every page. |
 | **Digits** | Latin digits (123) by default in both languages, the client's choice. Arabic-Indic digits are a setting (`AR_NUMBERING=arab`). |
 | **Arabic text handling** | Alef and hamza forms, taa marbuta, tatweel, diacritics and Arabic-Indic digits are normalised before matching. The original text is kept for display. A search for `التعليم` matches `التعليــم`. |
-| **Ingestion** | PDF, DOCX and TXT. Each file shows its stage (uploading, waiting, extracting, indexing, ready). A failed file shows a readable reason, such as "no text layer (scanned image)". |
+| **Ingestion** | PDF, DOCX and TXT. Each file shows its stage: uploading, queued, extracting text, indexing, ready. A failed file shows a readable reason, such as "This file has no text layer (scanned image)". |
 | **Upload** | Several files at once. Each file is processed on its own, so one bad file never stops the others. |
 | **Chunking** | Page-bounded, paragraph-aligned chunks of about 350 tokens. See [Chunking](#chunking). |
 | **Embeddings** | `BAAI/bge-m3`, run locally on the CPU. |
