@@ -208,3 +208,19 @@ async def test_embed_and_rerank_get_the_question_without_marks(
     await retriever.retrieve(users["editor"], "كَمْ رَوَاتِبُ فَرِيقِ المَشْرُوعِ؟", Filters())
     assert ml.embedded == ["كم رواتب فريق المشروع؟"]
     assert ml.rerank_queries == ["كم رواتب فريق المشروع؟"]
+
+
+async def test_the_reranker_hears_the_official_name_of_a_named_programme(
+    aengine: AsyncEngine, users: dict[str, User], corpus: dict[str, uuid.UUID]
+) -> None:
+    ml = FakeMl()
+    retriever = SqlRetriever(aengine, ml, RetrievalSettings())
+    await retriever.retrieve(users["editor"], "احكيلي عن مشروع المياه بالمناطق الريفية", Filters())
+    await retriever.retrieve(users["editor"], "ما هي المناطق التي تعمل فيها المؤسسة؟", Filters())
+    named, plain = ml.rerank_queries
+    assert named.startswith("احكيلي عن مشروع المياه بالمناطق الريفية\n")
+    assert "مشروع المياه والإصحاح البيئي في المناطق الريفية" in named
+    assert "Rural Water, Sanitation and Hygiene Project" in named
+    assert plain == "ما هي المناطق التي تعمل فيها المؤسسة؟"
+    # The embedding gets the question alone.
+    assert ml.embedded[0] == "احكيلي عن مشروع المياه بالمناطق الريفية"
