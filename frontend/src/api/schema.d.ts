@@ -401,6 +401,11 @@ export interface components {
     };
     /** AskRequest */
     AskRequest: {
+      /**
+       * Debug
+       * @default false
+       */
+      debug: boolean;
       filters?: components['schemas']['AskFilters'] | null;
       /** Question */
       question: string;
@@ -408,7 +413,8 @@ export interface components {
     /**
      * AskResult
      * @description `POST /ask`, and the `final` event of `POST /ask/stream`. `answer` is null exactly when
-     *     the outcome is no_answer: streamed text is never kept as the answer.
+     *     the outcome is no_answer: streamed text is never kept as the answer. `diagnostics` is there
+     *     only when an editor or admin asked for it with `debug` (and ASK_DEBUG_ENABLED is on).
      */
     AskResult: {
       /** Answer */
@@ -416,6 +422,7 @@ export interface components {
       band: components['schemas']['Band'] | null;
       /** Citations */
       citations: components['schemas']['CitationOut'][];
+      diagnostics?: components['schemas']['Diagnostics'] | null;
       /** Nearest Documents */
       nearest_documents: components['schemas']['NearestDocumentOut'][];
       outcome: components['schemas']['Outcome'];
@@ -476,6 +483,63 @@ export interface components {
       snippet: string;
       /** Title */
       title: string;
+    };
+    /** DiagnosticCandidate */
+    DiagnosticCandidate: {
+      /**
+       * Chunk Id
+       * Format: uuid
+       */
+      chunk_id: string;
+      /** Dense Rank */
+      dense_rank: number | null;
+      /**
+       * Document Id
+       * Format: uuid
+       */
+      document_id: string;
+      /** File */
+      file: string;
+      /** Lexical Rank */
+      lexical_rank: number | null;
+      /** Page Number */
+      page_number: number;
+      /** Rank */
+      rank: number;
+      /** Rerank Score */
+      rerank_score: number;
+    };
+    /**
+     * DiagnosticTimings
+     * @description Milliseconds. `first_token` and `generate` are null when the LLM wasn't called.
+     */
+    DiagnosticTimings: {
+      /** Embed */
+      embed: number | null;
+      /** First Token */
+      first_token: number | null;
+      /** Generate */
+      generate: number | null;
+      /** Rerank */
+      rerank: number | null;
+      /** Retrieve */
+      retrieve: number | null;
+      /** Total */
+      total: number;
+    };
+    /**
+     * Diagnostics
+     * @description Retrieval and timing for the eval (E1). Ids, positions and scores only, never text.
+     */
+    Diagnostics: {
+      band: components['schemas']['Band'];
+      /** Candidates */
+      candidates: components['schemas']['DiagnosticCandidate'][];
+      /** Llm Model */
+      llm_model: string;
+      timings_ms: components['schemas']['DiagnosticTimings'];
+      /** Top Score */
+      top_score: number | null;
     };
     /**
      * DocCategory

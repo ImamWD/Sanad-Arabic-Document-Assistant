@@ -124,6 +124,11 @@
       },
       "AskRequest": {
         "properties": {
+          "debug": {
+            "default": false,
+            "title": "Debug",
+            "type": "boolean"
+          },
           "filters": {
             "anyOf": [
               {
@@ -147,7 +152,7 @@
         "type": "object"
       },
       "AskResult": {
-        "description": "`POST /ask`, and the `final` event of `POST /ask/stream`. `answer` is null exactly when\nthe outcome is no_answer: streamed text is never kept as the answer.",
+        "description": "`POST /ask`, and the `final` event of `POST /ask/stream`. `answer` is null exactly when\nthe outcome is no_answer: streamed text is never kept as the answer. `diagnostics` is there\nonly when an editor or admin asked for it with `debug` (and ASK_DEBUG_ENABLED is on).",
         "properties": {
           "answer": {
             "anyOf": [
@@ -176,6 +181,16 @@
             },
             "title": "Citations",
             "type": "array"
+          },
+          "diagnostics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Diagnostics"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "nearest_documents": {
             "items": {
@@ -357,6 +372,186 @@
           "is_converted"
         ],
         "title": "CitationOut",
+        "type": "object"
+      },
+      "DiagnosticCandidate": {
+        "properties": {
+          "chunk_id": {
+            "format": "uuid",
+            "title": "Chunk Id",
+            "type": "string"
+          },
+          "dense_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dense Rank"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "file": {
+            "title": "File",
+            "type": "string"
+          },
+          "lexical_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lexical Rank"
+          },
+          "page_number": {
+            "title": "Page Number",
+            "type": "integer"
+          },
+          "rank": {
+            "title": "Rank",
+            "type": "integer"
+          },
+          "rerank_score": {
+            "title": "Rerank Score",
+            "type": "number"
+          }
+        },
+        "required": [
+          "rank",
+          "document_id",
+          "file",
+          "page_number",
+          "chunk_id",
+          "rerank_score",
+          "dense_rank",
+          "lexical_rank"
+        ],
+        "title": "DiagnosticCandidate",
+        "type": "object"
+      },
+      "DiagnosticTimings": {
+        "description": "Milliseconds. `first_token` and `generate` are null when the LLM wasn't called.",
+        "properties": {
+          "embed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Embed"
+          },
+          "first_token": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Token"
+          },
+          "generate": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Generate"
+          },
+          "rerank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rerank"
+          },
+          "retrieve": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retrieve"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "embed",
+          "retrieve",
+          "rerank",
+          "first_token",
+          "generate",
+          "total"
+        ],
+        "title": "DiagnosticTimings",
+        "type": "object"
+      },
+      "Diagnostics": {
+        "description": "Retrieval and timing for the eval (E1). Ids, positions and scores only, never text.",
+        "properties": {
+          "band": {
+            "$ref": "#/components/schemas/Band"
+          },
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/DiagnosticCandidate"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "llm_model": {
+            "title": "Llm Model",
+            "type": "string"
+          },
+          "timings_ms": {
+            "$ref": "#/components/schemas/DiagnosticTimings"
+          },
+          "top_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Top Score"
+          }
+        },
+        "required": [
+          "candidates",
+          "top_score",
+          "band",
+          "timings_ms",
+          "llm_model"
+        ],
+        "title": "Diagnostics",
         "type": "object"
       },
       "DocCategory": {
