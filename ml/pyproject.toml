@@ -1,11 +1,15 @@
 [project]
 name = "sanad-ml"
 version = "0.1.0"
-description = "Sanad embedding and rerank service (M0: health stub, no models yet)"
+description = "Sanad embedding, rerank and tokenizer service (bge-m3, bge-reranker-v2-m3; int8 ONNX)"
 requires-python = "==3.12.*"
 # Direct dependencies are pinned exactly; uv.lock pins the full tree.
+# Runtime is onnxruntime + tokenizers only: no torch, no transformers, no hub access.
 dependencies = [
     "fastapi==0.162.0",
+    "numpy==2.5.4",
+    "onnxruntime==1.31.0",
+    "tokenizers==0.23.3",
     "uvicorn[standard]==0.54.0",
 ]
 
@@ -13,13 +17,33 @@ dependencies = [
 dev = [
     "httpx2==2.16.0",
     "mypy==2.4.0",
+    "onnx==1.23.2",
     "pytest==9.1.1",
     "ruff==0.17.2",
+]
+# Build-time only (Dockerfile stage `models`): download the pinned BAAI weights, export them
+# to ONNX and quantise to int8. Never installed in the runtime or dev images.
+export = [
+    "huggingface-hub==2.3.0",
+    "onnx==1.23.2",
+    "onnxruntime==1.31.0",
+    "torch==2.14.1",
+    "transformers==5.20.2",
 ]
 
 [tool.uv]
 # The code is run from PYTHONPATH=/app/ml, not installed into the venv.
 package = false
+
+# CPU-only torch for the export stage. PyPI's x86-64 torch wheels pull in several GB of CUDA
+# libraries we never use; this index has CPU wheels for both x86-64 and arm64.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -31,3 +55,8 @@ python_version = "3.12"
 strict = true
 files = ["sanad_ml", "tests"]
 cache_dir = "/tmp/mypy_cache"
+
+# onnxruntime ships no type information.
+[[tool.mypy.overrides]]
+module = ["onnxruntime", "onnxruntime.*"]
+ignore_missing_imports = true
