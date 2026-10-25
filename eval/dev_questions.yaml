@@ -178,15 +178,20 @@ questions:
     notes: "Cross-document: ٥٨ is on the 2015 survey p2 (Arabic-Indic digits); 68 is on the mid-term evaluation p2 and p4. The two figures cover different populations (governorate vs target schools), which a good answer should say."
   - id: D14
     language: ar
-    kinds: [factual, numeric, temporal]
+    kinds: [factual, numeric, temporal, cross_document]
     question: "كيف تغيّر عدد الذين خدمهم برنامج الصحة المجتمعية من 2020 إلى 2021؟"
     must_include: ["3,370", "12,930"]
     expected_citations:
       - {file: annual-report-2021.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 9}
+      - {file: annual-report-2021.pdf, page: 11}
+      - {file: annual-report-2022.pdf, page: 5}
+      - {file: chp-evaluation-2024.pdf, page: 4}
     expected_outcome: answered
     expected_answer: "ارتفع من 3,370 مستفيداً في 2020 إلى 12,930 في 2021 بعد استئناف العيادات المتنقلة."
     vocab_shift: false
-    notes: "Beneficiaries-by-programme table on annual report 2021 p5 holds both years."
+    notes: "Cross-document. The beneficiaries-by-programme table on annual report 2021 p5 holds both years. 3,370 (2020) is also in annual report 2020's beneficiaries table on p5 and its community health text on p9. 12,930 (2021) is also in annual report 2021's community health text on p11, and as the earlier-year (2021) column in annual report 2022's beneficiaries table on p5 and in the CHP evaluation's outputs table on p4."
   - id: D15
     language: ar
     kinds: [factual, diacritics]
