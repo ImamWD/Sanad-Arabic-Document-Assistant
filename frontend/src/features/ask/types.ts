@@ -40,7 +40,7 @@ export type StreamEvent =
   | { type: 'stage'; stage: 'searching' }
   | { type: 'stage'; stage: 'reading'; sources: number; band: Band | null }
   | { type: 'stage'; stage: 'writing' }
-  | { type: 'eta'; expectedSeconds: number }
+  | { type: 'eta'; expectedSeconds: number; capped: boolean }
   | { type: 'token'; text: string }
   | { type: 'final'; result: AnswerResult };
 

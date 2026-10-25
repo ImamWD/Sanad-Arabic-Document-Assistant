@@ -118,7 +118,7 @@ export function decodeEvent({ event, data }: SseMessage, status = 200): StreamEv
   if (event === 'eta') {
     const seconds = payload.expected_seconds;
     return typeof seconds === 'number' && Number.isFinite(seconds) && seconds > 0
-      ? { type: 'eta', expectedSeconds: seconds }
+      ? { type: 'eta', expectedSeconds: seconds, capped: payload.capped === true }
       : null;
   }
   if (event !== 'stage') return null;

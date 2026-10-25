@@ -7,6 +7,8 @@ export type Stage = 'starting' | 'queued' | 'searching' | 'reading' | 'writing';
 
 export interface Eta {
   expectedSeconds: number;
+  /** The server capped its estimate (R1d): it is busy, and the real wait is unknown. */
+  capped: boolean;
   /** When the estimate arrived (ms since the epoch): elapsed time counts from here. */
   since: number;
 }
@@ -81,7 +83,10 @@ function onEvent(state: Streaming, event: StreamEvent, at: number): AskState {
     case 'token':
       return { ...state, stage: 'writing', text: state.text + event.text };
     case 'eta':
-      return { ...state, eta: { expectedSeconds: event.expectedSeconds, since: at } };
+      return {
+        ...state,
+        eta: { expectedSeconds: event.expectedSeconds, capped: event.capped, since: at },
+      };
     case 'stage':
       // Once the answer is being written, a late progress event can't take the stage back.
       if (state.stage === 'writing') return state;
