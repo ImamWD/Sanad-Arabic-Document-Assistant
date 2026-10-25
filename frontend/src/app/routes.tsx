@@ -8,7 +8,7 @@ import { UploadPage } from '../features/upload/UploadPage';
 import { ViewerPage } from '../features/viewer/ViewerPage';
 import { AppLayout } from './AppLayout';
 import { RequireAuth, RequireRole } from './guards';
-import { NotFoundPage, PlaceholderPage } from './pages';
+import { NotFoundPage } from './pages';
 import { PublicLayout } from './PublicLayout';
 
 // No loaders or actions: server state lives in TanStack Query only, so navigation (or a
