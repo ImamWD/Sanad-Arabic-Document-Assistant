@@ -1,0 +1,150 @@
+.section {
+  margin-block-start: var(--space-4);
+}
+
+.heading {
+  margin-block: 0 var(--space-3);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.message {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.failure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.error {
+  margin: 0;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-2);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.scroll {
+  container-type: inline-size;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-3);
+  background: var(--color-surface);
+}
+
+.table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+/* Cells line up with the page's inline start, so columns mirror with the locale. */
+.table th,
+.table td {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-block-end: 1px solid var(--color-border);
+  text-align: start;
+  vertical-align: middle;
+}
+
+.table thead th {
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.inactiveRow > * {
+  color: var(--color-text-muted);
+}
+
+.table tbody tr:last-child > * {
+  border-block-end: none;
+}
+
+.nameCell {
+  font-weight: 600;
+}
+
+.email {
+  overflow-wrap: anywhere;
+}
+
+/* Dates and the role (with its badge) stay on one line; names and emails wrap instead. */
+.nowrap {
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-block;
+  margin-inline-start: var(--space-2);
+  padding-block: 0;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.guest {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.active,
+.inactive {
+  display: inline-block;
+  padding-block: 0;
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-2);
+  white-space: nowrap;
+}
+
+.active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.inactive {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.button {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--color-surface-hover);
+}
+
+.button[aria-expanded='true'] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.editRow > td {
+  background: var(--color-background);
+}
+
+/* When the table scrolls sideways, the edit form stays within the visible part of the box. */
+.editPanel {
+  position: sticky;
+  inset-inline-start: var(--space-3);
+  max-inline-size: calc(100cqi - 2 * var(--space-3));
+}

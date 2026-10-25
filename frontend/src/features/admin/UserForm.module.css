@@ -1,0 +1,183 @@
+/* The create panel above the table, and the edit form inside a table row. */
+.panel {
+  margin-block-end: var(--space-4);
+  padding-block: var(--space-4);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-3);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-1);
+}
+
+.inline {
+  padding-block: var(--space-2);
+}
+
+.title {
+  margin-block: 0 var(--space-3);
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.fieldset {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* Fields flow along the inline direction and wrap, so they mirror with the locale. */
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3) var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-inline-size: 20rem;
+}
+
+.label {
+  font-weight: 600;
+}
+
+.input {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.input:focus-visible {
+  border-color: var(--color-focus);
+}
+
+.input:disabled {
+  background: var(--color-surface-hover);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.invalid {
+  border-color: var(--color-danger);
+}
+
+.fixed {
+  margin: 0;
+  padding-block: var(--space-2);
+}
+
+.badge {
+  display: inline-block;
+  margin-inline-start: var(--space-2);
+  padding-block: 0;
+  padding-inline: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-2);
+}
+
+.check input:disabled,
+.check input:disabled + label {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.hint {
+  margin-block: var(--space-2) 0;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.error {
+  margin-block: var(--space-3) 0;
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-2);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-block-start: var(--space-3);
+}
+
+.primary,
+.secondary,
+.danger {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-4);
+  border-radius: var(--radius-2);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.secondary {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.danger {
+  border: 1px solid var(--color-danger);
+  background: var(--color-danger);
+  color: var(--color-on-primary);
+}
+
+.primary:disabled,
+.secondary:disabled,
+.danger:disabled {
+  cursor: progress;
+  opacity: 0.7;
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.secondary:hover:not(:disabled) {
+  background: var(--color-surface-hover);
+}
+
+.confirm {
+  margin-block-start: var(--space-3);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-2);
+  background: var(--color-danger-soft);
+}
+
+.confirmTitle {
+  margin: 0;
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.confirmBody {
+  margin-block: var(--space-1) 0;
+}
