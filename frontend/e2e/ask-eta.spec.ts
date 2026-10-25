@@ -19,9 +19,10 @@ for (const [lang, messages] of [
     await stream.send('stage', { stage: 'reading', sources: 4, band: 'answer' });
     await stream.send('eta', { expected_seconds: 600, capped: true });
 
+    // The busy notice names no duration. (The status line still counts the sources found.)
     const status = page.getByRole('status');
-    await expect(status).toContainText(messages.ask.wait.busy);
-    await expect(status).not.toContainText(/\d/);
+    await expect(status.getByText(messages.ask.wait.busy, { exact: true })).toBeVisible();
+    await expect(status).not.toContainText('600');
     // An indeterminate bar: no max and no value, so it promises no end.
     const bar = page.getByRole('progressbar');
     await expect(bar).not.toHaveAttribute('max');
