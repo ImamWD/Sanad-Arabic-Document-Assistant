@@ -31,7 +31,9 @@ class SqlQueryStore:
                 .order_by(LlmPerfSample.created_at.desc(), LlmPerfSample.id.desc())
                 .limit(limit)
             )
-            return [PerfSample(r.prompt_chars, r.prompt_ms, r.output_ms) for r in rows]
+            return [
+                PerfSample(r.prompt_chars, r.prompt_ms, r.output_ms, r.output_tokens) for r in rows
+            ]
 
     async def save(self, record: QueryRecord) -> uuid.UUID:
         query = Query(

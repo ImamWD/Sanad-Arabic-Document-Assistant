@@ -297,10 +297,15 @@ class AskPipeline:
             return
 
         samples = await self._store.recent_perf(self._provider.model, self._ls.eta_sample_count)
-        eta = expected_seconds(
-            samples, prompt.chars, self._queue.ahead(), self._ls.eta_default_seconds
+        estimate = expected_seconds(
+            samples,
+            prompt.chars,
+            self._queue.ahead(),
+            self._ls.eta_default_seconds,
+            min_samples=self._ls.eta_min_samples,
+            max_seconds=self._ls.eta_max_seconds,
         )
-        yield Event("eta", {"expected_seconds": eta})
+        yield Event("eta", {"expected_seconds": estimate.seconds, "capped": estimate.capped})
 
         holdback = SentinelHoldback()
         raw: list[str] = []
