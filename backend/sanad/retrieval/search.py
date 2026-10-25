@@ -26,7 +26,7 @@ from sanad.retrieval.fuse import rrf
 from sanad.retrieval.ml import AskMl
 from sanad.retrieval.settings import RetrievalSettings
 from sanad.retrieval.types import Candidate, Filters, Retrieved
-from sanad.text.arabic import lexical_terms
+from sanad.text.arabic import lexical_terms, strip_marks
 
 MAX_LEXICAL_TERMS = 32
 _SIMPLE: ColumnClause[Any] = literal_column("'simple'::regconfig")
@@ -149,21 +149,26 @@ class SqlRetriever:
         self._settings = settings
 
     async def retrieve(self, user: User, question: str, filters: Filters) -> Retrieved:
+        """The embedding and the reranker get the question without tashkeel or tatweel: the
+        documents are written without them, and a fully diacritised question otherwise looks
+        unlike every passage. The word search normalises on its own; the model still gets the
+        question as asked."""
         s = self._settings
+        plain = strip_marks(question)
         watch = _Laps()
         async with AsyncSession(self._engine) as db:
             # Nothing to search (an empty library, or filters that exclude everything): a gate
             # refusal, without waking the ml service.
             if not await db.scalar(select(exists(_chunks(user, filters)))):
                 return Retrieved([])
-            vector = await self._ml.embed(question)
+            vector = await self._ml.embed(plain)
             watch.lap("embed")
             dense = await dense_ids(db, user, filters, vector, s.dense_candidates)
             lexical = await lexical_ids(db, user, filters, question, s.lexical_candidates)
             fused = rrf([dense, lexical], k=s.rrf_k, limit=s.rerank_candidates)
             candidates = await load_candidates(db, user, filters, fused)
             watch.lap("retrieve")
-        scores = await self._ml.rerank(question, [rerank_passage(c) for c in candidates])
+        scores = await self._ml.rerank(plain, [rerank_passage(c) for c in candidates])
         watch.lap("rerank")
         dense_rank = {chunk_id: n for n, chunk_id in enumerate(dense, start=1)}
         lexical_rank = {chunk_id: n for n, chunk_id in enumerate(lexical, start=1)}

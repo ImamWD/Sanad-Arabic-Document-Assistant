@@ -25,6 +25,7 @@ from sanad.retrieval.search import (
 )
 from sanad.retrieval.settings import RetrievalSettings
 from sanad.retrieval.types import Filters
+from sanad.text.arabic import strip_marks
 from tests.retrieval.corpus import CORPUS, WLP_QUESTION, FakeMl, fake_embedding
 
 pytestmark = pytest.mark.anyio
@@ -144,7 +145,7 @@ async def test_retriever_reranks_with_the_title(
     retriever = SqlRetriever(aengine, ml, RetrievalSettings())
     result = await retriever.retrieve(users["editor"], WLP_QUESTION, Filters())
 
-    assert ml.embedded == [WLP_QUESTION]
+    assert ml.embedded == [strip_marks(WLP_QUESTION)]
     (passages,) = ml.reranked
     assert all("\n" in p for p in passages)
     top = result.candidates[0]
@@ -197,3 +198,13 @@ async def test_candidates_carry_programme_and_year(
     english = await retriever.retrieve(users["editor"], "How many volunteers?", Filters())
     report = next(c for c in english.candidates if c.file == "annual-report-2023-en.pdf")
     assert (report.programme, report.year) == (None, 2023)
+
+
+async def test_embed_and_rerank_get_the_question_without_marks(
+    aengine: AsyncEngine, users: dict[str, User], corpus: dict[str, uuid.UUID]
+) -> None:
+    ml = FakeMl()
+    retriever = SqlRetriever(aengine, ml, RetrievalSettings())
+    await retriever.retrieve(users["editor"], "كَمْ رَوَاتِبُ فَرِيقِ المَشْرُوعِ؟", Filters())
+    assert ml.embedded == ["كم رواتب فريق المشروع؟"]
+    assert ml.rerank_queries == ["كم رواتب فريق المشروع؟"]
