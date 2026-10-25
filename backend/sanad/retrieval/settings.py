@@ -24,7 +24,7 @@ class RetrievalSettings(BaseSettings):
     # Fused candidates sent to the reranker. On CPU each costs about as much as embedding it.
     rerank_candidates: int = Field(default=30, ge=1)
     # Excerpts sent to the LLM, best reranked first.
-    retrieval_top_k: int = Field(default=6, ge=1)
+    retrieval_top_k: int = Field(default=8, ge=1)
     # "You may want to check" titles on a refusal.
     nearest_documents: int = Field(default=3, ge=0)
     snippet_chars: int = Field(default=300, ge=40)
