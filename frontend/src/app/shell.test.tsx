@@ -2,12 +2,30 @@ import { act, cleanup, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { makeDocument } from '../features/library/test-fixtures';
 import { apiFetch } from '../lib/api';
 import iconStyles from '../lib/Icon.module.css';
 import ar from '../locales/ar.json';
 import en from '../locales/en.json';
 import { LANGUAGE_STORAGE_KEY } from './i18n';
 import { apiError, GUEST, json, renderApp, testUser } from './test-utils';
+
+vi.mock('../features/viewer/pdf', () => ({
+  openPdf: () => ({
+    promise: Promise.resolve({
+      numPages: 16,
+      getPage: () =>
+        Promise.resolve({
+          getViewport: ({ scale }: { scale: number }) => ({
+            width: 595 * scale,
+            height: 842 * scale,
+          }),
+          render: () => ({ promise: Promise.resolve(), cancel: () => undefined }),
+        }),
+    }),
+    destroy: () => Promise.resolve(),
+  }),
+}));
 
 beforeEach(() => {
   localStorage.clear();
@@ -55,9 +73,29 @@ describe('routing', () => {
   });
 
   it('opens a document at the requested page, with localised digits', async () => {
-    await renderApp({ path: '/documents/doc-7?page=12', user: testUser('viewer') });
-    expect(await screen.findByText('الصفحة 12')).toBeDefined();
-    expect(screen.getByText('doc-7').getAttribute('dir')).toBe('auto');
+    const doc = makeDocument({ id: 'doc-7', page_count: 16 });
+    // The viewer (F4) needs pdf.js, which jsdom can't run; ViewerPage.test.tsx fakes it the
+    // same way. The page is placed and marked without drawing it.
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        observe = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    Element.prototype.scrollIntoView = vi.fn();
+    await renderApp({
+      path: '/documents/doc-7?page=12',
+      user: testUser('viewer'),
+      handlers: {
+        'GET /api/documents/doc-7': () => json(200, doc),
+        'GET /api/documents/doc-7/file': () => new Response(new TextEncoder().encode('%PDF-1.7')),
+      },
+    });
+    const heading = await screen.findByRole('heading', { level: 1, name: doc.title });
+    expect(heading.getAttribute('dir')).toBe('auto');
+    const cited = await screen.findByRole('group', { name: 'الصفحة 12' });
+    expect(cited.getAttribute('aria-current')).toBe('true');
   });
 
   it('a 401 from any request ends the session and returns to login', async () => {

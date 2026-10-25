@@ -57,3 +57,37 @@ test('the Arabic font is self-hosted and nothing loads from another origin', asy
   expect(fonts.some((path) => path.startsWith('/assets/'))).toBe(true);
   expect(foreign).toEqual([]);
 });
+
+test("the guest's language choice survives a reload, whatever the shared account says", async ({
+  page,
+}) => {
+  // The guest can't save a language to its account (a shared one), so its choice lives in
+  // this browser: ?lang=, then localStorage, then English; the account's language never wins.
+  const guest = {
+    id: '00000000-0000-4000-8000-000000000009',
+    name: 'ضيف تجريبي',
+    email: '',
+    role: 'viewer',
+    preferred_language: 'en',
+    is_guest: true,
+  };
+  const saved: unknown[] = [];
+  await page.route('**/api/me', (route) => {
+    if (route.request().method() === 'PATCH') {
+      saved.push(route.request().postDataJSON());
+      return route.fulfill({ status: 204 });
+    }
+    return route.fulfill({ json: guest });
+  });
+  await page.goto('/ask?lang=en');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await page.getByRole('button', { name: en.language.switch }).click();
+  await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
+
+  await page.goto('/ask');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(ar.pages.ask.title);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
+  await page.reload();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
+  expect(saved).toEqual([]);
+});

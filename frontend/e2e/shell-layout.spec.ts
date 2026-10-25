@@ -138,7 +138,20 @@ test('switching language in the shell makes no GET, keeps the page, and saves th
   page,
 }) => {
   await signIn(page, 'editor');
+  // The Library (F3) loads its list and the programmes on arrival; serve both, and start
+  // recording only once they have answered.
+  await page.route('**/api/programmes', (route) => route.fulfill({ json: [] }));
+  await page.route(
+    (url) => url.pathname === '/api/documents',
+    (route) => route.fulfill({ json: { items: [], total: 0, page: 1, page_size: 25 } }),
+  );
+  const loaded = Promise.all(
+    ['/api/documents', '/api/programmes'].map((path) =>
+      page.waitForResponse((res) => new URL(res.url()).pathname === path),
+    ),
+  );
   await page.goto('/library?lang=ar');
+  await loaded;
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(ar.pages.library.title);
 
   const gets: string[] = [];

@@ -215,5 +215,158 @@
   "answer": {
     "refusal": "I couldn't find an answer to this in the available documents.",
     "lowConfidence": "This answer is based on sources that may not fully match your question. Check them before relying on it."
+  },
+  "documents": {
+    "fileType": {
+      "pdf": "PDF",
+      "docx": "Word (DOCX)",
+      "txt": "Text (TXT)"
+    },
+    "category": {
+      "annual_report": "Annual report",
+      "donor_agreement": "Donor agreement",
+      "programme_evaluation": "Programme evaluation",
+      "field_survey": "Field survey",
+      "budget": "Budget",
+      "board_minutes": "Board minutes",
+      "none": "Uncategorised, needs review"
+    },
+    "status": {
+      "queued": "Queued",
+      "extracting": "Extracting text",
+      "indexing": "Indexing",
+      "ready": "Ready",
+      "failed": "Failed"
+    },
+    "restricted": "Restricted",
+    "restrictedHint": "Visible to editors and admins only",
+    "archived": "Archived",
+    "notSet": "Not set"
+  },
+  "library": {
+    "intro": "Every document you have access to. Select a row to open the document.",
+    "search": {
+      "label": "Search titles",
+      "placeholder": "Search by title, in Arabic or English"
+    },
+    "filters": {
+      "label": "Filters",
+      "fileType": "File type",
+      "category": "Category",
+      "uncategorised": "Uncategorised only",
+      "yearFrom": "Year from",
+      "yearTo": "Year to",
+      "programme": "Programme",
+      "status": "Status",
+      "access": "Access",
+      "accessRestricted": "Restricted only",
+      "accessOpen": "Not restricted",
+      "any": "All",
+      "includeArchived": "Show archived documents",
+      "clear": "Clear filters"
+    },
+    "table": {
+      "caption": "Documents in the library",
+      "title": "Title",
+      "fileType": "File type",
+      "category": "Category",
+      "year": "Year",
+      "programme": "Programme",
+      "uploadedBy": "Uploaded by",
+      "uploadedAt": "Date",
+      "pages": "Pages",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "summary": "Showing {{from}} to {{to}} of {{total}}",
+    "empty": "There are no documents in the library yet.",
+    "emptyFiltered": "No documents match these filters.",
+    "pager": {
+      "label": "Library pages",
+      "previous": "Previous",
+      "next": "Next",
+      "position": "Page {{page}} of {{pages}}"
+    },
+    "actions": {
+      "menu": "Actions for {{title}}",
+      "edit": "Edit details",
+      "restrict": "Mark as restricted",
+      "unrestrict": "Remove the restriction",
+      "archive": "Archive",
+      "unarchive": "Restore from the archive",
+      "retry": "Retry"
+    },
+    "edit": {
+      "heading": "Edit document details",
+      "title": "Title",
+      "category": "Category",
+      "uncategorised": "Uncategorised",
+      "year": "Year",
+      "yearHint": "Four digits, for example 2021. Leave it empty if the year is unknown.",
+      "programme": "Programme",
+      "noProgramme": "No programme",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "titleRequired": "Enter a title.",
+      "yearInvalid": "Enter a year from {{min}} to {{max}}, or leave it empty."
+    }
+  },
+  "upload": {
+    "intro": "Add PDF, Word (DOCX) and text (TXT) files. Each file is uploaded and processed on its own, so one bad file never stops the others.",
+    "details": {
+      "legend": "Details for the next files",
+      "hint": "These apply to every file you add next. Each title is taken from its file name, and you can change any detail later in the Library.",
+      "category": "Category",
+      "uncategorised": "Uncategorised (flagged for review)",
+      "year": "Year",
+      "programme": "Programme",
+      "noProgramme": "No programme",
+      "restricted": "Restricted: visible to editors and admins only"
+    },
+    "drop": {
+      "label": "Drag files here, or choose them from your computer.",
+      "choose": "Choose files",
+      "hint": "PDF, DOCX or TXT. You can add several files at once.",
+      "active": "Drop the files to upload them."
+    },
+    "list": {
+      "heading": "Files",
+      "summary": "Ready: {{ready}} of {{total}}. Failed: {{failed}}.",
+      "waiting": "Waiting to upload",
+      "uploading": "Uploading {{percent}}",
+      "uploaded": "Uploaded, waiting to be processed",
+      "open": "Open",
+      "openExisting": "Open the existing document",
+      "progress": "Upload progress for {{name}}"
+    }
+  },
+  "viewer": {
+    "back": "Back to the library",
+    "loading": "Loading the document…",
+    "details": "Document details",
+    "fileType": "File type",
+    "category": "Category",
+    "year": "Year",
+    "programme": "Programme",
+    "pages": "Pages",
+    "uploaded": "Uploaded",
+    "uploadedBy": "{{name}}, {{date}}",
+    "filename": "Original file",
+    "convertedWord": "This PDF was converted from a Word file. Page numbers refer to the converted PDF and may differ from Word.",
+    "convertedOther": "This PDF was converted from the original file. Page numbers refer to the converted PDF and may differ from the original.",
+    "notReady": "This document is still being processed. It can be opened once it is ready.",
+    "failed": "This document could not be processed.",
+    "renderFailed": "The document could not be displayed.",
+    "toolbar": {
+      "label": "Page navigation",
+      "previous": "Previous page",
+      "next": "Next page",
+      "pageInput": "Page number",
+      "ofPages": "of {{total}}",
+      "goToCited": "Go to the cited page ({{page}})"
+    },
+    "page": "Page {{page}}",
+    "citedPage": "Cited page"
   }
 }

@@ -17,6 +17,7 @@ import {
   QUESTION,
   signIn,
 } from './ask-mock';
+import { makeDoc, mockDocument } from './library-mock';
 
 const ANSWER_EVENTS: [string, unknown][] = [
   ['stage', { stage: 'searching' }],
@@ -96,15 +97,29 @@ for (const [lang, messages, dir] of [
   });
 }
 
+// The viewer (F4) loads the cited document; serve it like B3 does.
+const citedDocument = (citation: typeof PDF_CITATION | typeof DOCX_CITATION) =>
+  makeDoc({
+    id: citation.document_id,
+    title: citation.title,
+    file_type: citation.file_type as 'pdf' | 'docx',
+    page_count: 8,
+  });
+
 test('a citation card opens the viewer at its page', async ({ page }) => {
   await signIn(page);
   await mockFullStream(page, ANSWER_EVENTS);
+  await mockDocument(page, citedDocument(DOCX_CITATION));
   await page.goto('/ask?lang=en');
   await ask(page, en.ask.form.label);
 
   await card(page, DOCX_CITATION.title).click();
   await expect(page).toHaveURL(new RegExp(`/documents/${DOCX_CITATION.document_id}\\?page=3$`));
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(en.pages.document.title);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(DOCX_CITATION.title);
+  await expect(page.getByRole('group', { name: 'Page 3', exact: true })).toHaveAttribute(
+    'aria-current',
+    'true',
+  );
 });
 
 test('switching language keeps the shown answer, mirrors it and makes no GET', async ({ page }) => {
@@ -210,6 +225,7 @@ test('the guest goes from the login page to a cited page in three clicks', async
     await route.fulfill({ json: GUEST });
   });
   await mockFullStream(page, ANSWER_EVENTS);
+  await mockDocument(page, citedDocument(PDF_CITATION));
   await page.goto('/login?lang=en');
 
   await page.getByRole('button', { name: en.auth.login.guest }).click(); // 1
@@ -220,6 +236,7 @@ test('the guest goes from the login page to a cited page in three clicks', async
   await page.keyboard.press('Enter');
   await card(page, PDF_CITATION.title).click(); // 3
   await expect(page).toHaveURL(new RegExp(`/documents/${PDF_CITATION.document_id}\\?page=7$`));
+  await expect(page.getByRole('group', { name: 'Page 7', exact: true })).toBeInViewport();
 });
 
 test("the guest's history holds only this session's questions, and never flashes the last one", async ({

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { LANGUAGE_STORAGE_KEY } from '../../app/i18n';
 import { apiError, GUEST, json, renderApp, testUser } from '../../app/test-utils';
 import ar from '../../locales/ar.json';
+import { makeDocument } from '../library/test-fixtures';
 import en from '../../locales/en.json';
 
 beforeEach(() => {
@@ -118,15 +119,19 @@ describe('login page', () => {
 
   it('returns to the page that required sign-in', async () => {
     const actor = userEvent.setup();
+    const doc = makeDocument({ id: 'doc-7', status: 'queued', page_count: null });
     const { router } = await renderApp({
       path: '/documents/doc-7?page=3',
-      handlers: { 'POST /api/auth/login': () => json(200, VIEWER) },
+      handlers: {
+        'POST /api/auth/login': () => json(200, VIEWER),
+        'GET /api/documents/doc-7': () => json(200, doc),
+      },
     });
 
     await fillIn(actor);
     await actor.keyboard('{Enter}');
 
-    expect(await screen.findByText('الصفحة 3')).toBeDefined();
+    expect(await screen.findByRole('heading', { level: 1, name: doc.title })).toBeDefined();
     expect(router.state.location.pathname + router.state.location.search).toBe(
       '/documents/doc-7?page=3',
     );

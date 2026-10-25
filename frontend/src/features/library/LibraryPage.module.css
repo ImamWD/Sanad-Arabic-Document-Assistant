@@ -1,0 +1,57 @@
+.page {
+  max-inline-size: 90rem;
+}
+
+.title {
+  margin-block: 0 var(--space-2);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.intro {
+  margin-block: 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.summary {
+  margin-block: 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+
+.message {
+  color: var(--color-text-muted);
+}
+
+.error {
+  margin-block: 0 var(--space-4);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-2);
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.pager button {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.pager button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
