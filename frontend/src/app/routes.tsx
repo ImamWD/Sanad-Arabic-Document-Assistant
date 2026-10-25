@@ -1,5 +1,6 @@
 import { Navigate, type RouteObject } from 'react-router';
 
+import { AdminPage } from '../features/admin/AdminPage';
 import { AskPage } from '../features/ask/AskPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { LibraryPage } from '../features/library/LibraryPage';
@@ -34,7 +35,7 @@ export const routes: RouteObject[] = [
           },
           {
             element: <RequireRole minimum="admin" />,
-            children: [{ path: 'admin', element: <PlaceholderPage id="admin" /> }],
+            children: [{ path: 'admin', element: <AdminPage /> }],
           },
           { path: '*', element: <NotFoundPage /> },
         ],

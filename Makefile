@@ -28,7 +28,7 @@ UV_IMAGE := ghcr.io/astral-sh/uv:0.13.5-python3.12-trixie-slim
 .DEFAULT_GOAL := help
 .PHONY: help info up up-dev down logs lint lint-style lint-backend lint-ml lint-frontend test \
 	test-backend test-ml test-frontend test-e2e fmt gen-api-types check-api-types lock \
-	render-smoke render-seed check-eval tools-build
+	render-smoke render-seed check-eval tools-build eval eval-dev
 
 help: ## List targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-18s %s\n", $$1, $$2}'
@@ -120,3 +120,16 @@ render-seed: ## Render seed/sources into seed/documents, seed/bad and seed/previ
 EVAL_ARGS ?= --extractor poppler
 check-eval: tools-build ## Check eval/*.yaml against the seed corpus as ingestion converts it (EVAL_ARGS="--extractor pdfium")
 	$(RUN) --no-deps backend-dev python scripts/check_eval.py $(EVAL_ARGS) eval/questions.yaml eval/dev_questions.yaml
+
+# --- evaluation (E1) ----------------------------------------------------------------------
+
+# Score the running stack (`make up` first) end to end over HTTP, signed in as the demo editor.
+# Reports go to eval/results/; the last line printed is `Score: X/N`. Extra flags, e.g.
+#   make eval EVAL_FLAGS="--hardware 'M5 MacBook, CPU, 8 GB stack' --repeat 3"
+# The container has no git, so the commit under test is passed in from here.
+EVAL_GIT_SHA ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null)$(shell git diff --quiet HEAD 2>/dev/null || echo -dirty)
+eval: tools-build ## Score the 15 headline questions against the running stack (EVAL_FLAGS="--hardware ...")
+	$(RUN) --no-deps backend-dev python -m sanad.eval --set test --git-sha "$(EVAL_GIT_SHA)" $(EVAL_FLAGS)
+
+eval-dev: tools-build ## Score the 30 dev (tuning) questions against the running stack
+	$(RUN) --no-deps backend-dev python -m sanad.eval --set dev --git-sha "$(EVAL_GIT_SHA)" $(EVAL_FLAGS)
