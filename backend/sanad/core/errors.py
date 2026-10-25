@@ -48,6 +48,10 @@ class ErrorCode(StrEnum):
     ML_UNAVAILABLE = "ML_UNAVAILABLE"
     DOCUMENT_NOT_READY = "DOCUMENT_NOT_READY"
     DOCUMENT_NOT_RETRYABLE = "DOCUMENT_NOT_RETRYABLE"
+    # Ask (R1). A refusal is an outcome, not an error: these are for when no answer could run.
+    SEARCH_UNAVAILABLE = "SEARCH_UNAVAILABLE"
+    LLM_UNAVAILABLE = "LLM_UNAVAILABLE"
+    HOSTED_LLM_NON_SEED_DATA = "HOSTED_LLM_NON_SEED_DATA"
 
 
 _STATUS_TO_CODE = {

@@ -6,6 +6,7 @@ requires-python = "==3.12.*"
 # Direct dependencies are pinned exactly; uv.lock pins the full tree.
 dependencies = [
     "alembic==1.20.1",
+    "anthropic==2.3.0",
     "argon2-cffi==25.1.0",
     "fastapi==0.162.0",
     "httpx2==2.16.0",

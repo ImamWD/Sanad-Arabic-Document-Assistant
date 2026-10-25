@@ -128,6 +128,13 @@ MATRIX: list[Row] = [
         EDITORS,
         fill={"document_id": "failed_document_id"},
     ),
+    # --- R1 --- (no chunk is ready here, so every ask is a gate refusal without ml or the LLM)
+    Row("POST", "/api/ask", SIGNED_IN, {"question": "How many volunteers?"}),
+    Row("POST", "/api/ask/stream", SIGNED_IN, {"question": "How many volunteers?"}),
+    Row("GET", "/api/queries", SIGNED_IN),
+    # Authentication only: each principal reads its own question (see `own_query_id` below).
+    # Anyone else's question is 404: `test_queries_by_id_are_own_only`.
+    Row("GET", "/api/queries/{query_id}", SIGNED_IN, fill={"query_id": "own_query_id"}),
 ]
 
 # Routes that need no session.
@@ -255,3 +262,75 @@ def ids(
         "page_one": 1,
     }
     get_ingest_settings.cache_clear()
+
+
+# --- R1: GET /api/queries/{query_id} is own-only --------------------------------------------------
+# A question belongs to the user who asked it; the guest is one shared account, so a guest
+# question belongs to the session that asked it. Anyone else gets 404 NOT_FOUND, so a question's
+# existence never leaks: other viewers, editors and admins too (history is personal; the Admin
+# usage log is v2), and the guest of another session.
+
+
+def _store_question(engine: Any, user_id: uuid.UUID, session_token: str) -> uuid.UUID:
+    """A stored gate refusal asked by `user_id` in the session behind `session_token`."""
+    import hashlib
+
+    from sqlalchemy import insert as sql_insert
+
+    from sanad.retrieval.models import Query
+
+    query_id = uuid.uuid4()
+    with engine.begin() as conn:
+        conn.execute(
+            sql_insert(Query).values(
+                id=query_id,
+                user_id=user_id,
+                session_id=hashlib.sha256(session_token.encode()).hexdigest(),
+                question="How many volunteers?",
+                language="en",
+                outcome="no_answer",
+                band="refuse",
+                refusal_reason="gate",
+                latency_ms=1,
+            )
+        )
+    return query_id
+
+
+@pytest.fixture(name="ids")
+def ids_with_own_query(
+    ids: dict[str, Any], engine: Any, sessions: Sessions, request: pytest.FixtureRequest
+) -> dict[str, Any]:
+    """The ids above plus `own_query_id`: a question asked by whoever the matrix test signs in
+    as (the viewer's for anonymous, who gets 401 before ownership matters)."""
+    callspec = getattr(request.node, "callspec", None)
+    who = callspec.params.get("who", "viewer") if callspec else "viewer"
+    who = "viewer" if who == "anonymous" else who
+    owner = ids["guest_id"] if who == "guest" else ids[f"{who}_id"]
+    return {**ids, "own_query_id": _store_question(engine, owner, sessions[who])}
+
+
+def test_queries_by_id_are_own_only(
+    client: TestClient, settings: Any, sessions: Sessions, ids: dict[str, Any], engine: Any
+) -> None:
+    from tests.api.conftest import sign_in
+
+    viewer_question = _store_question(engine, ids["viewer_id"], sessions["viewer"])
+    guest_question = _store_question(engine, ids["guest_id"], sessions["guest"])
+
+    def status(who_token: str, query_id: uuid.UUID) -> int:
+        response = client.get(f"/api/queries/{query_id}", headers=as_(who_token))
+        if response.status_code == 404:
+            assert response.json()["error"]["code"] == "NOT_FOUND"
+        return response.status_code
+
+    assert status(sessions["viewer"], viewer_question) == 200
+    for other in ("editor", "admin", "guest"):
+        assert status(sessions[other], viewer_question) == 404, other
+
+    assert status(sessions["guest"], guest_question) == 200
+    another_guest_session = sign_in(client, settings, "guest")
+    assert status(another_guest_session, guest_question) == 404
+    for other in ("viewer", "editor", "admin"):
+        assert status(sessions[other], guest_question) == 404, other
+    assert status(sessions["viewer"], uuid.uuid4()) == 404

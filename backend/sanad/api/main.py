@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 import httpx2
 from fastapi import Depends, FastAPI
 
-from sanad.api import admin_users, auth, documents, health, me, programmes
+from sanad.api import admin_users, ask, auth, documents, health, me, programmes, queries
 from sanad.core.config import get_settings
 from sanad.core.db import create_engine
 from sanad.core.errors import install_error_handlers
@@ -55,6 +55,8 @@ def create_app() -> FastAPI:
     app.include_router(admin_users.router, prefix=API_PREFIX)
     app.include_router(programmes.router, prefix=API_PREFIX)
     app.include_router(documents.router, prefix=API_PREFIX)
+    app.include_router(ask.router, prefix=API_PREFIX)
+    app.include_router(queries.router, prefix=API_PREFIX)
     return app
 
 

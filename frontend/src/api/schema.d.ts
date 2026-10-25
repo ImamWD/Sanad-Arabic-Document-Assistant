@@ -39,6 +39,40 @@ export interface paths {
     patch: operations['update_user_api_admin_users__user_id__patch'];
     trace?: never;
   };
+  '/api/ask': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Ask */
+    post: operations['ask_api_ask_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/ask/stream': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Ask Stream */
+    post: operations['ask_stream_api_ask_stream_post'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/api/auth/guest': {
     parameters: {
       query?: never;
@@ -287,6 +321,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/api/queries': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** List Queries */
+    get: operations['list_queries_api_queries_get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/api/queries/{query_id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get Query */
+    get: operations['get_query_api_queries__query_id__get'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -321,6 +389,55 @@ export interface components {
        */
       updated_at: string;
     };
+    /** AskFilters */
+    AskFilters: {
+      category?: components['schemas']['DocCategory'] | null;
+      /** Programme Id */
+      programme_id?: string | null;
+      /** Year From */
+      year_from?: number | null;
+      /** Year To */
+      year_to?: number | null;
+    };
+    /** AskRequest */
+    AskRequest: {
+      /**
+       * Debug
+       * @default false
+       */
+      debug: boolean;
+      filters?: components['schemas']['AskFilters'] | null;
+      /** Question */
+      question: string;
+    };
+    /**
+     * AskResult
+     * @description `POST /ask`, and the `final` event of `POST /ask/stream`. `answer` is null exactly when
+     *     the outcome is no_answer: streamed text is never kept as the answer. `diagnostics` is there
+     *     only when an editor or admin asked for it with `debug` (and ASK_DEBUG_ENABLED is on).
+     */
+    AskResult: {
+      /** Answer */
+      answer: string | null;
+      band: components['schemas']['Band'] | null;
+      /** Citations */
+      citations: components['schemas']['CitationOut'][];
+      diagnostics?: components['schemas']['Diagnostics'] | null;
+      /** Nearest Documents */
+      nearest_documents: components['schemas']['NearestDocumentOut'][];
+      outcome: components['schemas']['Outcome'];
+      /**
+       * Query Id
+       * Format: uuid
+       */
+      query_id: string;
+      refusal_reason: components['schemas']['RefusalReason'] | null;
+    };
+    /**
+     * Band
+     * @enum {string}
+     */
+    Band: 'refuse' | 'low_confidence' | 'answer';
     /** Body_upload_document_api_documents_post */
     Body_upload_document_api_documents_post: {
       category?: components['schemas']['DocCategory'] | null;
@@ -342,6 +459,87 @@ export interface components {
       title?: string | null;
       /** Year */
       year?: number | null;
+    };
+    /** CitationOut */
+    CitationOut: {
+      /** Char End */
+      char_end: number;
+      /** Char Start */
+      char_start: number;
+      /**
+       * Document Id
+       * Format: uuid
+       */
+      document_id: string;
+      /** File Type */
+      file_type: string;
+      /** Is Converted */
+      is_converted: boolean;
+      /** Page Number */
+      page_number: number;
+      /** Rank */
+      rank: number;
+      /** Snippet */
+      snippet: string;
+      /** Title */
+      title: string;
+    };
+    /** DiagnosticCandidate */
+    DiagnosticCandidate: {
+      /**
+       * Chunk Id
+       * Format: uuid
+       */
+      chunk_id: string;
+      /** Dense Rank */
+      dense_rank: number | null;
+      /**
+       * Document Id
+       * Format: uuid
+       */
+      document_id: string;
+      /** File */
+      file: string;
+      /** Lexical Rank */
+      lexical_rank: number | null;
+      /** Page Number */
+      page_number: number;
+      /** Rank */
+      rank: number;
+      /** Rerank Score */
+      rerank_score: number;
+    };
+    /**
+     * DiagnosticTimings
+     * @description Milliseconds. `first_token` and `generate` are null when the LLM wasn't called.
+     */
+    DiagnosticTimings: {
+      /** Embed */
+      embed: number | null;
+      /** First Token */
+      first_token: number | null;
+      /** Generate */
+      generate: number | null;
+      /** Rerank */
+      rerank: number | null;
+      /** Retrieve */
+      retrieve: number | null;
+      /** Total */
+      total: number;
+    };
+    /**
+     * Diagnostics
+     * @description Retrieval and timing for the eval (E1). Ids, positions and scores only, never text.
+     */
+    Diagnostics: {
+      band: components['schemas']['Band'];
+      /** Candidates */
+      candidates: components['schemas']['DiagnosticCandidate'][];
+      /** Llm Model */
+      llm_model: string;
+      timings_ms: components['schemas']['DiagnosticTimings'];
+      /** Top Score */
+      top_score: number | null;
     };
     /**
      * DocCategory
@@ -496,6 +694,21 @@ export interface components {
     MeUpdate: {
       preferred_language: components['schemas']['Language'];
     };
+    /** NearestDocumentOut */
+    NearestDocumentOut: {
+      /**
+       * Document Id
+       * Format: uuid
+       */
+      document_id: string;
+      /** Title */
+      title: string;
+    };
+    /**
+     * Outcome
+     * @enum {string}
+     */
+    Outcome: 'answered' | 'low_confidence' | 'no_answer' | 'error';
     /** PageChunk */
     PageChunk: {
       /** Char End */
@@ -547,11 +760,59 @@ export interface components {
       /** Name En */
       name_en: string;
     };
+    /** QuerySummary */
+    QuerySummary: {
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /**
+       * Id
+       * Format: uuid
+       */
+      id: string;
+      outcome: components['schemas']['Outcome'];
+      /** Question */
+      question: string;
+    };
+    /**
+     * RefusalReason
+     * @enum {string}
+     */
+    RefusalReason: 'gate' | 'sentinel' | 'no_valid_citation';
     /**
      * Role
      * @enum {string}
      */
     Role: 'viewer' | 'editor' | 'admin';
+    /**
+     * StoredAnswer
+     * @description `GET /queries/{id}`: a stored question with its validated answer.
+     */
+    StoredAnswer: {
+      /** Answer */
+      answer: string | null;
+      band: components['schemas']['Band'] | null;
+      /** Citations */
+      citations: components['schemas']['CitationOut'][];
+      /**
+       * Created At
+       * Format: date-time
+       */
+      created_at: string;
+      /** Nearest Documents */
+      nearest_documents: components['schemas']['NearestDocumentOut'][];
+      outcome: components['schemas']['Outcome'];
+      /**
+       * Query Id
+       * Format: uuid
+       */
+      query_id: string;
+      /** Question */
+      question: string;
+      refusal_reason: components['schemas']['RefusalReason'] | null;
+    };
     /** Uploader */
     Uploader: {
       /**
@@ -682,6 +943,79 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['AdminUser'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  ask_api_ask_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AskRequest'];
+      };
+    };
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['AskResult'];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+      /** @description SEARCH_UNAVAILABLE, LLM_UNAVAILABLE, ... */
+      503: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ask_stream_api_ask_stream_post: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AskRequest'];
+      };
+    };
+    responses: {
+      /** @description SSE events */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'text/event-stream': unknown;
         };
       };
       /** @description Validation Error */
@@ -1166,6 +1500,75 @@ export interface operations {
         };
         content: {
           'application/json': components['schemas']['ProgrammeOut'][];
+        };
+      };
+    };
+  };
+  list_queries_api_queries_get: {
+    parameters: {
+      query?: {
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['QuerySummary'][];
+        };
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
+        };
+      };
+    };
+  };
+  get_query_api_queries__query_id__get: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        query_id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successful Response */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['StoredAnswer'];
+        };
+      };
+      /** @description Not one of the caller's questions */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Validation Error */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['HTTPValidationError'];
         };
       };
     };
