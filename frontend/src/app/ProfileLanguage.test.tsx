@@ -2,7 +2,8 @@
 //   session restore: ?lang= → the user's preferred_language → localStorage → en
 //   right after sign-in: a language chosen on this visit (?lang= or the switch) is kept and
 //   saved with PATCH /api/me; otherwise the profile's language applies.
-// The guest never PATCHes (a shared account). A language switch never GETs.
+// The guest never PATCHes (a shared account), so its account language never applies:
+//   ?lang= → localStorage → en (manager ruling, F3/F4 review). A language switch never GETs.
 import { cleanup, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
@@ -124,6 +125,23 @@ describe('right after sign-in', () => {
 
     expect(await screen.findByRole('heading', { name: en.pages.ask.title })).toBeDefined();
     expect(patches(calls)).toEqual([]);
+  });
+
+  it("the guest's last choice in this browser beats the shared account's language", async () => {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, 'ar');
+    const { calls } = await renderApp({
+      path: '/library',
+      user: { ...GUEST, preferred_language: 'en' },
+    });
+    expect(await screen.findByRole('heading', { name: ar.pages.library.title })).toBeDefined();
+    expect(htmlLang()).toBe('ar');
+    expect(patches(calls)).toEqual([]);
+  });
+
+  it('with nothing stored, the guest gets English, whatever the account says', async () => {
+    await renderApp({ path: '/ask', user: { ...GUEST, preferred_language: 'ar' } });
+    expect(await screen.findByRole('heading', { name: en.pages.ask.title })).toBeDefined();
+    expect(htmlLang()).toBe('en');
   });
 
   it('the guest keeps a picked language but never saves it', async () => {
