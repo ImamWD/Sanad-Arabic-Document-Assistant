@@ -244,12 +244,14 @@ flowchart LR
 **Question to answer.**
 1. `api` normalises the question and has `ml` embed it.
 2. Two searches run on the documents the user may see: vector search (meaning) and word search
-   (exact names, codes and numbers). Their results are fused into 30 candidates.
-3. `ml` reranks the 30 candidates. The best score decides the band. Below the refusal
-   threshold, the model is never called and Sanad refuses.
-4. Otherwise the best 6 excerpts go to the local model, numbered `[1]` to `[6]`. It must answer
-   in the question's language, from the excerpts only, cite every claim, and reply `NO_ANSWER`
-   if the excerpts don't contain the answer.
+   (exact names, codes and numbers). Their results are fused into one candidate list
+   (`RERANK_CANDIDATES`, 30 by default).
+3. `ml` reranks the candidates. The best score decides the band. Below the refusal threshold,
+   the model is never called and Sanad refuses.
+4. Otherwise the best few excerpts (`RETRIEVAL_TOP_K`, 6 by default) go to the local model,
+   numbered `[1]`, `[2]` and so on. It must answer in the question's language, from the
+   excerpts only, cite every claim, and reply `NO_ANSWER` if the excerpts don't contain the
+   answer.
 5. The answer streams to the browser. A final check drops citations that point nowhere. If no
    valid citation is left, or the model said `NO_ANSWER`, the streamed text is replaced by a
    refusal.
@@ -286,7 +288,8 @@ Decision D1, in plain words:
   points to one page you can open. The client said they would rather have a slightly worse
   chunk than a citation they cannot trust.
 - **Chunks follow paragraphs.** A chunk is built from whole sentences and closes at a paragraph
-  break when it is at least half full. Arabic sentence ends (`؟` `،` `؛`) count.
+  break when it is at least half full. It splits only at a sentence or clause boundary, and the
+  Arabic question mark, comma and semicolon (`؟` `،` `؛`) count as boundaries.
 - **Size is measured in tokens, not characters or words.** Arabic attaches small words to
   others: "وبالمشروع" is "and with the project" in one word. So character and word counts both
   mislead. Sanad counts tokens with the embedding model's own tokenizer.
@@ -320,7 +323,7 @@ The client asked for one running list of what they decided. It is
 | D5 | Updated documents | Deferred to v2. The client's decision, for the record: a full rewrite becomes a new version, an amendment letter sits alongside as a linked document, and the whole chain is visible in date order. |
 | D6 | Citation depth | Page level for this build. Paragraph-level highlighting is v2. |
 
-On D2, in the client's words:
+On D2, the client asked for this sentence to appear here, in exactly these words:
 
 Cost is not the reason to stay local; privacy is.
 
@@ -374,16 +377,17 @@ The `CONFIG FILES` column must show `docker-compose.yml` only, never `docker-com
 Then try to reach the internet from `api`. This must fail:
 
 ```bash
-docker compose exec -T api python -c "import socket; socket.create_connection(('1.1.1.1', 443), timeout=5)" 2>&1 | tail -n 1
+docker compose exec -T api python -c "import socket; socket.create_connection(('1.1.1.1', 443), timeout=5); print('REACHED THE INTERNET')" 2>&1 | tail -n 1
 ```
 
-It prints `OSError: [Errno 101] Network is unreachable`. The same command works for `worker`
-and `ml`. CI runs a probe like it on every pull request.
+It prints `OSError: [Errno 101] Network is unreachable`. If it ever prints
+`REACHED THE INTERNET`, isolation is broken. The same command works for `worker` and `ml`. CI
+runs a probe like it on every pull request.
 
 ## Data handling rule
 
-This rule is binding. The client wrote it, and it applies to everyone who works on the system,
-including AI coding assistants:
+This rule was agreed with the client and is binding. It applies to everyone who works on the
+system, including AI coding assistants:
 
 > No content from the Foundation's archive is ever sent to any external service, including AI coding assistants, under any circumstances, **including debugging**. Diagnosis uses file names, error messages, page counts and extracted statistics only. If a document must be examined, it is examined on the Foundation's own server.
 
@@ -545,7 +549,7 @@ model spike report.
 
 ## Credits and licence
 
-**Licence:** to be decided by the owner. Until then, no licence is granted.
+**Licence:** to be decided by the owner.
 
 **Models**
 
