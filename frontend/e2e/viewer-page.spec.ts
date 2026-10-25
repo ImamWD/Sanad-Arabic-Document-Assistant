@@ -114,7 +114,9 @@ test('in Arabic the chrome mirrors, the page does not', async ({ page }) => {
   expect(await problems()).toEqual([]);
 });
 
-test('switching language keeps the page in view and makes no GET', async ({ page }) => {
+test("switching language keeps the page and the reader's place, and makes no GET", async ({
+  page,
+}) => {
   await signInAs(page, 'viewer');
   await mockDocument(page, REPORT);
   await page.goto(`/documents/${REPORT.id}?page=9&lang=en`);
@@ -126,13 +128,24 @@ test('switching language keeps the page in view and makes no GET', async ({ page
     if (new URL(req.url()).pathname.startsWith('/api/') && req.method() === 'GET')
       gets.push(req.url());
   });
-  await page.getByRole('button', { name: en.language.switch }).click();
 
+  // Switched while reading page 9 (dispatched, because Playwright's click would first scroll
+  // the header into view): the reader stays on page 9 as the layout mirrors.
+  await page.getByRole('button', { name: en.language.switch }).dispatchEvent('click');
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   const cited = pageGroup(page, 'الصفحة 9');
   await expect(cited).toHaveAttribute('aria-current', 'true');
   await expect(cited).toBeInViewport();
   await expect(page.getByLabel(ar.viewer.toolbar.pageInput)).toHaveValue('9');
+
+  // Switched the usual way, from the header at the top: the cited page is still one click away.
+  await page.getByRole('button', { name: ar.language.switch }).click();
+  await expect(page.locator('html')).toHaveAttribute('dir', 'ltr');
+  await page
+    .getByRole('button', { name: en.viewer.toolbar.goToCited.replace('{{page}}', '9') })
+    .click();
+  await expect(pageGroup(page, 'Page 9')).toBeInViewport();
+  await expect(pageGroup(page, 'Page 9')).toHaveAttribute('aria-current', 'true');
   expect(gets).toEqual([]);
 });
 
