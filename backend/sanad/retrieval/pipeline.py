@@ -274,7 +274,10 @@ class AskPipeline:
 
         prompt = build_prompt(
             ask.question,
-            [Excerpt(c.title, c.page_number, c.text, c.language, c.is_seed) for c in context],
+            [
+                Excerpt(c.title, c.page_number, c.text, c.language, c.is_seed, c.programme, c.year)
+                for c in context
+            ],
         )
         llm_fields = {"llm_provider": self._provider.name, "llm_model": self._provider.model}
         if self._provider.hosted and not prompt.all_seed:

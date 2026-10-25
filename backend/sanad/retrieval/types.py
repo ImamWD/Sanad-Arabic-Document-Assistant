@@ -52,6 +52,9 @@ class Candidate:
     file: str = ""
     dense_rank: int | None = None
     lexical_rank: int | None = None
+    # The document's programme (in the document's language) and year: excerpt header context.
+    programme: str | None = None
+    year: int | None = None
 
 
 @dataclass(frozen=True)

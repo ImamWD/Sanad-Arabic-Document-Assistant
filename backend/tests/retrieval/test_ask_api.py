@@ -360,3 +360,19 @@ def test_stream_never_carries_diagnostics(
     )
     final = parse_sse(response.text)[-1][1]
     assert "diagnostics" not in final
+
+
+def test_the_model_and_the_history_keep_the_question_as_asked(
+    client: TestClient,
+    sessions: dict[str, str],
+    corpus: dict[str, uuid.UUID],
+    ml: FakeMl,
+    llm: GroundedLlm,
+) -> None:
+    voweled = "كَمْ خُصِّصَ لِرَوَاتِبِ فَرِيقِ المَشْرُوعِ؟"
+    ask(client, sessions["editor"], voweled)
+    assert ml.embedded == ["كم خصص لرواتب فريق المشروع؟"]
+    (prompt,) = llm.prompts
+    assert f"Question: {voweled}" in prompt.user
+    history = client.get("/api/queries", headers=as_(sessions["editor"])).json()
+    assert history[0]["question"] == voweled

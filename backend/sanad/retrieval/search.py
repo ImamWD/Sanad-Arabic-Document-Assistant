@@ -19,14 +19,14 @@ from sqlalchemy import ColumnElement, Select, and_, exists, func, literal_column
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 from sqlalchemy.sql.elements import ColumnClause
 
-from sanad.core.models import User
+from sanad.core.models import Programme, User
 from sanad.documents.access import retrievable_chunks
-from sanad.documents.models import Chunk, Document
+from sanad.documents.models import Chunk, DocLanguage, Document
 from sanad.retrieval.fuse import rrf
 from sanad.retrieval.ml import AskMl
 from sanad.retrieval.settings import RetrievalSettings
 from sanad.retrieval.types import Candidate, Filters, Retrieved
-from sanad.text.arabic import lexical_terms
+from sanad.text.arabic import lexical_terms, strip_marks
 
 MAX_LEXICAL_TERMS = 32
 _SIMPLE: ColumnClause[Any] = literal_column("'simple'::regconfig")
@@ -103,16 +103,17 @@ async def load_candidates(
     if not ids:
         return []
     stmt = (
-        select(Chunk, Document)
+        select(Chunk, Document, Programme.name_ar, Programme.name_en)
         .join(Document, Document.id == Chunk.document_id)
+        .outerjoin(Programme, Programme.id == Document.programme_id)
         .where(scope(user, filters), Chunk.id.in_(ids))
     )
-    rows = {chunk.id: (chunk, doc) for chunk, doc in (await db.execute(stmt)).all()}
+    rows = {row[0].id: row for row in (await db.execute(stmt)).all()}
     candidates = []
     for chunk_id in ids:
         if chunk_id not in rows:
             continue
-        chunk, doc = rows[chunk_id]
+        chunk, doc, name_ar, name_en = rows[chunk_id]
         candidates.append(
             Candidate(
                 chunk_id=chunk.id,
@@ -128,6 +129,8 @@ async def load_candidates(
                 language=doc.language.value if doc.language else None,
                 score=0.0,
                 file=doc.original_filename,
+                programme=name_en if doc.language is DocLanguage.EN else name_ar,
+                year=doc.year,
             )
         )
     return candidates
@@ -146,21 +149,26 @@ class SqlRetriever:
         self._settings = settings
 
     async def retrieve(self, user: User, question: str, filters: Filters) -> Retrieved:
+        """The embedding and the reranker get the question without tashkeel or tatweel: the
+        documents are written without them, and a fully diacritised question otherwise looks
+        unlike every passage. The word search normalises on its own; the model still gets the
+        question as asked."""
         s = self._settings
+        plain = strip_marks(question)
         watch = _Laps()
         async with AsyncSession(self._engine) as db:
             # Nothing to search (an empty library, or filters that exclude everything): a gate
             # refusal, without waking the ml service.
             if not await db.scalar(select(exists(_chunks(user, filters)))):
                 return Retrieved([])
-            vector = await self._ml.embed(question)
+            vector = await self._ml.embed(plain)
             watch.lap("embed")
             dense = await dense_ids(db, user, filters, vector, s.dense_candidates)
             lexical = await lexical_ids(db, user, filters, question, s.lexical_candidates)
             fused = rrf([dense, lexical], k=s.rrf_k, limit=s.rerank_candidates)
             candidates = await load_candidates(db, user, filters, fused)
             watch.lap("retrieve")
-        scores = await self._ml.rerank(question, [rerank_passage(c) for c in candidates])
+        scores = await self._ml.rerank(plain, [rerank_passage(c) for c in candidates])
         watch.lap("rerank")
         dense_rank = {chunk_id: n for n, chunk_id in enumerate(dense, start=1)}
         lexical_rank = {chunk_id: n for n, chunk_id in enumerate(lexical, start=1)}

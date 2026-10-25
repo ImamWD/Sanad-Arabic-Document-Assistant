@@ -67,3 +67,28 @@ def test_neutralise_leaves_other_brackets() -> None:
 def test_all_seed_is_false_if_any_excerpt_is_not_seed() -> None:
     assert build_prompt("q", [excerpt("a"), excerpt("b")]).all_seed
     assert not build_prompt("q", [excerpt("a"), excerpt("b", seed=False)]).all_seed
+
+
+def test_the_contract_limits_answers_to_what_the_question_names() -> None:
+    assert "names a specific programme, project, agreement, document or year" in SYSTEM_PROMPT
+    assert "A figure about a different programme, project, agreement or year is not the answer" in (
+        SYSTEM_PROMPT
+    )
+    assert "only with facts about what the question names" in REMINDER
+
+
+def test_the_header_names_programme_and_year() -> None:
+    excerpt = Excerpt(
+        title="Grant Agreement SPC-2023-01",
+        page_number=3,
+        text="Project team salaries 72,000",
+        language="en",
+        is_seed=True,
+        programme="Social Protection and Cash Assistance",
+        year=2023,
+    )
+    prompt = build_prompt("What is the salary line?", [excerpt])
+    assert (
+        "[1] Grant Agreement SPC-2023-01 | Social Protection and Cash Assistance | 2023 (p. 3)"
+        in prompt.user
+    )

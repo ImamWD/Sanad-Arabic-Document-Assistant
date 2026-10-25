@@ -50,6 +50,7 @@ __all__ = [
     "sentence_spans",
     "split_sentences",
     "strip_clitics",
+    "strip_marks",
 ]
 
 LanguageCode = Literal["ar", "en", "mixed"]
@@ -239,6 +240,18 @@ def normalize_for_search(text: str, *, fold_taa_marbuta: bool = True) -> str:
     text = text.translate(_SEARCH_TABLE_TAA if fold_taa_marbuta else _SEARCH_TABLE)
     text = _outside_urls(text, lambda part: _LETTER_DIGIT_RE.sub(" ", part))
     return " ".join(text.lower().split())
+
+
+def strip_marks(text: str) -> str:
+    """Remove tashkeel (harakat, tanween, shadda, sukun, superscript alef) and tatweel, and
+    nothing else: letters, hamza forms, digits and spacing stay as written.
+
+    For text that a model reads as language, such as a question before `/embed` and
+    `/rerank`: a fully diacritised question otherwise looks unlike the undiacritised
+    documents. `normalize_for_search` goes much further (alef forms, case, numbers) and is
+    for matching only.
+    """
+    return text.translate(_MARKS_TABLE)
 
 
 # --- stopwords and lexical terms ----------------------------------------------------------
