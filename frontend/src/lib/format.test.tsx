@@ -44,6 +44,7 @@ describe.each([
     yesterday: 'أمس',
     inThreeDays: 'خلال ٣ أيام',
     fiveMinutesAgo: 'قبل ٥ دقائق',
+    durations: ['٤٥ ثانية', 'دقيقتان', '٥ دقائق', '١١ دقيقة'],
   },
   {
     name: 'Arabic, Latin digits (the default)',
@@ -54,6 +55,7 @@ describe.each([
     yesterday: 'أمس',
     inThreeDays: 'خلال 3 أيام',
     fiveMinutesAgo: 'قبل 5 دقائق',
+    durations: ['45 ثانية', 'دقيقتان', '5 دقائق', '11 دقيقة'],
   },
   {
     name: 'English',
@@ -64,6 +66,7 @@ describe.each([
     yesterday: 'yesterday',
     inThreeDays: 'in 3 days',
     fiveMinutesAgo: '5 minutes ago',
+    durations: ['45 seconds', '2 minutes', '5 minutes', '11 minutes'],
   },
 ])('$name', ({ format, ...want }) => {
   it('formats numbers', () => {
@@ -84,6 +87,28 @@ describe.each([
     expect(plain(format.relative(3, 'day'))).toBe(want.inThreeDays);
     const now = Date.parse(MARCH_15);
     expect(plain(format.since(now - 5 * 60_000, now))).toBe(want.fiveMinutesAgo);
+  });
+
+  it('says durations in seconds below 90 and in minutes from there, with the right plural', () => {
+    expect([45, 95, 300, 660].map((seconds) => plain(format.duration(seconds)))).toEqual(
+      want.durations,
+    );
+  });
+});
+
+describe('duration()', () => {
+  const format = createFormat('en', 'latn');
+
+  it('never says more than 89 seconds', () => {
+    expect(format.duration(89)).toBe('89 seconds');
+    expect(format.duration(89.6)).toBe('2 minutes');
+    expect(format.duration(90)).toBe('2 minutes');
+    expect(format.duration(1474)).toBe('25 minutes');
+  });
+
+  it('rounds, and never goes below zero', () => {
+    expect(format.duration(44.4)).toBe('44 seconds');
+    expect(format.duration(-3)).toBe('0 seconds');
   });
 });
 

@@ -7,6 +7,12 @@ import { ETA_NOTICE_SECONDS, OVERRUN_FACTOR } from './config';
 import { useElapsedSeconds } from './useElapsedSeconds';
 import styles from './WaitStatus.module.css';
 
+/**
+ * From this estimate up, or when the server capped it (R1d), the wait can't be told: the
+ * screen says the server is busy, with no number and a progress bar that claims no end.
+ */
+export const BUSY_SECONDS = 600;
+
 interface WaitStatusProps {
   stage: Stage;
   position: number | null;
@@ -17,7 +23,8 @@ interface WaitStatusProps {
 /**
  * The screen never looks frozen (client requirement, SYSTEM_DESIGN §6): the stage in words,
  * the long-answer notice before the wait, then elapsed time against the estimate until the
- * first token, and "taking longer than usual" past 1.25 times the estimate.
+ * first token, and "taking longer than usual" past 1.25 times the estimate. Durations read
+ * in seconds below 90 and in minutes from there (format.duration).
  */
 export function WaitStatus({ stage, position, sources, eta }: WaitStatusProps) {
   const { t } = useTranslation();
@@ -25,10 +32,7 @@ export function WaitStatus({ stage, position, sources, eta }: WaitStatusProps) {
   const elapsedId = useId();
   const waiting = eta !== null && stage !== 'writing' ? eta : null;
   const elapsed = useElapsedSeconds(waiting ? waiting.since : null);
-
-  // Intl picks the right plural for the unit in each language ("21 ثانية", "3 ثوانٍ").
-  const seconds = (value: number) =>
-    format.number(Math.round(value), { style: 'unit', unit: 'second', unitDisplay: 'long' });
+  const busy = waiting !== null && (waiting.capped || waiting.expectedSeconds >= BUSY_SECONDS);
 
   let detail: string | null = null;
   if (stage === 'queued' && position !== null) {
@@ -37,6 +41,18 @@ export function WaitStatus({ stage, position, sources, eta }: WaitStatusProps) {
     detail = t('ask.detail.reading', { sources: format.number(sources) });
   }
   const overrun = waiting !== null && elapsed > waiting.expectedSeconds * OVERRUN_FACTOR;
+
+  let elapsedText: string | null = null;
+  if (waiting) {
+    if (overrun) elapsedText = t('ask.wait.overrun', { elapsed: format.duration(elapsed) });
+    else if (busy) elapsedText = t('ask.wait.elapsedOnly', { elapsed: format.duration(elapsed) });
+    else {
+      elapsedText = t('ask.wait.elapsed', {
+        elapsed: format.duration(elapsed),
+        expected: format.duration(waiting.expectedSeconds),
+      });
+    }
+  }
 
   return (
     <div className={styles.wait}>
@@ -48,13 +64,16 @@ export function WaitStatus({ stage, position, sources, eta }: WaitStatusProps) {
         </p>
         {waiting && waiting.expectedSeconds > ETA_NOTICE_SECONDS && (
           <p className={styles.notice}>
-            {t('ask.wait.notice', { duration: seconds(waiting.expectedSeconds) })}
+            {busy
+              ? t('ask.wait.busy')
+              : t('ask.wait.notice', { duration: format.duration(waiting.expectedSeconds) })}
           </p>
         )}
       </div>
       {waiting && (
         <div className={styles.elapsed}>
-          {overrun ? (
+          {overrun || busy ? (
+            // No max or value: an indeterminate bar, which promises no end.
             <progress className={styles.progress} aria-labelledby={elapsedId} />
           ) : (
             <progress
@@ -65,12 +84,7 @@ export function WaitStatus({ stage, position, sources, eta }: WaitStatusProps) {
             />
           )}
           <p id={elapsedId} className={overrun ? styles.overrun : styles.elapsedText}>
-            {overrun
-              ? t('ask.wait.overrun', { elapsed: seconds(elapsed) })
-              : t('ask.wait.elapsed', {
-                  elapsed: seconds(elapsed),
-                  expected: seconds(waiting.expectedSeconds),
-                })}
+            {elapsedText}
           </p>
         </div>
       )}

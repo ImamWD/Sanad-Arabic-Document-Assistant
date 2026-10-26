@@ -38,7 +38,15 @@ export interface Format {
   ): string;
   /** `value` relative to `now`, in the largest unit that fits ("5 minutes ago"). */
   since(value: DateInput, now?: DateInput): string;
+  /**
+   * A length of time in words: seconds below 90 ("45 seconds"), whole minutes from 90 up
+   * ("2 minutes", "دقيقتان", "5 دقائق"). Intl picks the plural form for each language.
+   */
+  duration(seconds: number): string;
 }
+
+/** From this many seconds up, a duration is said in minutes, never in seconds. */
+export const MINUTES_FROM_SECONDS = 90;
 
 const DATE: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
 const DATE_TIME: Intl.DateTimeFormatOptions = { ...DATE, hour: 'numeric', minute: '2-digit' };
@@ -98,6 +106,14 @@ export function createFormat(lang: Language, numbering: ArabicNumbering): Format
     percent: (value, options = {}) =>
       numbers({ style: 'percent', maximumFractionDigits: 1, ...options }).format(value),
     relative,
+    duration(seconds) {
+      const whole = Math.max(0, Math.round(seconds));
+      return whole < MINUTES_FROM_SECONDS
+        ? numbers({ style: 'unit', unit: 'second', unitDisplay: 'long' }).format(whole)
+        : numbers({ style: 'unit', unit: 'minute', unitDisplay: 'long' }).format(
+            Math.round(whole / 60),
+          );
+    },
     since(value, now = Date.now()) {
       const diff = toDate(value).getTime() - toDate(now).getTime();
       const [unit, size] = STEPS.find(([, step]) => Math.abs(diff) >= step) ?? ['second', SECOND];
