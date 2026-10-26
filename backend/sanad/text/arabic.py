@@ -28,6 +28,7 @@ __all__ = [
     "ARABIC_SHARE_FOR_AR",
     "ARABIC_SHARE_FOR_EN",
     "ARABIC_STOPWORDS",
+    "DOMINANT_LETTER_RATIO",
     "ENGLISH_STOPWORDS",
     "HEH",
     "RUNNING_LINE_EDGE",
@@ -41,6 +42,7 @@ __all__ = [
     "LanguageCode",
     "clean_extracted",
     "detect_language",
+    "dominant_language",
     "is_visual_order",
     "lexical_terms",
     "normalize_for_search",
@@ -412,6 +414,69 @@ def detect_language(text: str) -> LanguageCode:
     if share <= ARABIC_SHARE_FOR_EN:
         return "en"
     return "mixed"
+
+
+# dominant_language names a script only when it has at least this many times the letters of
+# the other one; anything closer is too close to call.
+DOMINANT_LETTER_RATIO = 2
+
+# A quoted span: guillemets, curly double or single quotes, or straight double or single
+# quotes. A straight or curly single quote is also an apostrophe ("girls'", "foundation's"),
+# so it opens only after a non-word character and closes only before one.
+_QUOTED_RE = re.compile(
+    "|".join(
+        (
+            f"{_LEFT_GUILLEMET}[^{_LEFT_GUILLEMET}{_RIGHT_GUILLEMET}]*{_RIGHT_GUILLEMET}",
+            r"\N{LEFT DOUBLE QUOTATION MARK}[^\n]*?\N{RIGHT DOUBLE QUOTATION MARK}",
+            r'"[^"\n]*"',
+            r"(?<!\w)\N{LEFT SINGLE QUOTATION MARK}[^\n]*?\N{RIGHT SINGLE QUOTATION MARK}(?!\w)",
+            r"(?<!\w)'[^\n]*?'(?!\w)",
+        )
+    )
+)
+# A Latin code with a digit, joined by hyphens: YEP-2021-03, WASH-2018-01, COVID-19.
+_CODE_RE = re.compile(
+    r"(?<![\w-])(?=[A-Za-z0-9-]*\d)[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)+(?![\w-])"
+)
+
+
+def _script_letters(text: str) -> tuple[int, int]:
+    """Arabic letters and letters of any other script in `text`. Tatweel is not a letter."""
+    arabic = other = 0
+    for char in text:
+        if not char.isalpha() or char == TATWEEL:
+            continue
+        if _ARABIC_SCRIPT_RE.match(char):
+            arabic += 1
+        else:
+            other += 1
+    return arabic, other
+
+
+def dominant_language(text: str) -> Literal["ar", "en"] | None:
+    """The language a question is asked in, "ar" or "en", or None when it can't tell.
+
+    `detect_language` classifies a whole document. This one reads a question, where a quoted
+    name must not decide the language: "could you tell me about 'نظام الصحة المجتمعية'?" is an
+    English question.
+    - Letters inside quotes don't count, nor letters in URLs or in codes such as YEP-2021-03.
+      If quoted letters are all there is, they count: a question wholly in quotes is still
+      a question.
+    - A script wins with at least DOMINANT_LETTER_RATIO (2) times the other's letters. "en"
+      means any non-Arabic script, as in `detect_language`.
+    - None when there are no letters, or when neither script has twice the other's letters:
+      an English sentence around an unquoted Arabic name (or the reverse) is too close to
+      call, and callers should keep their default.
+    """
+    plain = _CODE_RE.sub(" ", _URL_RE.sub(" ", text))
+    arabic, other = _script_letters(_QUOTED_RE.sub(" ", plain))
+    if arabic + other == 0:
+        arabic, other = _script_letters(plain)
+    if arabic and arabic >= DOMINANT_LETTER_RATIO * other:
+        return "ar"
+    if other and other >= DOMINANT_LETTER_RATIO * arabic:
+        return "en"
+    return None
 
 
 # --- sentences ----------------------------------------------------------------------------
