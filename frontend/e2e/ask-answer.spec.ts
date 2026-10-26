@@ -91,7 +91,7 @@ for (const [lang, messages, dir] of [
     // Titles and snippets take their own direction, whatever the page's.
     await expect(page.getByText(DOCX_CITATION.title, { exact: true })).toHaveAttribute(
       'dir',
-      'auto',
+      'rtl',
     );
     await saveScreenshot(page, `ask-answer-${lang}`);
   });

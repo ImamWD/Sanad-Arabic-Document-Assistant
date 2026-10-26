@@ -105,7 +105,7 @@ for (const [lang, messages, dir] of [
 
     const banner = page.getByRole('note');
     await expect(banner).toHaveText(messages.answer.lowConfidence);
-    await expect(page.getByRole('article').locator('p[dir="auto"]')).toHaveCount(0);
+    await expect(page.getByRole('article').locator('p[dir]')).toHaveCount(0);
 
     await stream.send('eta', { expected_seconds: 45 });
     await stream.send('token', { text: 'In 2021 the programme' });

@@ -24,6 +24,7 @@ from sanad.documents.access import retrievable_chunks
 from sanad.documents.models import Chunk, DocLanguage, Document
 from sanad.retrieval.fuse import rrf
 from sanad.retrieval.ml import AskMl
+from sanad.retrieval.programmes import ProgrammeName, named_programmes, rerank_query
 from sanad.retrieval.settings import RetrievalSettings
 from sanad.retrieval.types import Candidate, Filters, Retrieved
 from sanad.text.arabic import lexical_terms, strip_marks
@@ -152,7 +153,10 @@ class SqlRetriever:
         """The embedding and the reranker get the question without tashkeel or tatweel: the
         documents are written without them, and a fully diacritised question otherwise looks
         unlike every passage. The word search normalises on its own; the model still gets the
-        question as asked."""
+        question as asked.
+
+        When the question names a programme by its distinctive words («نظام الصحة المجتمعية»),
+        the reranker also gets the programme's official names (sanad.retrieval.programmes)."""
         s = self._settings
         plain = strip_marks(question)
         watch = _Laps()
@@ -167,8 +171,17 @@ class SqlRetriever:
             lexical = await lexical_ids(db, user, filters, question, s.lexical_candidates)
             fused = rrf([dense, lexical], k=s.rrf_k, limit=s.rerank_candidates)
             candidates = await load_candidates(db, user, filters, fused)
+            programmes = [
+                ProgrammeName(name_ar, name_en)
+                for name_ar, name_en in await db.execute(
+                    select(Programme.name_ar, Programme.name_en)
+                    .where(Programme.is_active)
+                    .order_by(Programme.code)
+                )
+            ]
             watch.lap("retrieve")
-        scores = await self._ml.rerank(plain, [rerank_passage(c) for c in candidates])
+        query = rerank_query(plain, named_programmes(plain, programmes))
+        scores = await self._ml.rerank(query, [rerank_passage(c) for c in candidates])
         watch.lap("rerank")
         dense_rank = {chunk_id: n for n, chunk_id in enumerate(dense, start=1)}
         lexical_rank = {chunk_id: n for n, chunk_id in enumerate(lexical, start=1)}

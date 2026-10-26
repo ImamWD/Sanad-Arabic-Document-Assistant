@@ -46,7 +46,7 @@ async def test_answer_stream_order() -> None:
     ]
     reading = events[1].data
     assert reading == {"stage": "reading", "sources": 2, "band": "answer"}
-    assert events[2].data == {"expected_seconds": 45}
+    assert events[2].data == {"expected_seconds": 45, "capped": False}
     streamed = "".join(e.data["text"] for e in events if e.name == "token")
     assert streamed == "".join(ANSWER)
 
@@ -288,13 +288,23 @@ async def test_queued_is_not_sent_when_a_slot_is_free() -> None:
 async def test_eta_uses_measured_samples() -> None:
     from sanad.llm.eta import PerfSample
 
-    store = FakeStore(samples=[PerfSample(prompt_chars=1000, prompt_ms=2000, output_ms=4000)])
+    measured = PerfSample(prompt_chars=1000, prompt_ms=2000, output_ms=4000, output_tokens=40)
+    store = FakeStore(samples=[measured] * 5)
     llm = FakeLlm(ANSWER)
     p, _ = pipeline(FakeRetriever(STRONG), llm, store=store)
     events = await run(p)
-    eta = next(e for e in events if e.name == "eta").data["expected_seconds"]
+    eta = next(e for e in events if e.name == "eta").data
     chars = llm.prompts[0].chars
-    assert eta == round((chars * 2 + 4000) / 1000, 1)
+    assert eta == {"expected_seconds": round((chars * 2 + 4000) / 1000, 1), "capped": False}
+
+
+async def test_eta_waits_for_enough_samples() -> None:
+    from sanad.llm.eta import PerfSample
+
+    one = PerfSample(prompt_chars=1000, prompt_ms=2000, output_ms=4000, output_tokens=40)
+    p, _ = pipeline(FakeRetriever(STRONG), FakeLlm(ANSWER), store=FakeStore(samples=[one]))
+    eta = next(e for e in await run(p) if e.name == "eta").data
+    assert eta == {"expected_seconds": 45, "capped": False}
 
 
 def test_question_language_falls_back_to_the_ui_language() -> None:

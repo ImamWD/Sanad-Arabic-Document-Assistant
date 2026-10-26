@@ -23,9 +23,10 @@ def test_headline_set_has_the_documented_mix() -> None:
     assert Counter(q.language for q in questions) == {"ar": 12, "en": 3}
 
 
-def test_dev_set_has_thirty_items_and_keeps_former_ids() -> None:
+def test_dev_set_has_thirty_six_items_and_keeps_former_ids() -> None:
     eval_set = load_set(set_path(EVAL_DIR, "dev"), "dev")
-    assert len(eval_set.questions) == 30
+    # 30, plus D31-D36: the overview and colloquial items added by R1c.
+    assert len(eval_set.questions) == 36
     assert [q.id for q in eval_set.questions if q.page_split] == ["D07"]
     formerly = {q.id: q.formerly for q in eval_set.questions if q.formerly}
     assert formerly["D21"] == "T02"

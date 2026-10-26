@@ -46,6 +46,10 @@ class LlmSettings(BaseSettings):
     eta_default_seconds: float = Field(default=60, gt=0)
     # Measured answers the estimate is based on (the most recent ones, for this model).
     eta_sample_count: int = Field(default=20, ge=1)
+    # Fewer measured answers than this: the estimate is ETA_DEFAULT_SECONDS per generation.
+    eta_min_samples: int = Field(default=5, ge=1)
+    # The longest estimate shown; above it the stream says `capped` (the server is busy).
+    eta_max_seconds: float = Field(default=600, gt=0)
     # SSE keep-alive: a `: ping` comment whenever no event was sent for this long.
     sse_ping_seconds: float = Field(default=15, gt=0)
 

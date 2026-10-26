@@ -20,8 +20,12 @@
 # - D21-D30 are former headline items moved here when the headline set was cut to 15
 #   (25 Oct 2026); `formerly` keeps their old ID. D21 (formerly T02) depends on the
 #   budget-2024-draft being archived (out of retrieval), since versioning is v2.
+# - D31-D36 (R1c, 25 Oct 2026) are overview and colloquial items: the owner's two questions
+#   that were refused, a dialect WASH question, an English GEP overview, and two broad questions
+#   about a programme that does not exist. An overview item has one topic-word fact and lists
+#   the programme's pages; it is correct when answered with a citation to one of them.
 set: dev
-version: 2
+version: 3
 questions:
   - id: D01
     language: ar
@@ -397,3 +401,188 @@ questions:
     expected_answer: null
     vocab_shift: false
     notes: "Near-miss: the 2018 and 2024 budgets contain illustrative salary scales and staffing tables, but no document gives a per diem or travel-allowance rate. The YEP transport allowance is for trainees, not staff."
+  - id: D31
+    language: ar
+    kinds: [overview, colloquial, cross_document]
+    question: "بدي اسال عن نظام الصحة المجتمعية، اشرحلي عنه اكثر"
+    must_include: ["الصحة"]
+    expected_citations:
+      - {file: chp-household-survey-2021.pdf, page: 1}
+      - {file: chp-household-survey-2021.pdf, page: 2}
+      - {file: chp-household-survey-2021.pdf, page: 3}
+      - {file: chp-household-survey-2021.pdf, page: 4}
+      - {file: chp-household-survey-2021.pdf, page: 5}
+      - {file: chp-evaluation-2024.pdf, page: 1}
+      - {file: chp-evaluation-2024.pdf, page: 2}
+      - {file: chp-evaluation-2024.pdf, page: 3}
+      - {file: chp-evaluation-2024.pdf, page: 4}
+      - {file: chp-evaluation-2024.pdf, page: 5}
+      - {file: chp-evaluation-2024.pdf, page: 6}
+      - {file: annual-report-2016.pdf, page: 4}
+      - {file: annual-report-2016.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 2}
+      - {file: annual-report-2020.pdf, page: 3}
+      - {file: annual-report-2020.pdf, page: 4}
+      - {file: annual-report-2020.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 9}
+      - {file: annual-report-2020.pdf, page: 11}
+      - {file: annual-report-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 11}
+      - {file: annual-report-2021.pdf, page: 14}
+      - {file: annual-report-2021.pdf, page: 16}
+      - {file: annual-report-2022.pdf, page: 3}
+      - {file: annual-report-2022.pdf, page: 4}
+      - {file: annual-report-2022.pdf, page: 5}
+      - {file: annual-report-2022.pdf, page: 11}
+      - {file: annual-report-2022.pdf, page: 13}
+      - {file: annual-report-2023-en.pdf, page: 3}
+      - {file: annual-report-2023-en.pdf, page: 4}
+      - {file: annual-report-2023-en.pdf, page: 7}
+      - {file: annual-report-2023-en.pdf, page: 9}
+      - {file: annual-report-2023-en.pdf, page: 10}
+    expected_outcome: answered
+    expected_answer: "برنامج الصحة المجتمعية: عيادات متنقلة وعاملات صحة مجتمعية في سهول النخيل والهضبة الشرقية، مع نتائج المسح الأسري والتقييم."
+    vocab_shift: true
+    notes: "R1c, the owner's own question (gate-refused at 0.009 before R1c): it says نظام (system) where the documents say برنامج (programme). Overview item: correct means answered with at least one citation to a CHP page; the one fact is the topic word. expected_citations are every page of the programme's own documents plus the annual-report pages (not covers) that name the programme."
+  - id: D32
+    language: en
+    kinds: [overview, colloquial, cross_document, cross_lingual]
+    question: "could you tell me about 'نظام الصحة المجتمعية'?"
+    must_include: ["health"]
+    expected_citations:
+      - {file: chp-household-survey-2021.pdf, page: 1}
+      - {file: chp-household-survey-2021.pdf, page: 2}
+      - {file: chp-household-survey-2021.pdf, page: 3}
+      - {file: chp-household-survey-2021.pdf, page: 4}
+      - {file: chp-household-survey-2021.pdf, page: 5}
+      - {file: chp-evaluation-2024.pdf, page: 1}
+      - {file: chp-evaluation-2024.pdf, page: 2}
+      - {file: chp-evaluation-2024.pdf, page: 3}
+      - {file: chp-evaluation-2024.pdf, page: 4}
+      - {file: chp-evaluation-2024.pdf, page: 5}
+      - {file: chp-evaluation-2024.pdf, page: 6}
+      - {file: annual-report-2016.pdf, page: 4}
+      - {file: annual-report-2016.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 2}
+      - {file: annual-report-2020.pdf, page: 3}
+      - {file: annual-report-2020.pdf, page: 4}
+      - {file: annual-report-2020.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 9}
+      - {file: annual-report-2020.pdf, page: 11}
+      - {file: annual-report-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 11}
+      - {file: annual-report-2021.pdf, page: 14}
+      - {file: annual-report-2021.pdf, page: 16}
+      - {file: annual-report-2022.pdf, page: 3}
+      - {file: annual-report-2022.pdf, page: 4}
+      - {file: annual-report-2022.pdf, page: 5}
+      - {file: annual-report-2022.pdf, page: 11}
+      - {file: annual-report-2022.pdf, page: 13}
+      - {file: annual-report-2023-en.pdf, page: 3}
+      - {file: annual-report-2023-en.pdf, page: 4}
+      - {file: annual-report-2023-en.pdf, page: 7}
+      - {file: annual-report-2023-en.pdf, page: 9}
+      - {file: annual-report-2023-en.pdf, page: 10}
+    expected_outcome: answered
+    expected_answer: "The Community Health Programme runs mobile clinics and community health workers in Palm Plains and the Eastern Plateau."
+    vocab_shift: true
+    notes: "R1c, the owner's second question: English, quoting the Arabic name with نظام. Overview item: the answer should be in English, so the fact is health, which the English 2023 report pages carry. expected_citations are every page of the programme's own documents plus the annual-report pages (not covers) that name the programme."
+  - id: D33
+    language: ar
+    kinds: [overview, colloquial, cross_document]
+    question: "احكيلي عن مشروع المياه بالمناطق الريفية، شو اللي انعمل فيه؟"
+    must_include: ["مياه"]
+    expected_citations:
+      - {file: wash-baseline-survey-2017.pdf, page: 1}
+      - {file: wash-baseline-survey-2017.pdf, page: 2}
+      - {file: wash-baseline-survey-2017.pdf, page: 3}
+      - {file: wash-baseline-survey-2017.pdf, page: 4}
+      - {file: wash-baseline-survey-2017.pdf, page: 5}
+      - {file: wash-donor-agreement-2018.pdf, page: 1}
+      - {file: wash-donor-agreement-2018.pdf, page: 2}
+      - {file: wash-donor-agreement-2018.pdf, page: 3}
+      - {file: wash-donor-agreement-2018.pdf, page: 4}
+      - {file: wash-donor-agreement-2018.pdf, page: 5}
+      - {file: wash-donor-agreement-2018.pdf, page: 6}
+      - {file: wash-final-evaluation-2021.pdf, page: 1}
+      - {file: wash-final-evaluation-2021.pdf, page: 2}
+      - {file: wash-final-evaluation-2021.pdf, page: 3}
+      - {file: wash-final-evaluation-2021.pdf, page: 4}
+      - {file: wash-final-evaluation-2021.pdf, page: 5}
+      - {file: wash-final-evaluation-2021.pdf, page: 6}
+      - {file: wash-final-evaluation-2021.pdf, page: 7}
+      - {file: annual-report-2020.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 7}
+      - {file: annual-report-2020.pdf, page: 11}
+      - {file: annual-report-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 8}
+      - {file: annual-report-2021.pdf, page: 14}
+      - {file: annual-report-2022.pdf, page: 5}
+      - {file: annual-report-2022.pdf, page: 8}
+      - {file: annual-report-2022.pdf, page: 13}
+      - {file: annual-report-2023-en.pdf, page: 2}
+      - {file: annual-report-2023-en.pdf, page: 4}
+      - {file: annual-report-2023-en.pdf, page: 9}
+    expected_outcome: answered
+    expected_answer: "مشروع المياه والإصحاح البيئي WASH-2018-01: نقاط مياه آمنة ومراحيض في قرى الهضبة الشرقية، وقصّر رحلة جلب الماء."
+    vocab_shift: true
+    notes: "R1c: dialect, non-corpus wording, and only part of the project's long name (بالمناطق الريفية). Overview item. The fact is مياه without the article, so an answer that says نقطة مياه counts (first written as المياه, which missed a good answer in the R1c before run). expected_citations are every page of the programme's own documents plus the annual-report pages (not covers) that name the programme."
+  - id: D34
+    language: en
+    kinds: [overview, english, cross_document]
+    question: "Give me a quick rundown of what the girls' education support work has achieved so far."
+    must_include: ["girls"]
+    expected_citations:
+      - {file: gep-enrolment-survey-2015.pdf, page: 1}
+      - {file: gep-enrolment-survey-2015.pdf, page: 2}
+      - {file: gep-enrolment-survey-2015.pdf, page: 3}
+      - {file: gep-enrolment-survey-2015.pdf, page: 4}
+      - {file: gep-donor-agreement-2019.pdf, page: 1}
+      - {file: gep-donor-agreement-2019.pdf, page: 2}
+      - {file: gep-donor-agreement-2019.pdf, page: 3}
+      - {file: gep-donor-agreement-2019.pdf, page: 4}
+      - {file: gep-donor-agreement-2019.pdf, page: 5}
+      - {file: gep-donor-agreement-2019.pdf, page: 6}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 1}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 2}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 3}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 4}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 5}
+      - {file: gep-midterm-evaluation-2020.pdf, page: 6}
+      - {file: annual-report-2016.pdf, page: 3}
+      - {file: annual-report-2016.pdf, page: 5}
+      - {file: annual-report-2016.pdf, page: 6}
+      - {file: annual-report-2020.pdf, page: 5}
+      - {file: annual-report-2020.pdf, page: 8}
+      - {file: annual-report-2020.pdf, page: 11}
+      - {file: annual-report-2021.pdf, page: 5}
+      - {file: annual-report-2021.pdf, page: 14}
+      - {file: annual-report-2022.pdf, page: 5}
+      - {file: annual-report-2022.pdf, page: 9}
+      - {file: annual-report-2022.pdf, page: 13}
+      - {file: annual-report-2023-en.pdf, page: 4}
+      - {file: annual-report-2023-en.pdf, page: 9}
+    expected_outcome: answered
+    expected_answer: "The Girls' Basic Education Support Programme raised girls' enrolment in the target schools of Sahl Al-Qamar and kept girls learning by radio during the 2020 closures."
+    vocab_shift: true
+    notes: "R1c: English overview in non-corpus wording (rundown, work) of the Girls' Basic Education Support Programme. expected_citations are every page of the programme's own documents plus the annual-report pages (not covers) that name the programme."
+  - id: D35
+    language: ar
+    kinds: [unanswerable, overview, colloquial]
+    question: "شو بتعرفني عن برنامج التمويل الأصغر تبع المؤسسة؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "R1c: broad question about a programme that does not exist. The Foundation gives small grants under WLP, but no document describes a microfinance or loan programme."
+  - id: D36
+    language: en
+    kinds: [unanswerable, overview]
+    question: "What can you tell me about the Foundation's microfinance programme?"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "R1c: English twin of D35. No document describes a microfinance or loan programme; WLP's small grants are not one."

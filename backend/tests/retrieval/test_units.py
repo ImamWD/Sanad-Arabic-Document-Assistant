@@ -5,7 +5,7 @@ import asyncio
 import pytest
 from pydantic import ValidationError
 
-from sanad.llm.eta import MIN_SECONDS, PerfSample, expected_seconds
+from sanad.llm.eta import MIN_SECONDS, Estimate, PerfSample, expected_seconds
 from sanad.llm.queue import GenerationQueue
 from sanad.retrieval.fuse import rrf
 from sanad.retrieval.gate import Band, band_for
@@ -41,29 +41,82 @@ def test_rrf_rewards_agreement_and_keeps_ties_in_order() -> None:
     assert rrf([["x", "y"], []], k=60, limit=5) == ["x", "y"]
 
 
+def eta(samples: list[PerfSample], prompt_chars: int = 9_000, ahead: int = 0) -> Estimate:
+    return expected_seconds(
+        samples, prompt_chars, ahead, default_seconds=60, min_samples=5, max_seconds=600
+    )
+
+
+def sample(
+    prompt_ms: int, output_ms: int, tokens: int | None = 40, chars: int = 9_000
+) -> PerfSample:
+    return PerfSample(
+        prompt_chars=chars, prompt_ms=prompt_ms, output_ms=output_ms, output_tokens=tokens
+    )
+
+
 def test_eta_defaults_before_any_sample() -> None:
-    assert expected_seconds([], prompt_chars=9000, ahead=0, default_seconds=60) == 60
-    assert expected_seconds([], prompt_chars=9000, ahead=2, default_seconds=60) == 180
+    assert eta([]) == Estimate(60, capped=False)
+    assert eta([], ahead=2) == Estimate(180, capped=False)
 
 
-def test_eta_scales_with_the_prompt_and_the_queue() -> None:
-    samples = [
-        PerfSample(prompt_chars=10_000, prompt_ms=30_000, output_ms=5_000),
-        PerfSample(prompt_chars=8_000, prompt_ms=24_000, output_ms=4_000),
-        PerfSample(prompt_chars=12_000, prompt_ms=36_000, output_ms=6_000),
-        # A prompt restored from cache: absurdly fast. The median ignores it.
-        PerfSample(prompt_chars=10_000, prompt_ms=200, output_ms=5_000),
-        PerfSample(prompt_chars=0, prompt_ms=0, output_ms=0),
+def test_the_owners_two_samples_give_the_default_not_1474_seconds() -> None:
+    """R1d regression: two samples, one timed while three models shared the CPU."""
+    owners = [
+        PerfSample(prompt_chars=9_000, prompt_ms=43_500, output_ms=2_200, output_tokens=23),
+        PerfSample(prompt_chars=9_000, prompt_ms=112_000, output_ms=584_000, output_tokens=143),
     ]
-    # 3 ms per character, median output 5 s.
-    assert expected_seconds(samples, prompt_chars=9_000, ahead=0, default_seconds=60) == 32.0
-    # Plus one median total (31.5 s) per generation ahead.
-    assert expected_seconds(samples, prompt_chars=9_000, ahead=1, default_seconds=60) == 63.5
+    assert eta(owners) == Estimate(60, capped=False)
+    assert eta(owners, ahead=1) == Estimate(120, capped=False)
+
+
+def test_measured_samples_count_only_from_the_minimum() -> None:
+    four = [sample(27_000, 4_000)] * 4
+    assert eta(four) == Estimate(60, capped=False)
+    # 3 ms per prompt character and 100 ms per token over a 40-token answer.
+    assert eta([*four, sample(27_000, 4_000)]) == Estimate(31.0, capped=False)
+
+
+def test_generation_is_a_rate_so_a_long_answer_is_not_a_slow_one() -> None:
+    # The same 100 ms per token; answers of 20 to 160 tokens (median 40).
+    samples = [
+        sample(27_000, 2_000, 20),
+        sample(27_000, 4_000, 40),
+        sample(27_000, 4_000, 40),
+        sample(27_000, 8_000, 80),
+        sample(27_000, 16_000, 160),
+    ]
+    assert eta(samples) == Estimate(27.0 + 4.0, capped=False)
+
+
+def test_outliers_are_dropped_before_the_medians() -> None:
+    typical = [sample(27_000, 4_000)] * 5
+    slow_generation = sample(27_000, 400_000)  # 100 times slower per token
+    cached_prompt = sample(200, 4_000)  # a prompt restored from cache
+    with_outliers = [*typical, slow_generation, slow_generation, cached_prompt, cached_prompt]
+    assert eta(with_outliers) == eta(typical) == Estimate(31.0, capped=False)
+
+
+def test_each_generation_ahead_adds_one_typical_generation() -> None:
+    samples = [sample(27_000, 4_000)] * 5
+    # Its own 31 s, plus 27 s + 4 s for the one ahead.
+    assert eta(samples, ahead=1) == Estimate(62.0, capped=False)
+
+
+def test_the_estimate_is_capped() -> None:
+    slow = [sample(900_000, 40_000)] * 5  # 100 ms per character: 900 s of prompt
+    assert eta(slow) == Estimate(600, capped=True)
+    assert eta([], ahead=20) == Estimate(600, capped=True)
+
+
+def test_samples_without_token_counts_use_the_output_time() -> None:
+    samples = [sample(27_000, 4_000, tokens=None)] * 5
+    assert eta(samples) == Estimate(31.0, capped=False)
 
 
 def test_eta_is_never_zero() -> None:
-    samples = [PerfSample(prompt_chars=100, prompt_ms=0, output_ms=0)]
-    assert expected_seconds(samples, prompt_chars=100, ahead=0, default_seconds=60) == MIN_SECONDS
+    zero = [PerfSample(prompt_chars=100, prompt_ms=1, output_ms=0, output_tokens=10)] * 5
+    assert eta(zero, prompt_chars=100) == Estimate(MIN_SECONDS, capped=False)
 
 
 @pytest.mark.anyio

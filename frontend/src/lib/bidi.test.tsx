@@ -2,7 +2,7 @@ import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { Bidi } from './BidiText';
-import { splitBidi } from './bidi';
+import { baseDirection, splitBidi } from './bidi';
 import styles from './BidiText.module.css';
 
 afterEach(cleanup);
@@ -69,14 +69,29 @@ describe('splitBidi', () => {
   });
 });
 
+describe('baseDirection', () => {
+  it('follows the first strong character, even when it sits in a run that gets isolated', () => {
+    expect(baseDirection("could you tell me about 'نظام الصحة المجتمعية'?")).toBe('ltr');
+    expect(baseDirection(FIXTURE)).toBe('rtl');
+    expect(baseDirection('«WASH-2018-01» مشروع')).toBe('ltr');
+    expect(baseDirection('(١٢) تقرير')).toBe('rtl');
+  });
+
+  it('has no answer for text without letters', () => {
+    expect(baseDirection('2019-2021, ١٢٠٠ (15%)')).toBeNull();
+    expect(baseDirection('')).toBeNull();
+  });
+});
+
 describe('<Bidi>', () => {
-  it('renders the fixture as a dir="auto" plaintext block with the runs in <bdi>', () => {
+  it('renders the fixture as an rtl block with the runs in <bdi>', () => {
     const { container } = render(<Bidi as="p" text={FIXTURE} />);
     const block = container.firstElementChild as HTMLElement;
 
     expect(block.tagName).toBe('P');
-    expect(block.getAttribute('dir')).toBe('auto');
+    expect(block.getAttribute('dir')).toBe('rtl');
     expect(block.className).toContain(styles.bidi);
+    expect(block.className).toContain(styles.known);
     expect(block.textContent).toBe(FIXTURE);
     expect([...block.querySelectorAll('bdi')].map((el) => el.textContent)).toEqual([
       'YEP-2021-03',
@@ -90,6 +105,30 @@ describe('<Bidi>', () => {
       'BDI',
       '#text',
     ]);
+  });
+
+  it('gives an English-first sentence ltr, though its first run is isolated in <bdi>', () => {
+    const question = "could you tell me about 'نظام الصحة المجتمعية'?";
+    const { container } = render(<Bidi as="h2" text={question} />);
+    const block = container.firstElementChild as HTMLElement;
+    expect(block.getAttribute('dir')).toBe('ltr');
+    expect(block.classList.contains(styles.known ?? '')).toBe(true);
+    expect(block.querySelector('bdi')?.textContent).toBe('could you tell me about');
+    expect(block.textContent).toBe(question);
+  });
+
+  it('gives an Arabic-first sentence with an English code rtl', () => {
+    const { container } = render(<Bidi text="محضر الاجتماع للمشروع YEP-2021-03" />);
+    const block = container.firstElementChild as HTMLElement;
+    expect(block.getAttribute('dir')).toBe('rtl');
+    expect(block.querySelector('bdi')?.textContent).toBe('YEP-2021-03');
+  });
+
+  it('leaves text without letters to dir="auto"', () => {
+    const { container } = render(<Bidi text="2019-2021: ١٢٠٠" />);
+    const block = container.firstElementChild as HTMLElement;
+    expect(block.getAttribute('dir')).toBe('auto');
+    expect(block.classList.contains(styles.known ?? '')).toBe(false);
   });
 
   it('never wraps inside a code, so "WASH-2018-01" stays whole and in order', () => {
@@ -141,6 +180,7 @@ describe('<Bidi>', () => {
     const { container } = render(<Bidi text="Annual report" className="title" />);
     const block = container.firstElementChild as HTMLElement;
     expect(block.tagName).toBe('SPAN');
+    expect(block.getAttribute('dir')).toBe('ltr');
     expect(block.classList.contains('title')).toBe(true);
     expect(block.querySelector('bdi')).toBeNull();
   });

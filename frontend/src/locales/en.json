@@ -95,7 +95,9 @@
     "wait": {
       "notice": "This answer may take about {{duration}}.",
       "elapsed": "Elapsed: {{elapsed}} of about {{expected}}",
-      "overrun": "Still working, taking longer than usual ({{elapsed}} so far)."
+      "overrun": "Still working, taking longer than usual ({{elapsed}} so far).",
+      "busy": "The server is busy right now, so this answer may take several minutes.",
+      "elapsedOnly": "Elapsed: {{elapsed}}"
     },
     "refusal": {
       "gate": "The documents don't cover this question.",

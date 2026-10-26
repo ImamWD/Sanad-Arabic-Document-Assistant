@@ -39,6 +39,18 @@ describe('decodeEvent', () => {
     expect(decodeEvent(message('eta', { expected_seconds: 45 }))).toEqual({
       type: 'eta',
       expectedSeconds: 45,
+      capped: false,
+    });
+    // R1d: a capped estimate means the server is busy; only `true` counts.
+    expect(decodeEvent(message('eta', { expected_seconds: 600, capped: true }))).toEqual({
+      type: 'eta',
+      expectedSeconds: 600,
+      capped: true,
+    });
+    expect(decodeEvent(message('eta', { expected_seconds: 600, capped: 'yes' }))).toEqual({
+      type: 'eta',
+      expectedSeconds: 600,
+      capped: false,
     });
     expect(decodeEvent(message('token', { text: 'في عام ' }))).toEqual({
       type: 'token',

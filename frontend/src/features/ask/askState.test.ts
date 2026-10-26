@@ -31,9 +31,12 @@ describe('askReducer', () => {
 
   it('times the estimate from when it arrived', () => {
     expect(
-      run({ type: 'stage', stage: 'searching' }, { type: 'eta', expectedSeconds: 45 }),
+      run(
+        { type: 'stage', stage: 'searching' },
+        { type: 'eta', expectedSeconds: 45, capped: false },
+      ),
     ).toMatchObject({
-      eta: { expectedSeconds: 45, since: 2000 },
+      eta: { expectedSeconds: 45, capped: false, since: 2000 },
     });
   });
 
