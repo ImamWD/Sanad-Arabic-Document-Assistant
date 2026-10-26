@@ -43,6 +43,21 @@ export function isUrl(run: string): boolean {
   return WHOLE_URL.test(run);
 }
 
+// Letters only: Arabic-Indic digits are Arabic script but not strong, like every digit.
+const LETTER = /\p{L}/u;
+
+/**
+ * The direction of `text` from its first strong character, as dir="auto" would find it if no
+ * run were isolated: right-to-left script, rtl; any other letter, ltr; none (digits and
+ * punctuation only), null. dir="auto" can't be used here, because it skips <bdi> content, so
+ * "could you tell me about 'نظام الصحة'?" would come out right-to-left.
+ */
+export function baseDirection(text: string): 'ltr' | 'rtl' | null {
+  const first = LETTER.exec(text)?.[0];
+  if (first === undefined) return null;
+  return RTL_SCRIPT.test(first) ? 'rtl' : 'ltr';
+}
+
 export function hasRtl(text: string): boolean {
   return RTL_SCRIPT.test(text);
 }

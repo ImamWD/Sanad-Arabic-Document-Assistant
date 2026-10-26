@@ -137,8 +137,8 @@ describe('users table', () => {
 
   it('names and emails follow their own direction, not the locale', async () => {
     await openAdmin();
-    expect(screen.getByText(VIEWER_ROW.name).getAttribute('dir')).toBe('auto');
-    expect(screen.getByText(VIEWER_ROW.email).getAttribute('dir')).toBe('auto');
+    expect(screen.getByText(VIEWER_ROW.name).getAttribute('dir')).toBe('rtl');
+    expect(screen.getByText(VIEWER_ROW.email).getAttribute('dir')).toBe('ltr');
   });
 
   it('in Arabic, dates use Arabic month names and Latin digits by default', async () => {

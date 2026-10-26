@@ -320,7 +320,7 @@ describe('citations', () => {
     expect(card.textContent).toContain(fill(en.ask.citations.page, { page: '7' }));
     expect(card.textContent).toContain(PDF_CITATION.snippet);
     expect(card.getAttribute('href')).toBe(`/documents/${PDF_CITATION.document_id}?page=7`);
-    expect(card.querySelector('[dir="auto"]')?.textContent).toBe(PDF_CITATION.title);
+    expect(card.querySelector('[dir="ltr"]')?.textContent).toBe(PDF_CITATION.title);
 
     await actor.click(card);
     expect(router.state.location.pathname).toBe(`/documents/${PDF_CITATION.document_id}`);
