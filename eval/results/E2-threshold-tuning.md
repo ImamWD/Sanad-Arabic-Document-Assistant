@@ -19,6 +19,7 @@ Tuned on the dev set only (`eval/dev_questions.yaml`, version 3, 36 items). The 
 - Outcomes: 20 answered (plain band), 7 low confidence (amber band), 9 refusals (4 by the gate, 5 by the model's `NO_ANSWER`)
 - Latency, server total: median 32.6 s, p90 38.9 s. Rerank stage: median 5.8 s. Only D05 (7.6 s) reused Ollama's prompt cache, from the warm-up question.
 - Failures: D02 (`false_refusal`, sentinel), D07 (`page_split`, sentinel), D32 (`generation`: an English question answered in Arabic)
+- Against the 28/30 baseline (R1b): on the original D01 to D30 this run scores 28/30, with the same two failures (D02 and D07). D32 is a new R1c item, so there is no new false refusal.
 
 ## How the scores fall
 
@@ -118,11 +119,11 @@ Checked on the 36 dev questions plus the WLP Editor question, as the demo editor
 |---|---|---|
 | recall@10 | 29/29 | **28/29** (D02's expected page drops out of the top 10) |
 | top score unchanged | | 36 of 37 (D09 falls from 0.272 to 0.062, below `T_REFUSE`: a new gate refusal) |
-| the prompt's 8 excerpts unchanged | | 10 of 37 |
+| the prompt's 8 excerpts, same set and order | | 10 of 37 (set or order changes for 27) |
 | WLP 84,000 chunk, reranked rank | 5 | 4 |
 | rerank stage, median / p90 (74 calls each) | 5.7 s / 6.1 s | 3.8 s / 4.2 s |
 
-Fused candidates 21 to 30 often reach the top 8 after reranking, so cutting them changes most prompts. At 20, recall drops and D09 would be refused, to save 1.9 s of a 33 s answer. **Not changed, and not proposed.**
+For D02 and D09, a fused candidate ranked 21 to 30 was in the top 10 after reranking. At 20, recall drops and D09 would be refused, to save 1.9 s of a 33 s answer. **Not changed, and not proposed.**
 
 ## When to re-tune
 
