@@ -14,7 +14,7 @@ class RetrievalSettings(BaseSettings):
 
     # The three-band gate (DECISIONS D4) on the reranker's top score (0..1, int8 bge-reranker):
     # below T_REFUSE the LLM is not called; below T_CONFIDENT the answer gets the amber banner.
-    # Provisional until E2 tunes both on the dev set.
+    # Both confirmed on the dev set by E2: eval/results/E2-threshold-tuning.md.
     t_refuse: float = Field(default=0.15, ge=0, le=1)
     t_confident: float = Field(default=0.5, ge=0, le=1)
 
