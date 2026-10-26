@@ -1,7 +1,14 @@
-/* Each paragraph takes its direction from its first strong character, like dir="auto". */
+/* With no letters to go by (dir="auto"), each paragraph takes its direction from its first
+   strong character. */
 .bidi {
   unicode-bidi: plaintext;
   text-align: start;
+}
+
+/* A direction worked out from the raw text (dir="ltr" or "rtl") must win: plaintext would
+   decide again and, like dir="auto", skip the <bdi> runs inside. */
+.known {
+  unicode-bidi: isolate;
 }
 
 /* Inside an isolated run: a code, a word of a phrase or a piece of a URL never wraps. */

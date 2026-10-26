@@ -1,6 +1,6 @@
 import { Fragment, useMemo } from 'react';
 
-import { isUrl, splitBidi } from './bidi';
+import { baseDirection, isUrl, splitBidi } from './bidi';
 import styles from './BidiText.module.css';
 import { cx } from './cx';
 
@@ -50,13 +50,15 @@ function Isolate({ text }: { text: string }) {
 }
 
 /**
- * A content block whose direction follows its own text (dir="auto" + unicode-bidi: plaintext),
- * not the UI locale, with Latin runs, codes and URLs isolated in <bdi>.
+ * A content block whose direction follows its own text, not the UI locale, with Latin runs,
+ * codes and URLs isolated in <bdi>. The direction is set from the text's first strong
+ * character (baseDirection); only text with no letters at all is left to dir="auto".
  */
 export function Bidi({ text, as: Tag = 'span', className }: BidiProps) {
   const segments = useMemo(() => splitBidi(text), [text]);
+  const dir = useMemo(() => baseDirection(text), [text]);
   return (
-    <Tag dir="auto" className={cx(styles.bidi, className)}>
+    <Tag dir={dir ?? 'auto'} className={cx(styles.bidi, dir && styles.known, className)}>
       {segments.map((segment, i) =>
         segment.isolate ? (
           <Isolate key={i} text={segment.text} />

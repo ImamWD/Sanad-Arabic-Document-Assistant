@@ -93,7 +93,7 @@ describe('routing', () => {
       },
     });
     const heading = await screen.findByRole('heading', { level: 1, name: doc.title });
-    expect(heading.getAttribute('dir')).toBe('auto');
+    expect(heading.getAttribute('dir')).toBe('ltr');
     const cited = await screen.findByRole('group', { name: 'الصفحة 12' });
     expect(cited.getAttribute('aria-current')).toBe('true');
   });
