@@ -24,8 +24,12 @@
 #   that were refused, a dialect WASH question, an English GEP overview, and two broad questions
 #   about a programme that does not exist. An overview item has one topic-word fact and lists
 #   the programme's pages; it is correct when answered with a citation to one of them.
+# - D37-D39 (R1f, 26 Oct 2026) are near-misses where the documents give a related figure but
+#   not the one asked for: a final count where only a target and interim counts exist, a later
+#   cohort's rate where only earlier cohorts' exists, and actual spending where only a budget
+#   and earlier years' spending exist. Each item's notes say how the absence was checked.
 set: dev
-version: 3
+version: 4
 questions:
   - id: D01
     language: ar
@@ -586,3 +590,33 @@ questions:
     expected_answer: null
     vocab_shift: false
     notes: "R1c: English twin of D35. No document describes a microfinance or loan programme; WLP's small grants are not one."
+  - id: D37
+    language: en
+    kinds: [unanswerable, near_miss, english]
+    question: "How many households had received the monthly cash transfers by the time SPC-2023-01 ended in April 2025?"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "R1f near-miss (a final count where only a target and interim counts exist): the agreement (p2) and the 2023 annual report (p8) give the 2,600-household target; the 2023 annual report (p8) and the December 2023 board minutes (p4) give 700 households from July 2023; the satisfaction survey (p1) gives about 1,900 households in the first three cohorts (September 2024). No document reports how many were reached by the end in April 2025. Checked by searching seed/sources for SPC-2023-01, the Arabic project name and 2,600: the only later documents (the YEP 2024 report, the 2025 WLP market assessment) don't mention the project. Answering 2,600, 1,900 or 700 is wrong."
+  - id: D38
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "ما نسبة المشاريع التي أسستها مستفيدات برنامج سُبل العيش اللواتي التحقن به في عام 2023 وبقيت قائمة بعد عام من تأسيسها؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "R1f near-miss (another cohort's rate): the internal evaluation (p3, p4), the December 2023 board minutes (p3) and the 2023 annual report (p7, 'nearly three quarters') give 74% for the women who joined in 2021 and 2022 only. The 2023 annual report (p7) says 860 women were supported in 2023, but no document measures whether their businesses survived; the 2025 market assessment (p1) repeats only the 2021-2022 finding. Checked by searching seed/sources for the programme's Arabic name, WLP, livelihood, 74% and survival wording (still trading, still running). Answering 74% is wrong."
+  - id: D39
+    language: ar
+    kinds: [unanswerable, near_miss]
+    question: "كم بلغ ما أنفقه برنامج الصحة المجتمعية فعلياً خلال عام 2024؟"
+    must_include: []
+    expected_citations: []
+    expected_outcome: no_answer
+    expected_answer: null
+    vocab_shift: false
+    notes: "R1f near-miss (actual spending where only a budget exists): the approved 2024 budget (p3) allocates 900,000 USD to the programme, and the independent evaluation (p6) gives actual spending for 2021 to 2023 only (610,000, 720,000 and 830,000). There is no 2024 annual report, and the YEP 2024 report covers YEP only. Checked by searching seed/sources for the programme's Arabic name, community health, 900,000 and every 2024 document. Answering 900,000 or 830,000 is wrong."
