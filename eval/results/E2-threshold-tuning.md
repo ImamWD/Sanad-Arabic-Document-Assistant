@@ -17,7 +17,7 @@ Tuned on the dev set only (`eval/dev_questions.yaml`, version 3, 36 items). The 
 - Unanswerable refused: 7/7. False refusals: 1 (D02). **Invented answers: 0.**
 - recall@10: 29/29
 - Outcomes: 20 answered (plain band), 7 low confidence (amber band), 9 refusals (4 by the gate, 5 by the model's `NO_ANSWER`)
-- Latency, server total: median 32.6 s, p90 38.9 s. Rerank stage: median 5.8 s.
+- Latency, server total: median 32.6 s, p90 38.9 s. Rerank stage: median 5.8 s. Only D05 (7.6 s) reused Ollama's prompt cache, from the warm-up question.
 - Failures: D02 (`false_refusal`, sentinel), D07 (`page_split`, sentinel), D32 (`generation`: an English question answered in Arabic)
 
 ## How the scores fall
