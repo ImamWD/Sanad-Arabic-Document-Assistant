@@ -28,6 +28,7 @@
 #   not the one asked for: a final count where only a target and interim counts exist, a later
 #   cohort's rate where only earlier cohorts' exists, and actual spending where only a budget
 #   and earlier years' spending exist. Each item's notes say how the absence was checked.
+#   D37 is a known failure on the shipped CPU model (see its notes).
 set: dev
 version: 4
 questions:
@@ -599,7 +600,7 @@ questions:
     expected_outcome: no_answer
     expected_answer: null
     vocab_shift: false
-    notes: "R1f near-miss (a final count where only a target and interim counts exist): the agreement (p2) and the 2023 annual report (p8) give the 2,600-household target; the 2023 annual report (p8) and the December 2023 board minutes (p4) give 700 households from July 2023; the satisfaction survey (p1) gives about 1,900 households in the first three cohorts (September 2024). No document reports how many were reached by the end in April 2025. Checked by searching seed/sources for SPC-2023-01, the Arabic project name and 2,600: the only later documents (the YEP 2024 report, the 2025 WLP market assessment) don't mention the project. Answering 2,600, 1,900 or 700 is wrong."
+    notes: "R1f near-miss (a final count where only a target and interim counts exist): the agreement (p2) and the 2023 annual report (p8) give the 2,600-household target; the 2023 annual report (p8) and the December 2023 board minutes (p4) give 700 households from July 2023; the satisfaction survey (p1) gives about 1,900 households in the first three cohorts (September 2024). No document reports how many were reached by the end in April 2025. Checked by searching seed/sources for SPC-2023-01, the Arabic project name and 2,600: the only later documents (the YEP 2024 report, the 2025 WLP market assessment) don't mention the project. Answering 2,600, 1,900 or 700 is wrong. Known failure: this is T23's class (a clearly labelled target taken as the answer). On the shipped CPU model (sanad-gemma4-e4b-text) R1f measured it answered on main and with a prompt rule against related figures (rule 7, not merged), both times quoting the 2,600 target as what the agreement aims to reach."
   - id: D38
     language: ar
     kinds: [unanswerable, near_miss]
