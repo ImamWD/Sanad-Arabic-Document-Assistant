@@ -18,7 +18,12 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from sanad.core import passwords
-from sanad.core.config import Settings, get_settings
+from sanad.core.config import (
+    InsecureDefaultsError,
+    Settings,
+    check_public_defaults,
+    get_settings,
+)
 from sanad.core.db import create_sync_engine
 from sanad.core.models import Language, Programme, Role, User
 from sanad.documents.seed import register_seed_documents
@@ -111,6 +116,13 @@ def run(settings: Settings) -> None:
 def main() -> None:
     settings = get_settings()
     logging.basicConfig(level=settings.log_level)
+    try:
+        # Before any step: a production deploy must not create demo accounts with public
+        # passwords.
+        check_public_defaults(settings, logger)
+    except InsecureDefaultsError as err:
+        logger.critical("%s", err)
+        raise SystemExit(2) from None
     run(settings)
 
 

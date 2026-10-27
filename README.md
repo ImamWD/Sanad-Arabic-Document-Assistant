@@ -105,8 +105,12 @@ two minutes. The Library shows each document's status.
 | Viewer | `viewer@sanad.example` | `viewer-demo-2026` |
 | Guest | the **Continue as guest** button | none |
 
-These passwords are public. On any real deployment, set `DEMO_*_PASSWORD` in `.env` before the
-first start, or deactivate the demo accounts in Admin.
+These passwords are public: anyone can read them here. They work out of the box because the
+stack starts in demo mode, which logs a warning naming every public default still in use. On
+any real deployment, set `SANAD_ENV=production` in `.env`. The stack then refuses to start
+until `DEMO_ADMIN_PASSWORD`, `DEMO_EDITOR_PASSWORD`, `DEMO_VIEWER_PASSWORD` and
+`POSTGRES_PASSWORD` are changed and `SESSION_COOKIE_SECURE` is `true` (which needs HTTPS). Set
+them before the first start; you can also deactivate the demo accounts in Admin.
 
 ### What the first start downloads
 
@@ -549,7 +553,7 @@ model spike report.
 
 ## Credits and licence
 
-**Licence:** to be decided by the owner.
+**Licence:** MIT, see [LICENSE](LICENSE). The models below keep their own licences.
 
 **Models**
 

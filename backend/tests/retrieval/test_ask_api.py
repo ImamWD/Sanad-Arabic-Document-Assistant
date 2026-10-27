@@ -5,6 +5,8 @@ the fake ml service and a fake LLM that answers only from its excerpts.
   and nothing of that document reaches the prompt or the response; an Editor gets 84,000.
 - Guest history: the guest is one shared account, so a second guest login sees none of the
   first session's questions.
+- Stored answers are re-checked against what the caller may see now: once any cited document
+  is out of sight (restricted since, or the caller was demoted), the answer is withheld.
 - The SSE transport: headers, event order, pings while the model is quiet.
 """
 
@@ -171,6 +173,85 @@ def test_stored_refusal_keeps_its_suggestions(
     stored = client.get(f"/api/queries/{final['query_id']}", headers=as_(sessions["viewer"]))
     assert stored.json()["nearest_documents"] == final["nearest_documents"]
     assert stored.json()["refusal_reason"] == final["refusal_reason"]
+
+
+SURVEY_QUESTION = "ما نسبة الأسر الراضية عن الدعم في مسح رضا المستفيدين؟"
+
+
+def _answered(client: TestClient, token: str, question: str) -> dict[str, Any]:
+    final: dict[str, Any] = ask(client, token, question).json()
+    assert final["outcome"] in ("answered", "low_confidence"), final
+    assert final["answer"] and final["citations"]
+    return final
+
+
+def _assert_withheld(stored: Any, final: dict[str, Any], *hidden: str) -> None:
+    """The stored answer comes back as a no_valid_citation refusal, with nothing of the
+    original answer or of the hidden strings in the response."""
+    assert stored.status_code == 200, stored.text
+    body = StoredAnswer.model_validate(stored.json())
+    assert (body.outcome, body.answer, body.citations) == ("no_answer", None, [])
+    assert body.refusal_reason == "no_valid_citation"
+    assert body.band == final["band"]
+    for text_ in (final["answer"], *hidden):
+        assert text_ not in stored.text
+
+
+def test_a_stored_answer_is_withheld_after_its_document_becomes_restricted(
+    client: TestClient, sessions: dict[str, str], corpus: dict[str, uuid.UUID]
+) -> None:
+    survey = corpus["spc-satisfaction-survey-2024"]
+    final = _answered(client, sessions["viewer"], SURVEY_QUESTION)
+    assert [c["document_id"] for c in final["citations"]] == [str(survey)]
+
+    restrict = client.patch(
+        f"/api/documents/{survey}", json={"restricted": True}, headers=as_(sessions["editor"])
+    )
+    assert restrict.status_code == 200, restrict.text
+
+    stored = client.get(f"/api/queries/{final['query_id']}", headers=as_(sessions["viewer"]))
+    _assert_withheld(stored, final, str(survey), final["citations"][0]["title"])
+
+
+def test_a_stored_answer_survives_when_its_documents_stay_visible(
+    client: TestClient, sessions: dict[str, str], corpus: dict[str, uuid.UUID]
+) -> None:
+    """The negative control: restricting a document the answer didn't cite, and archiving the
+    one it did (archived stays visible by id), leave the stored answer as it was."""
+    survey = corpus["spc-satisfaction-survey-2024"]
+    final = _answered(client, sessions["viewer"], SURVEY_QUESTION)
+    editor = as_(sessions["editor"])
+    other = corpus["annual-report-2021"]
+    restrict = client.patch(f"/api/documents/{other}", json={"restricted": True}, headers=editor)
+    assert restrict.status_code == 200, restrict.text
+    archive = client.post(f"/api/documents/{survey}/archive", json={}, headers=editor)
+    assert archive.status_code == 200, archive.text
+
+    stored = client.get(f"/api/queries/{final['query_id']}", headers=as_(sessions["viewer"]))
+    body = StoredAnswer.model_validate(stored.json())
+    assert body.model_dump(mode="json", exclude={"question", "created_at"}) == final
+
+
+def test_a_demoted_editor_cannot_replay_an_editor_era_answer(
+    client: TestClient,
+    sessions: dict[str, str],
+    accounts: dict[str, uuid.UUID],
+    corpus: dict[str, uuid.UUID],
+) -> None:
+    final = _answered(client, sessions["editor"], WLP_QUESTION)
+    assert has_fact(final["answer"], "84,000")
+    url = f"/api/queries/{final['query_id']}"
+    assert client.get(url, headers=as_(sessions["editor"])).json()["answer"] == final["answer"]
+
+    demote = client.patch(
+        f"/api/admin/users/{accounts['editor']}",
+        json={"role": "viewer"},
+        headers=as_(sessions["admin"]),
+    )
+    assert demote.status_code == 200, demote.text
+    # A role change keeps the session (only deactivation ends it), so this is the same login.
+    stored = client.get(url, headers=as_(sessions["editor"]))
+    _assert_withheld(stored, final, "84,000", RESTRICTED_TITLE)
 
 
 def test_gate_refusal_when_nothing_can_be_searched(

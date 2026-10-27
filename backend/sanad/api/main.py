@@ -8,7 +8,7 @@ import httpx2
 from fastapi import Depends, FastAPI
 
 from sanad.api import admin_users, ask, auth, documents, health, me, programmes, queries
-from sanad.core.config import get_settings
+from sanad.core.config import InsecureDefaultsError, check_public_defaults, get_settings
 from sanad.core.db import create_engine
 from sanad.core.errors import install_error_handlers
 from sanad.core.ratelimit import LoginRateLimiter
@@ -16,11 +16,20 @@ from sanad.core.security import csrf_guard
 
 API_PREFIX = "/api"
 
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     logging.basicConfig(level=settings.log_level)
+    try:
+        # In production this refuses to serve with public defaults (startup fails, the
+        # container exits); in demo it logs which ones are in use.
+        check_public_defaults(settings, logger)
+    except InsecureDefaultsError as err:
+        logger.critical("%s", err)
+        raise
     app.state.db_engine = create_engine(settings)
     app.state.http_client = httpx2.AsyncClient()
     try:
