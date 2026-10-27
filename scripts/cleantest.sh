@@ -115,7 +115,8 @@ docker compose version >/dev/null 2>&1 || die "Docker Compose v2 (docker compose
 if (exec 3<>"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
   die "port $PORT is in use; free it or pass --port"
 fi
-if [ -n "$(docker ps -aq --filter "label=com.docker.compose.project=$PROJECT")" ]; then
+if [ -n "$(docker ps -aq --filter "label=com.docker.compose.project=$PROJECT" \
+  --filter "label=com.docker.compose.container-number")" ]; then
   die "a $PROJECT project already exists; remove it first (it is this script's own project)"
 fi
 if docker volume inspect "$OLLAMA_MODELS_VOLUME" >/dev/null 2>&1; then
@@ -163,10 +164,13 @@ if [ -n "$PREFLIGHT_ONLY" ]; then
 fi
 
 # --- memory sampler --------------------------------------------------------------------------
-# Every few seconds: each running container of the project and its memory, in MiB.
+# Every few seconds: each running container of the project and its memory, in MiB. Images that
+# compose builds carry the project label too, so the guest and probe containers this script
+# starts from them would match it; only compose's own containers have a container-number.
 sample_memory() {
   while :; do
-    ids=$(docker ps -q --filter "label=com.docker.compose.project=$PROJECT")
+    ids=$(docker ps -q --filter "label=com.docker.compose.project=$PROJECT" \
+      --filter "label=com.docker.compose.container-number")
     if [ -n "$ids" ]; then
       t=$(date +%s)
       # shellcheck disable=SC2086
