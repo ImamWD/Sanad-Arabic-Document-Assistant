@@ -15,16 +15,20 @@ from sanad.core.config import Settings
 
 
 def create_engine(settings: Settings) -> AsyncEngine:
+    # hide_parameters: a failed statement must not print its bound values to the log, such as
+    # a question and its answer (query store) or a password hash (admin users).
     return create_async_engine(
         settings.database_url,
         pool_pre_ping=True,
         pool_size=5,
         max_overflow=5,
+        hide_parameters=True,
     )
 
 
 def create_sync_engine(settings: Settings) -> sqlalchemy.Engine:
-    return sqlalchemy.create_engine(settings.database_url, pool_pre_ping=True)
+    # hide_parameters: as above, for init (seed documents, demo password hashes) and Alembic.
+    return sqlalchemy.create_engine(settings.database_url, pool_pre_ping=True, hide_parameters=True)
 
 
 async def ping(engine: AsyncEngine) -> None:
