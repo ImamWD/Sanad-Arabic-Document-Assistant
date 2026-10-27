@@ -1,6 +1,7 @@
 """The real ml service (int8 bge-m3 and bge-reranker-v2-m3), reached over the backend network.
 
-Needs the running stack (`make up`); skipped with a reason otherwise.
+Needs the running stack (`make up`). Marked `live`: skipped with a reason otherwise, or failed
+with SANAD_REQUIRE_LIVE=1 (tests/conftest.py).
 """
 
 import math
@@ -12,9 +13,9 @@ from sanad.ingest.chunk import ChunkParams, chunk_document
 from sanad.ingest.extract import extract_pages
 from sanad.ingest.ml_client import MlClient
 from sanad.text.arabic import clean_extracted
-from tests.ingest.conftest import SEED, ml_is_up, ml_url, needs_seed_files
+from tests.ingest.conftest import SEED, ml_url, needs_seed_files
 
-pytestmark = pytest.mark.skipif(not ml_is_up(), reason="the ml service isn't running (make up)")
+pytestmark = pytest.mark.live(health=f"{ml_url()}/health", what="the ml service")
 
 STAFF_AR = "بلغ عدد موظفي المؤسسة في نهاية عام 2021 نحو 71 موظفاً وموظفة، يساندهم 340 متطوعاً."
 WATER_AR = "أعادت المؤسسة تأهيل 42 نقطة مياه ريفية في الهضبة الشرقية خلال عام 2019."

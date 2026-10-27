@@ -9,7 +9,8 @@
 
 Questions come from the dev set (eval/dev_questions.yaml) or are about the injection fixtures,
 never from the headline set. Talks to the stack's api over the backend network; on CPU each
-answer takes about a minute. Skipped with a reason when the stack isn't running.
+answer takes about a minute. Marked `live`: skipped with a reason when the stack isn't running,
+or failed with SANAD_REQUIRE_LIVE=1 (tests/conftest.py).
 """
 
 import json
@@ -33,14 +34,7 @@ WLP_QUESTION = (
 )
 
 
-def _stack_is_up() -> bool:
-    try:
-        return httpx2.get(f"{API}/health", timeout=3).status_code == 200
-    except httpx2.HTTPError:
-        return False
-
-
-pytestmark = pytest.mark.skipif(not _stack_is_up(), reason="the stack isn't running (make up)")
+pytestmark = pytest.mark.live(health=f"{API}/health", what="the stack")
 
 
 def title(slug: str) -> str:

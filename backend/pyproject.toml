@@ -37,6 +37,9 @@ package = false
 testpaths = ["tests"]
 addopts = ["-ra", "--strict-markers", "-p", "no:cacheprovider"]
 filterwarnings = ["error"]
+markers = [
+    "live(health, what): needs the running stack; skips when `health` doesn't answer, fails instead with SANAD_REQUIRE_LIVE=1 (tests/conftest.py)",
+]
 
 # backend-dev sets COVERAGE_RCFILE to this file, so these settings also apply when pytest runs
 # from the repo root (e.g. `pytest backend/tests/text --cov=sanad.text --cov-fail-under=100`).
