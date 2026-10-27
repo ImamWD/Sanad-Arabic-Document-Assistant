@@ -77,6 +77,26 @@ export default tseslint.config(
     },
   },
   {
+    // The error helpers have one home (src/lib/api.ts). A feature never takes them from
+    // another feature's folder, so a second copy can't grow back there (review RV5).
+    files: ['src/features/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              // A sibling feature (../library/api), not shared code (../../lib/api).
+              group: ['../*/*', '!../../**'],
+              importNames: ['errorFromResponse', 'parseJson', 'isRecord', 'ApiError'],
+              message: 'Import the error helpers from src/lib/api.ts, not from another feature.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['src/**/*.test.{ts,tsx}', 'e2e/**/*.ts'],
     rules: { 'i18next/no-literal-string': 'off' },
   },

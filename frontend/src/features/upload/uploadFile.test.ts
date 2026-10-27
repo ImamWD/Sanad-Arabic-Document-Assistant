@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { errorFromResponse } from '../library/api';
+import { errorFromResponse } from '../../lib/api';
 import { uploadForm } from './uploadFile';
 
 const file = new File(['%PDF-1.7'], 'annual-report-2021.pdf', { type: 'application/pdf' });

@@ -1,6 +1,6 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 
-import { ApiError, apiFetch, UNKNOWN_ERROR } from '../../lib/api';
+import { apiFetch } from '../../lib/api';
 import type { DocumentItem, DocumentList, DocumentPatch, LibraryFilters, Programme } from './types';
 import { isTerminal } from './types';
 
@@ -9,30 +9,6 @@ export const PAGE_SIZE = 25;
 export const MAX_IDS_PER_REQUEST = 100;
 /** How often the Library refreshes while a document on screen is still being processed. */
 const LIBRARY_REFRESH_MS = 3000;
-
-const ERROR_CODE = /^[A-Z][A-Z0-9_]*$/;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-export function parseJson(text: string): unknown {
-  try {
-    return JSON.parse(text) as unknown;
-  } catch {
-    return null;
-  }
-}
-
-/** The server's `{"error": {"code", "params"}}`, or UNKNOWN_ERROR for anything else. */
-export function errorFromResponse(status: number, text: string): ApiError {
-  const body = parseJson(text);
-  const error = isRecord(body) ? body.error : undefined;
-  if (isRecord(error) && typeof error.code === 'string' && ERROR_CODE.test(error.code)) {
-    return new ApiError(status, error.code, isRecord(error.params) ? error.params : {});
-  }
-  return new ApiError(status, UNKNOWN_ERROR);
-}
 
 const path = (id: string) => `/documents/${encodeURIComponent(id)}`;
 

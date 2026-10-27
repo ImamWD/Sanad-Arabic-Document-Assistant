@@ -29,22 +29,32 @@ export interface RequestOptions {
 
 const ERROR_CODE = /^[A-Z][A-Z0-9_]*$/;
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+/** A JSON object (not null, not an array), the shape of every body the API sends. */
+export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-async function toApiError(response: Response): Promise<ApiError> {
-  let body: unknown = null;
+/** `text` parsed as JSON, or undefined when it isn't JSON (an nginx error page, say). */
+export function parseJson(text: string): unknown {
   try {
-    body = await response.json();
+    return JSON.parse(text) as unknown;
   } catch {
-    // Not JSON (e.g. an nginx error page): fall through to UNKNOWN_ERROR.
+    return undefined;
   }
+}
+
+/**
+ * The ApiError for a failed request, from its status and body text: the server's
+ * `{"error": {"code", "params"}}`, or UNKNOWN_ERROR for anything else. The one place an
+ * error body becomes an ApiError (fetch, XHR and the SSE `error` event all come here).
+ */
+export function errorFromResponse(status: number, text: string): ApiError {
+  const body = parseJson(text);
   const error = isRecord(body) ? body.error : undefined;
   if (isRecord(error) && typeof error.code === 'string' && ERROR_CODE.test(error.code)) {
-    return new ApiError(response.status, error.code, isRecord(error.params) ? error.params : {});
+    return new ApiError(status, error.code, isRecord(error.params) ? error.params : {});
   }
-  return new ApiError(response.status, UNKNOWN_ERROR);
+  return new ApiError(status, UNKNOWN_ERROR);
 }
 
 /**
@@ -73,7 +83,8 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     if (signal?.aborted) throw error;
     throw new ApiError(0, NETWORK_ERROR);
   }
-  if (!response.ok) throw await toApiError(response);
+  // A body that can't be read counts as no body: UNKNOWN_ERROR.
+  if (!response.ok) throw errorFromResponse(response.status, await response.text().catch(() => ''));
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }

@@ -1,7 +1,12 @@
 // POST /api/documents with upload progress. fetch() can't report upload progress, so this one
 // request uses XMLHttpRequest, with the same CSRF header, cookie and error envelope as apiFetch.
-import { ApiError, NETWORK_ERROR, UNKNOWN_ERROR } from '../../lib/api';
-import { errorFromResponse, parseJson } from '../library/api';
+import {
+  ApiError,
+  errorFromResponse,
+  NETWORK_ERROR,
+  parseJson,
+  UNKNOWN_ERROR,
+} from '../../lib/api';
 import type { DocumentItem, UploadDetails } from '../library/types';
 
 /** The multipart body. Optional fields are left out when empty: an empty year is a 422. */
