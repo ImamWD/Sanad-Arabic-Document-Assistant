@@ -1,7 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { ApiError, NETWORK_ERROR } from '../../lib/api';
-import { documentKeys, errorFromResponse } from '../library/api';
+import { ApiError, errorFromResponse, NETWORK_ERROR } from '../../lib/api';
+import { documentKeys } from '../library/api';
 
 /**
  * GET /api/documents/{id}/file: the PDF the viewer shows (for DOCX and TXT, the converted
@@ -20,7 +20,7 @@ export async function fetchPdf(id: string, signal: AbortSignal): Promise<ArrayBu
     if (signal.aborted) throw error;
     throw new ApiError(0, NETWORK_ERROR);
   }
-  if (!response.ok) throw errorFromResponse(response.status, await response.text());
+  if (!response.ok) throw errorFromResponse(response.status, await response.text().catch(() => ''));
   return response.arrayBuffer();
 }
 

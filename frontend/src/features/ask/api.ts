@@ -1,6 +1,14 @@
 import { queryOptions } from '@tanstack/react-query';
 
-import { ApiError, apiFetch, NETWORK_ERROR, UNKNOWN_ERROR } from '../../lib/api';
+import {
+  ApiError,
+  apiFetch,
+  errorFromResponse,
+  isRecord,
+  NETWORK_ERROR,
+  parseJson,
+  UNKNOWN_ERROR,
+} from '../../lib/api';
 import { createSseParser, type SseMessage } from './sse';
 import type {
   AnswerResult,
@@ -13,14 +21,9 @@ import type {
   StreamEvent,
 } from './types';
 
-const ERROR_CODE = /^[A-Z][A-Z0-9_]*$/;
 const OUTCOMES = ['answered', 'low_confidence', 'no_answer'] as const;
 const BANDS = ['answer', 'low_confidence', 'refuse'] as const;
 const REASONS = ['gate', 'sentinel', 'no_valid_citation'] as const;
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function oneOf<T extends string>(value: unknown, options: readonly T[]): T | null {
   return options.includes(value as T) ? (value as T) : null;
@@ -82,30 +85,14 @@ export function decodeAnswer(raw: unknown, queryId?: string): AnswerResult | nul
   return { ...base, outcome, refusal_reason: null, answer, citations };
 }
 
-function errorFromEnvelope(status: number, body: unknown): ApiError {
-  const error = isRecord(body) ? body.error : undefined;
-  if (isRecord(error) && typeof error.code === 'string' && ERROR_CODE.test(error.code)) {
-    return new ApiError(status, error.code, isRecord(error.params) ? error.params : {});
-  }
-  return new ApiError(status, UNKNOWN_ERROR);
-}
-
-function parseJson(data: string): unknown {
-  try {
-    return JSON.parse(data) as unknown;
-  } catch {
-    return undefined;
-  }
-}
-
 /**
  * One SSE message as a stream event (SYSTEM_DESIGN §6). Unknown events and malformed progress
  * events are skipped (null). A malformed `final` and every `error` event are thrown, so the
  * caller stops and nothing unvalidated stays on screen.
  */
 export function decodeEvent({ event, data }: SseMessage, status = 200): StreamEvent | null {
+  if (event === 'error') throw errorFromResponse(status, data);
   const payload = parseJson(data);
-  if (event === 'error') throw errorFromEnvelope(status, payload);
   if (event === 'final') {
     const result = decodeAnswer(payload);
     if (!result) throw new ApiError(status, UNKNOWN_ERROR);
@@ -172,15 +159,8 @@ export async function streamAsk(
     if (signal.aborted) throw error;
     throw new ApiError(0, NETWORK_ERROR);
   }
-  if (!response.ok) {
-    let body: unknown = null;
-    try {
-      body = await response.json();
-    } catch {
-      // Not JSON (an nginx error page): UNKNOWN_ERROR.
-    }
-    throw errorFromEnvelope(response.status, body);
-  }
+  // Not JSON (an nginx error page), or unreadable: UNKNOWN_ERROR.
+  if (!response.ok) throw errorFromResponse(response.status, await response.text().catch(() => ''));
   if (!response.body) throw new ApiError(response.status, UNKNOWN_ERROR);
 
   const reader = response.body.getReader();

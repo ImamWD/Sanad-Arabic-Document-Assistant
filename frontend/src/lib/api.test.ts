@@ -84,6 +84,16 @@ describe('apiFetch', () => {
     expect((await rejection(apiFetch('/me'))).code).toBe(UNKNOWN_ERROR);
   });
 
+  it('treats an error body that breaks off while being read as UNKNOWN_ERROR', async () => {
+    const broken = new ReadableStream({
+      start(controller) {
+        controller.error(new TypeError('connection reset'));
+      },
+    });
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(broken, { status: 502 }));
+    expect(await rejection(apiFetch('/me'))).toMatchObject({ status: 502, code: UNKNOWN_ERROR });
+  });
+
   it('reports an unreachable server as NETWORK_ERROR (status 0)', async () => {
     vi.spyOn(globalThis, 'fetch').mockRejectedValue(new TypeError('Failed to fetch'));
     expect(await rejection(apiFetch('/me'))).toMatchObject({ status: 0, code: NETWORK_ERROR });
