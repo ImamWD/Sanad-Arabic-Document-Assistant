@@ -1,0 +1,210 @@
+{
+  "metadata": {
+    "set": "dev",
+    "set_file": "eval/dev_questions.yaml",
+    "set_version": 4,
+    "questions": 1,
+    "only": "D37",
+    "date": "2026-10-27T04:24:55+00:00",
+    "git_sha": "d73ae1ef3a82",
+    "model": "gemma4:26b-a4b-it-qat on GPU",
+    "hardware": "Intel Core i9-14900KF (24 cores, 32 threads), 32 GB RAM, RTX 5080 16 GB (NVIDIA 617.14), Windows 11 Pro 26300 with WSL2 Ubuntu 24.04, Docker Desktop 4.83.0 (Engine 29.6.2) with 12 CPUs and 23.5 GiB, GPU (containerised Ollama, docker-compose.gpu.yml)",
+    "ollama_version": "0.40.10",
+    "server_llm_provider": "unknown",
+    "server_llm_model": "unknown",
+    "signed_in_as": "editor (editor@sanad.example)",
+    "diagnostics_requested": true,
+    "base_url": "http://api:8000",
+    "runs": 1,
+    "wall_seconds": 6.0
+  },
+  "score": "1/1",
+  "aggregate": {
+    "runs": 1,
+    "total": 1,
+    "scores": [
+      1
+    ],
+    "mean": 1.0,
+    "min": 1,
+    "max": 1,
+    "correct_runs": {
+      "D37": 1
+    }
+  },
+  "category_rules": "Each failure has one category, the first that applies: `error` (the request failed), `invented_answer` (an unanswerable question was answered, low confidence included), `page_split` (a page-split item failed), `false_refusal` (an answerable question was refused), `retrieval` (no expected page among the candidates), `generation` (an expected page was retrieved, but the facts or the citation are wrong), `unclassified` (retrieval or generation, but the server sent no candidates).",
+  "runs": [
+    {
+      "summary": {
+        "score": 1,
+        "total": 1,
+        "answerable_correct": 0,
+        "answerable_total": 0,
+        "refused_correctly": 1,
+        "unanswerable_total": 1,
+        "false_refusals": [],
+        "invented_answers": [],
+        "errors": [],
+        "categories": {},
+        "recall": {
+          "@5": {
+            "hits": 0,
+            "of": 0
+          },
+          "@10": {
+            "hits": 0,
+            "of": 0
+          }
+        },
+        "server_ms": {
+          "n": 1,
+          "median": 5889.0,
+          "p90": 5889.0
+        },
+        "wall_ms": {
+          "n": 1,
+          "median": 5891.0,
+          "p90": 5891.0
+        },
+        "stage_ms": {
+          "embed": {
+            "n": 1,
+            "median": 26.0,
+            "p90": 26.0
+          },
+          "first_token": {
+            "n": 1,
+            "median": 1405.0,
+            "p90": 1405.0
+          },
+          "generate": {
+            "n": 1,
+            "median": 1450.0,
+            "p90": 1450.0
+          },
+          "rerank": {
+            "n": 1,
+            "median": 4396.0,
+            "p90": 4396.0
+          },
+          "retrieve": {
+            "n": 1,
+            "median": 10.0,
+            "p90": 10.0
+          }
+        }
+      },
+      "questions": [
+        {
+          "id": "D37",
+          "language": "en",
+          "kinds": [
+            "unanswerable",
+            "near_miss",
+            "english"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.9989757537841797,
+          "cited": [],
+          "expected": [],
+          "server_ms": 5889,
+          "wall_ms": 5891,
+          "timings_ms": {
+            "embed": 26.0,
+            "retrieve": 10.0,
+            "rerank": 4396.0,
+            "first_token": 1405.0,
+            "generate": 1450.0,
+            "total": 5889.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2023-en.pdf p8",
+              "rerank_score": 0.9989757537841797,
+              "dense_rank": 1,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2023-en.pdf p4",
+              "rerank_score": 0.9524284601211548,
+              "dense_rank": 2,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 3,
+              "page": "spc-donor-agreement-2023.docx p1",
+              "rerank_score": 0.8923278450965881,
+              "dense_rank": 8,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 4,
+              "page": "board-minutes-2023-12.pdf p4",
+              "rerank_score": 0.7847670316696167,
+              "dense_rank": 3,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 5,
+              "page": "spc-satisfaction-survey-2024.txt p1",
+              "rerank_score": 0.688736081123352,
+              "dense_rank": 7,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 6,
+              "page": "spc-donor-agreement-2023.docx p3",
+              "rerank_score": 0.6496742367744446,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "spc-donor-agreement-2023.docx p2",
+              "rerank_score": 0.5697969794273376,
+              "dense_rank": 14,
+              "lexical_rank": null
+            },
+            {
+              "rank": 8,
+              "page": "board-minutes-2023-03.pdf p3",
+              "rerank_score": 0.528658926486969,
+              "dense_rank": 9,
+              "lexical_rank": 16
+            },
+            {
+              "rank": 9,
+              "page": "board-minutes-2023-03.pdf p2",
+              "rerank_score": 0.41925930976867676,
+              "dense_rank": 18,
+              "lexical_rank": 18
+            },
+            {
+              "rank": 10,
+              "page": "board-minutes-2023-03.pdf p1",
+              "rerank_score": 0.3979335427284241,
+              "dense_rank": null,
+              "lexical_rank": 15
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "gemma4:26b-a4b-it-qat"
+        }
+      ]
+    }
+  ]
+}
