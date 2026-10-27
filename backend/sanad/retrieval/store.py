@@ -7,13 +7,14 @@ guest login sees none of the first session's questions (ROADMAP R1).
 import uuid
 from typing import Any
 
-from sqlalchemy import Select, false, select
+from sqlalchemy import Select, false, func, select
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from sanad.core.models import User
 from sanad.documents.access import visible_documents
 from sanad.documents.models import Chunk, Document
 from sanad.llm.eta import PerfSample
+from sanad.llm.validate import RefusalReason
 from sanad.retrieval.models import Citation, LlmPerfSample, Query
 from sanad.retrieval.pipeline import snippet
 from sanad.retrieval.types import Outcome, QueryRecord
@@ -97,7 +98,11 @@ async def stored_answer(
 ) -> dict[str, Any] | None:
     """One of the user's questions with its answer, in the shape of the `final` event plus
     `question` and `created_at`; None if it isn't theirs to see. Citations and suggested titles
-    are re-checked against what the user may see now."""
+    are re-checked against what the user may see now.
+
+    If any cited document is no longer visible to the user (restricted since the question was
+    asked, or the user lost a role), the answer is withheld as a no_valid_citation refusal: its
+    prose may quote that document, and no valid citation means no answer."""
     query = await db.scalar(own_queries(user, session_id).where(Query.id == query_id))
     if query is None:
         return None
@@ -111,6 +116,10 @@ async def stored_answer(
             .order_by(Citation.rank)
         )
     ).all()
+    cited = await db.scalar(
+        select(func.count()).select_from(Citation).where(Citation.query_id == query.id)
+    )
+    withheld = len(citations) < (cited or 0)
     nearest_rows = (
         await db.execute(
             select(Document.id, Document.title).where(
@@ -119,14 +128,22 @@ async def stored_answer(
         )
     ).all()
     titles = dict(nearest_rows)
+    outcome: str = query.outcome.value
+    refusal_reason: str | None = query.refusal_reason.value if query.refusal_reason else None
+    answer: str | None = query.answer
+    if withheld:
+        outcome = Outcome.NO_ANSWER.value
+        refusal_reason = RefusalReason.NO_VALID_CITATION.value
+        answer = None
+        citations = []
     return {
         "query_id": str(query.id),
         "question": query.question,
         "created_at": query.created_at.isoformat(),
-        "outcome": query.outcome.value,
+        "outcome": outcome,
         "band": query.band.value if query.band else None,
-        "refusal_reason": query.refusal_reason.value if query.refusal_reason else None,
-        "answer": query.answer,
+        "refusal_reason": refusal_reason,
+        "answer": answer,
         "citations": [
             {
                 "rank": citation.rank,
