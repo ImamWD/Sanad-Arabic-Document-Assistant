@@ -549,7 +549,7 @@ model spike report.
 
 ## Credits and licence
 
-**Licence:** to be decided by the owner.
+**Licence:** MIT, see [LICENSE](LICENSE). The models below keep their own licences.
 
 **Models**
 
