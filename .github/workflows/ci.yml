@@ -15,7 +15,8 @@ concurrency:
 jobs:
   lint-test:
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    # The live tests generate answers on the runner's CPU (see their step).
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -27,24 +28,109 @@ jobs:
       - name: API types are up to date
         run: make check-api-types
 
+      - name: Runner disk and memory
+        run: |
+          df -h /
+          free -m
+          docker system df
+
       - name: Stack comes up healthy
         run: |
           make up
           curl -fsS localhost:8080/api/health
 
-      - name: No egress from api (base compose file only)
+      # The probe runs from the backend image inside each container's own network namespace,
+      # because the ollama and db images have no Python. web is on the published network, so
+      # it must get out: that proves the probe can see a route when there is one.
+      - name: No egress from api, worker, ml, ollama or db (base compose file only)
         run: |
-          if docker compose exec -T api python -c "import urllib.request;urllib.request.urlopen('https://example.com',timeout=5)"; then
-            echo "api reached the internet" >&2
-            exit 1
-          fi
+          probe='import socket
+          for host in ("1.1.1.1", "8.8.8.8", "example.com"):
+              try:
+                  socket.create_connection((host, 443), timeout=5).close()
+              except OSError:
+                  continue
+              print("reached " + host)
+              break
+          else:
+              print("no route out")'
+          for service in web api worker ml ollama db; do
+            id=$(docker compose ps -q "$service")
+            if [ -z "$id" ]; then
+              echo "$service is not running" >&2
+              exit 1
+            fi
+            out=$(docker run --rm --network "container:$id" --entrypoint python \
+              "sanad-backend:${SANAD_INSTANCE:-sanad}" -c "$probe")
+            echo "$service: $out"
+            if [ "$service" = web ]; then
+              case "$out" in reached*) ;; *) echo "the probe found no route even from web" >&2; exit 1 ;; esac
+            elif [ "$out" != "no route out" ]; then
+              echo "$service has a route to the internet" >&2
+              exit 1
+            fi
+          done
+
+      # `make up --wait` doesn't wait for the worker. The retrieval live tests need the corpus.
+      - name: Seed corpus ingested
+        timeout-minutes: 20
+        run: |
+          want=$(python3 -c "import json; print(len(json.load(open('seed/manifest.json'))['documents']))")
+          last=""
+          while true; do
+            now=$(docker compose exec -T db psql -U sanad -d sanad -tA -F ' ' -c \
+              "select count(*), count(*) filter (where status not in ('ready', 'failed')) from documents where is_seed")
+            if [ "$now" != "$last" ]; then
+              echo "seed documents registered, still busy: $now (of $want)"
+              last=$now
+            fi
+            if [ "$now" = "$want 0" ]; then
+              break
+            fi
+            sleep 5
+          done
+
+      # Every test of the real embedding, reranking and generation path. SANAD_REQUIRE_LIVE=1
+      # turns "the stack isn't reachable" into a failure instead of a skip (tests/conftest.py),
+      # and the step fails if no live test passed. Runs before e2e, which uploads documents.
+      - name: Live tests (real ml service and local LLM)
+        timeout-minutes: 45
+        run: |
+          set +e
+          docker compose run --rm -T -w /app/backend -e SANAD_REQUIRE_LIVE=1 backend-dev \
+            pytest -m live -v --durations=10 --junitxml=/app/live-junit.xml
+          status=$?
+          set -e
+          python3 - "$status" <<'EOF'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          root = ET.parse("live-junit.xml").getroot()
+          suite = root.find("testsuite") if root.tag == "testsuites" else root
+          tests, failed, errors, skipped = (
+              int(suite.get(key, 0)) for key in ("tests", "failures", "errors", "skipped")
+          )
+          passed = tests - failed - errors - skipped
+          line = f"Live tests: {passed} passed, {failed} failed, {errors} errors, {skipped} skipped"
+          print(line)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write(line + "\n")
+          if passed == 0:
+              sys.exit("no live test passed")
+          sys.exit(int(sys.argv[1]))
+          EOF
 
       - name: End-to-end (lang / dir)
         run: make test-e2e
 
       - name: Logs on failure
         if: failure()
-        run: docker compose logs --no-color --tail=200
+        run: |
+          docker compose logs --no-color --tail=200
+          df -h /
+          free -m
+          docker system df
 
       - name: Tear down
         if: always()

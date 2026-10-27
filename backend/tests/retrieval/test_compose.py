@@ -31,11 +31,13 @@ def default_of(value: str) -> str:
     return match.group(1)
 
 
-def test_ollama_and_api_have_no_route_out(base: dict[str, Any]) -> None:
+def test_content_containers_have_no_route_out(base: dict[str, Any]) -> None:
+    """Every container that touches document content is on the internal network only. CI
+    probes the same five from inside each one's network namespace (.github/workflows/ci.yml)."""
     assert base["networks"]["backend"]["internal"] is True
     services = base["services"]
-    assert services["ollama"]["networks"] == ["backend"]
-    assert services["api"]["networks"] == ["backend"]
+    for name in ("api", "worker", "ml", "ollama", "db"):
+        assert services[name]["networks"] == ["backend"], name
     depends = services["api"]["depends_on"]
     assert depends["ollama"]["condition"] == "service_healthy"
     # The model is in place before the first question (and `up --wait` accepts the one-shot).
