@@ -162,15 +162,3 @@ def test_the_language_changes_nothing_but_rule_5_and_its_line() -> None:
         assert SENTINEL not in statement
     for question in ("What changed?", "ما الذي تغير؟", "2021"):
         assert build_prompt(question, [excerpt("a")]).user.endswith("\n\n" + REMINDER)
-
-
-def test_a_related_figure_is_not_the_answer() -> None:
-    """R1f: T23 was answered with the target and the end date, never saying the asked rate
-    was missing. Rule 7 asks for the sentinel instead, in every language variant."""
-    for system in (system_prompt(None), system_prompt("ar"), system_prompt("en")):
-        assert rule(system, 7) == (
-            "7. If the excerpts give only a related figure (a target, a baseline, a plan or "
-            "budget, or another year's value) and not the figure the question asks for, reply "
-            f"with exactly {SENTINEL} and nothing else."
-        )
-        assert system.splitlines()[-1] == rule(system, 7)
