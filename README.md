@@ -122,8 +122,12 @@ them before the first start; you can also deactivate the demo accounts in Admin.
 | The local language model, `gemma4:e4b-it-qat`, pulled into a Docker volume | 6.1 GB |
 
 That is roughly 15 GB. **Estimate:** 30 to 60 minutes on a typical home connection, most of it
-downloading. Measured on a clean machine: TBD. After the first start, Sanad runs offline and
-starts in under a minute.
+downloading. **Measured** with [scripts/cleantest.sh](scripts/cleantest.sh) (a fresh clone, no
+`.env`, an empty model volume) on an Apple Silicon Mac with 10 CPUs and 15.6 GiB for Docker:
+10 minutes 11 seconds from start to the guest's first answer with a citation, 9 minutes 9 seconds
+of it the model download. That Mac already had the base images and the build cache, so the
+image downloads and builds are not in that time. Peak memory was 5.8 GiB. After the first
+start, Sanad runs offline and starts in under a minute.
 
 ### Memory
 
