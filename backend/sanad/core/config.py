@@ -1,5 +1,6 @@
 """Runtime configuration, read from the environment (see .env.example)."""
 
+import logging
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -10,12 +11,17 @@ from sqlalchemy.engine import URL
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 GuestMode = Literal["seed_only", "off"]
+SanadEnv = Literal["demo", "production"]
 
 
 class Settings(BaseSettings):
     """Every field maps to an upper-case environment variable of the same name."""
 
     model_config = SettingsConfigDict(extra="ignore", frozen=True)
+
+    # demo: the public defaults below work, with a startup warning (a clean `docker compose up`
+    # must run with no .env). production: api and init refuse to start while any is in use.
+    sanad_env: SanadEnv = "demo"
 
     postgres_host: str = "db"
     postgres_port: int = Field(default=5432, gt=0, lt=65536)
@@ -62,3 +68,57 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+# Settings whose default is public (it is in this repo) or unsafe on a real network.
+_PUBLIC_SECRET_DEFAULTS = (
+    "demo_admin_password",
+    "demo_editor_password",
+    "demo_viewer_password",
+    "postgres_password",
+)
+
+INSECURE_DEFAULTS = "INSECURE_DEFAULTS"
+
+
+class InsecureDefaultsError(RuntimeError):
+    """SANAD_ENV=production with public defaults still in use. Startup and log only: it never
+    reaches the API error envelope, so it carries a stable code but needs no translation."""
+
+    code = INSECURE_DEFAULTS
+
+    def __init__(self, names: list[str]) -> None:
+        self.names = names
+        super().__init__(
+            f"{INSECURE_DEFAULTS}: SANAD_ENV=production refuses to start while these settings "
+            f"keep their public defaults: {', '.join(names)}. Set them in .env (see .env.example)."
+        )
+
+
+def public_defaults_in_use(settings: Settings) -> list[str]:
+    """Environment variable names of the settings still at their public default. Names only,
+    never values."""
+    names = [
+        field.upper()
+        for field in _PUBLIC_SECRET_DEFAULTS
+        if getattr(settings, field).get_secret_value()
+        == Settings.model_fields[field].get_default().get_secret_value()
+    ]
+    if not settings.session_cookie_secure:
+        names.append("SESSION_COOKIE_SECURE")
+    return names
+
+
+def check_public_defaults(settings: Settings, logger: logging.Logger) -> None:
+    """Run at api and init startup. production: raise InsecureDefaultsError naming every
+    public default still in use. demo: log one warning with the same names."""
+    names = public_defaults_in_use(settings)
+    if not names:
+        return
+    if settings.sanad_env == "production":
+        raise InsecureDefaultsError(names)
+    logger.warning(
+        "SANAD_ENV=demo: public defaults in use for %s. Fine for the demo; on a real deployment "
+        "change them and set SANAD_ENV=production, which refuses to start until they are changed.",
+        ", ".join(names),
+    )
