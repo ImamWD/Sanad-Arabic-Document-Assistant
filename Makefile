@@ -131,5 +131,5 @@ EVAL_GIT_SHA ?= $(shell git rev-parse --short=12 HEAD 2>/dev/null)$(shell git di
 eval: tools-build ## Score the 15 headline questions against the running stack (EVAL_FLAGS="--hardware ...")
 	$(RUN) --no-deps backend-dev python -m sanad.eval --set test --git-sha "$(EVAL_GIT_SHA)" $(EVAL_FLAGS)
 
-eval-dev: tools-build ## Score the 30 dev (tuning) questions against the running stack
+eval-dev: tools-build ## Score the dev (tuning) questions against the running stack
 	$(RUN) --no-deps backend-dev python -m sanad.eval --set dev --git-sha "$(EVAL_GIT_SHA)" $(EVAL_FLAGS)
