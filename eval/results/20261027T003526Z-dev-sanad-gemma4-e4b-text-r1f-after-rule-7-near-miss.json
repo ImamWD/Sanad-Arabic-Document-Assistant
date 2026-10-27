@@ -1,0 +1,4854 @@
+{
+  "metadata": {
+    "set": "dev",
+    "set_file": "eval/dev_questions.yaml",
+    "set_version": 4,
+    "questions": 39,
+    "only": "-",
+    "date": "2026-10-27T00:35:26+00:00",
+    "git_sha": "6f46cac24d72",
+    "model": "sanad-gemma4-e4b-text, R1f after (rule 7 near-miss)",
+    "hardware": "Apple M5, Docker 16 GB fresh VM, CPU (containerised Ollama), no other stacks, generation about 10 tok/s",
+    "ollama_version": "0.40.10",
+    "server_llm_provider": "unknown",
+    "server_llm_model": "unknown",
+    "signed_in_as": "editor (editor@sanad.example)",
+    "diagnostics_requested": true,
+    "base_url": "http://api:8000",
+    "runs": 1,
+    "wall_seconds": 1822.6
+  },
+  "score": "36/39",
+  "aggregate": {
+    "runs": 1,
+    "total": 39,
+    "scores": [
+      36
+    ],
+    "mean": 36.0,
+    "min": 36,
+    "max": 36,
+    "correct_runs": {
+      "D01": 1,
+      "D02": 0,
+      "D03": 1,
+      "D04": 1,
+      "D05": 1,
+      "D06": 1,
+      "D07": 0,
+      "D08": 1,
+      "D09": 1,
+      "D10": 1,
+      "D11": 1,
+      "D12": 1,
+      "D13": 1,
+      "D14": 1,
+      "D15": 1,
+      "D16": 1,
+      "D17": 1,
+      "D18": 1,
+      "D19": 1,
+      "D20": 1,
+      "D21": 1,
+      "D22": 1,
+      "D23": 1,
+      "D24": 1,
+      "D25": 1,
+      "D26": 1,
+      "D27": 1,
+      "D28": 1,
+      "D29": 1,
+      "D30": 1,
+      "D31": 1,
+      "D32": 1,
+      "D33": 1,
+      "D34": 1,
+      "D35": 1,
+      "D36": 1,
+      "D37": 0,
+      "D38": 1,
+      "D39": 1
+    }
+  },
+  "category_rules": "Each failure has one category, the first that applies: `error` (the request failed), `invented_answer` (an unanswerable question was answered, low confidence included), `page_split` (a page-split item failed), `false_refusal` (an answerable question was refused), `retrieval` (no expected page among the candidates), `generation` (an expected page was retrieved, but the facts or the citation are wrong), `unclassified` (retrieval or generation, but the server sent no candidates).",
+  "runs": [
+    {
+      "summary": {
+        "score": 36,
+        "total": 39,
+        "answerable_correct": 27,
+        "answerable_total": 29,
+        "refused_correctly": 9,
+        "unanswerable_total": 10,
+        "false_refusals": [
+          "D02"
+        ],
+        "invented_answers": [
+          "D37"
+        ],
+        "errors": [],
+        "categories": {
+          "invented_answer": 1,
+          "page_split": 1,
+          "false_refusal": 1
+        },
+        "recall": {
+          "@5": {
+            "hits": 29,
+            "of": 29
+          },
+          "@10": {
+            "hits": 29,
+            "of": 29
+          }
+        },
+        "server_ms": {
+          "n": 39,
+          "median": 38474.0,
+          "p90": 65547.0
+        },
+        "wall_ms": {
+          "n": 39,
+          "median": 38478.0,
+          "p90": 65561.0
+        },
+        "stage_ms": {
+          "embed": {
+            "n": 39,
+            "median": 95.0,
+            "p90": 136.0
+          },
+          "first_token": {
+            "n": 35,
+            "median": 27916.0,
+            "p90": 44985.0
+          },
+          "generate": {
+            "n": 35,
+            "median": 33445.0,
+            "p90": 55325.0
+          },
+          "rerank": {
+            "n": 39,
+            "median": 6185.0,
+            "p90": 7875.0
+          },
+          "retrieve": {
+            "n": 39,
+            "median": 13.0,
+            "p90": 16.0
+          }
+        }
+      },
+      "questions": [
+        {
+          "id": "D01",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9625624418258667,
+          "cited": [
+            "yep-final-evaluation-2022.pdf p2",
+            "yep-final-evaluation-2022.pdf p5",
+            "yep-final-evaluation-2022.pdf p6"
+          ],
+          "expected": [
+            "yep-final-evaluation-2022.pdf p2",
+            "yep-final-evaluation-2022.pdf p6"
+          ],
+          "server_ms": 47648,
+          "wall_ms": 47653,
+          "timings_ms": {
+            "embed": 114.0,
+            "retrieve": 23.0,
+            "rerank": 5646.0,
+            "first_token": 35106.0,
+            "generate": 41844.0,
+            "total": 47648.0
+          },
+          "answer": "بلغ متوسط الدخل الشهري للخريجين العاملين 285 دولارًا أمريكيًا [1][2]. تبلغ كلفة الفرصة الوظيفية الواحدة 1,910 دولارات أمريكية [1][3].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "yep-final-evaluation-2022.pdf p2",
+              "rerank_score": 0.9625624418258667,
+              "dense_rank": 1,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 2,
+              "page": "yep-final-evaluation-2022.pdf p6",
+              "rerank_score": 0.9363290667533875,
+              "dense_rank": 2,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2021.pdf p14",
+              "rerank_score": 0.656225323677063,
+              "dense_rank": 4,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 4,
+              "page": "yep-final-evaluation-2022.pdf p5",
+              "rerank_score": 0.572456419467926,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "yep-final-evaluation-2022.pdf p3",
+              "rerank_score": 0.2945244312286377,
+              "dense_rank": 10,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "yep-final-evaluation-2022.pdf p4",
+              "rerank_score": 0.19299845397472382,
+              "dense_rank": 7,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "yep-annual-report-2024.pdf p5",
+              "rerank_score": 0.17240622639656067,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 8,
+              "page": "yep-tracer-survey-2023.pdf p1",
+              "rerank_score": 0.14679378271102905,
+              "dense_rank": 25,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2022.pdf p7",
+              "rerank_score": 0.13000674545764923,
+              "dense_rank": 22,
+              "lexical_rank": 21
+            },
+            {
+              "rank": 10,
+              "page": "yep-annual-report-2024.pdf p2",
+              "rerank_score": 0.08969801664352417,
+              "dense_rank": 11,
+              "lexical_rank": 40
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "yep-final-evaluation-2022.pdf p2",
+            "rerank_score": 0.9625624418258667,
+            "dense_rank": 1,
+            "lexical_rank": 12
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D02",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": false,
+          "category": "false_refusal",
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": true,
+          "expected_rank": 2,
+          "top_score": 0.998935878276825,
+          "cited": [],
+          "expected": [
+            "yep-final-evaluation-2022.pdf p5"
+          ],
+          "server_ms": 44816,
+          "wall_ms": 44821,
+          "timings_ms": {
+            "embed": 104.0,
+            "retrieve": 14.0,
+            "rerank": 6606.0,
+            "first_token": 37586.0,
+            "generate": 38081.0,
+            "total": 44816.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "yep-final-evaluation-2022.pdf p2",
+              "rerank_score": 0.998935878276825,
+              "dense_rank": 3,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "yep-final-evaluation-2022.pdf p5",
+              "rerank_score": 0.9922189712524414,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2022.pdf p7",
+              "rerank_score": 0.9866017699241638,
+              "dense_rank": 8,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2020.pdf p6",
+              "rerank_score": 0.9662747979164124,
+              "dense_rank": 6,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 5,
+              "page": "yep-final-evaluation-2022.pdf p7",
+              "rerank_score": 0.9608877897262573,
+              "dense_rank": 1,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2022.pdf p6",
+              "rerank_score": 0.7944228649139404,
+              "dense_rank": 15,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 7,
+              "page": "yep-final-evaluation-2022.pdf p6",
+              "rerank_score": 0.7837689518928528,
+              "dense_rank": 12,
+              "lexical_rank": 19
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2021.pdf p6",
+              "rerank_score": 0.7831993103027344,
+              "dense_rank": 7,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 9,
+              "page": "yep-final-evaluation-2022.pdf p8",
+              "rerank_score": 0.7191933989524841,
+              "dense_rank": 5,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 10,
+              "page": "yep-annual-report-2024.pdf p6",
+              "rerank_score": 0.5743403434753418,
+              "dense_rank": 11,
+              "lexical_rank": 14
+            }
+          ],
+          "expected_candidate": {
+            "rank": 2,
+            "page": "yep-final-evaluation-2022.pdf p5",
+            "rerank_score": 0.9922189712524414,
+            "dense_rank": 4,
+            "lexical_rank": null
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D03",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9003503918647766,
+          "cited": [
+            "wash-baseline-survey-2017.pdf p3",
+            "wash-final-evaluation-2021.pdf p4"
+          ],
+          "expected": [
+            "wash-baseline-survey-2017.pdf p3",
+            "wash-final-evaluation-2021.pdf p4"
+          ],
+          "server_ms": 219338,
+          "wall_ms": 219346,
+          "timings_ms": {
+            "embed": 103.0,
+            "retrieve": 16.0,
+            "rerank": 6897.0,
+            "first_token": 60269.0,
+            "generate": 212307.0,
+            "total": 219338.0
+          },
+          "answer": "بلغ متوسط الوقت اللازم لجلب المياه ذهابًا وإيابًا 74 دقيقة في المسح المرجعي لعام 2017 [1]. ويظهر التقييم النهائي أن متوسط الوقت اللازم لجلب المياه ذهابًا وإيابًا كان 74 دقيقة في عام 2017 [2].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "wash-baseline-survey-2017.pdf p3",
+              "rerank_score": 0.9003503918647766,
+              "dense_rank": 1,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 2,
+              "page": "wash-final-evaluation-2021.pdf p4",
+              "rerank_score": 0.8504478931427002,
+              "dense_rank": 3,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 3,
+              "page": "wash-baseline-survey-2017.pdf p1",
+              "rerank_score": 0.40464478731155396,
+              "dense_rank": 5,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 4,
+              "page": "wash-donor-agreement-2018.pdf p2",
+              "rerank_score": 0.3742329180240631,
+              "dense_rank": 2,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2020.pdf p7",
+              "rerank_score": 0.32826000452041626,
+              "dense_rank": 7,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2021.pdf p8",
+              "rerank_score": 0.2857648730278015,
+              "dense_rank": 9,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 7,
+              "page": "wash-final-evaluation-2021.pdf p1",
+              "rerank_score": 0.24383193254470825,
+              "dense_rank": 4,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 8,
+              "page": "wash-final-evaluation-2021.pdf p2",
+              "rerank_score": 0.23409059643745422,
+              "dense_rank": 11,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "wash-final-evaluation-2021.pdf p5",
+              "rerank_score": 0.1157861053943634,
+              "dense_rank": 10,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 10,
+              "page": "wash-final-evaluation-2021.pdf p3",
+              "rerank_score": 0.11523007601499557,
+              "dense_rank": 13,
+              "lexical_rank": 19
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "wash-baseline-survey-2017.pdf p3",
+            "rerank_score": 0.9003503918647766,
+            "dense_rank": 1,
+            "lexical_rank": 10
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D04",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9933691620826721,
+          "cited": [
+            "wash-baseline-survey-2017.pdf p4"
+          ],
+          "expected": [
+            "wash-baseline-survey-2017.pdf p4",
+            "board-minutes-2017-11.txt p2",
+            "wash-final-evaluation-2021.pdf p4"
+          ],
+          "server_ms": 199100,
+          "wall_ms": 199115,
+          "timings_ms": {
+            "embed": 136.0,
+            "retrieve": 16.0,
+            "rerank": 7547.0,
+            "first_token": 67303.0,
+            "generate": 191381.0,
+            "total": 199100.0
+          },
+          "answer": "نسبة الأسر التي لم يكن لديها أي مرفق (التغوط في العراء) بلغت 18% في عام 2017 [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "wash-baseline-survey-2017.pdf p4",
+              "rerank_score": 0.9933691620826721,
+              "dense_rank": 2,
+              "lexical_rank": 17
+            },
+            {
+              "rank": 2,
+              "page": "wash-final-evaluation-2021.pdf p4",
+              "rerank_score": 0.9916033744812012,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "wash-final-evaluation-2021.pdf p2",
+              "rerank_score": 0.9706898331642151,
+              "dense_rank": 7,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 4,
+              "page": "wash-baseline-survey-2017.pdf p2",
+              "rerank_score": 0.9197843074798584,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "wash-baseline-survey-2017.pdf p5",
+              "rerank_score": 0.8940874934196472,
+              "dense_rank": 1,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "wash-final-evaluation-2021.pdf p3",
+              "rerank_score": 0.7581223845481873,
+              "dense_rank": 10,
+              "lexical_rank": 37
+            },
+            {
+              "rank": 7,
+              "page": "wash-baseline-survey-2017.pdf p1",
+              "rerank_score": 0.7333024740219116,
+              "dense_rank": 4,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 8,
+              "page": "wash-baseline-survey-2017.pdf p3",
+              "rerank_score": 0.696041464805603,
+              "dense_rank": 6,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p8",
+              "rerank_score": 0.6403603553771973,
+              "dense_rank": 13,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 10,
+              "page": "wash-donor-agreement-2018.pdf p1",
+              "rerank_score": 0.6326196193695068,
+              "dense_rank": 12,
+              "lexical_rank": 2
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "wash-baseline-survey-2017.pdf p4",
+            "rerank_score": 0.9933691620826721,
+            "dense_rank": 2,
+            "lexical_rank": 17
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D05",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9941722750663757,
+          "cited": [
+            "chp-household-survey-2021.pdf p4"
+          ],
+          "expected": [
+            "chp-household-survey-2021.pdf p4"
+          ],
+          "server_ms": 65547,
+          "wall_ms": 65561,
+          "timings_ms": {
+            "embed": 155.0,
+            "retrieve": 13.0,
+            "rerank": 10038.0,
+            "first_token": 44985.0,
+            "generate": 55325.0,
+            "total": 65547.0
+          },
+          "answer": "46% من الأسر في سهول النخيل تبعد أكثر من 5 كيلومترات عن أقرب مركز صحي [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "chp-household-survey-2021.pdf p4",
+              "rerank_score": 0.9941722750663757,
+              "dense_rank": 1,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 2,
+              "page": "chp-household-survey-2021.pdf p2",
+              "rerank_score": 0.6954823732376099,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "chp-household-survey-2021.pdf p5",
+              "rerank_score": 0.4369103014469147,
+              "dense_rank": 2,
+              "lexical_rank": 15
+            },
+            {
+              "rank": 4,
+              "page": "chp-household-survey-2021.pdf p3",
+              "rerank_score": 0.37169787287712097,
+              "dense_rank": 6,
+              "lexical_rank": 18
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2016.pdf p4",
+              "rerank_score": 0.32489079236984253,
+              "dense_rank": 10,
+              "lexical_rank": 16
+            },
+            {
+              "rank": 6,
+              "page": "chp-household-survey-2021.pdf p1",
+              "rerank_score": 0.3127373158931732,
+              "dense_rank": 4,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2020.pdf p9",
+              "rerank_score": 0.29958149790763855,
+              "dense_rank": 9,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2021.pdf p11",
+              "rerank_score": 0.22038277983665466,
+              "dense_rank": 5,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 9,
+              "page": "chp-evaluation-2024.pdf p1",
+              "rerank_score": 0.11576352268457413,
+              "dense_rank": 32,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2022.pdf p5",
+              "rerank_score": 0.09602915495634079,
+              "dense_rank": 16,
+              "lexical_rank": 12
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "chp-household-survey-2021.pdf p4",
+            "rerank_score": 0.9941722750663757,
+            "dense_rank": 1,
+            "lexical_rank": 5
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D06",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "low_confidence",
+          "band": "low_confidence",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.3914472460746765,
+          "cited": [
+            "chp-household-survey-2021.pdf p4"
+          ],
+          "expected": [
+            "chp-household-survey-2021.pdf p4"
+          ],
+          "server_ms": 117525,
+          "wall_ms": 117538,
+          "timings_ms": {
+            "embed": 109.0,
+            "retrieve": 13.0,
+            "rerank": 7271.0,
+            "first_token": 46132.0,
+            "generate": 110122.0,
+            "total": 117525.0
+          },
+          "answer": "متوسط الإنفاق الشهري للأسرة على الصحة من مالها الخاص هو 34 دولارًا أمريكيًا [1]. يشكل الدواء الجزء الأكبر من الإنفاق الصحي للأسر، يليه أجور النقل إلى المراكز الصحية [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "chp-household-survey-2021.pdf p4",
+              "rerank_score": 0.3914472460746765,
+              "dense_rank": 1,
+              "lexical_rank": null
+            },
+            {
+              "rank": 2,
+              "page": "chp-household-survey-2021.pdf p2",
+              "rerank_score": 0.14478307962417603,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "chp-household-survey-2021.pdf p1",
+              "rerank_score": 0.08764488995075226,
+              "dense_rank": 4,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 4,
+              "page": "chp-household-survey-2021.pdf p5",
+              "rerank_score": 0.058795128017663956,
+              "dense_rank": 2,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p11",
+              "rerank_score": 0.02896755002439022,
+              "dense_rank": 6,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2020.pdf p9",
+              "rerank_score": 0.020701896399259567,
+              "dense_rank": 17,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 7,
+              "page": "board-minutes-2021-06.docx p4",
+              "rerank_score": 0.017559928819537163,
+              "dense_rank": null,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2022.pdf p5",
+              "rerank_score": 0.01652906835079193,
+              "dense_rank": 27,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 9,
+              "page": "chp-household-survey-2021.pdf p3",
+              "rerank_score": 0.016330650076270103,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "chp-evaluation-2024.pdf p1",
+              "rerank_score": 0.013881639577448368,
+              "dense_rank": 32,
+              "lexical_rank": 12
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "chp-household-survey-2021.pdf p4",
+            "rerank_score": 0.3914472460746765,
+            "dense_rank": 1,
+            "lexical_rank": null
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D07",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": true,
+          "expected_outcome": "answered",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": false,
+          "category": "page_split",
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.99461829662323,
+          "cited": [],
+          "expected": [
+            "gep-enrolment-survey-2015.pdf p4"
+          ],
+          "server_ms": 51890,
+          "wall_ms": 51900,
+          "timings_ms": {
+            "embed": 121.0,
+            "retrieve": 16.0,
+            "rerank": 9209.0,
+            "first_token": 41943.0,
+            "generate": 42537.0,
+            "total": 51890.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "gep-enrolment-survey-2015.pdf p4",
+              "rerank_score": 0.99461829662323,
+              "dense_rank": 1,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 2,
+              "page": "gep-midterm-evaluation-2020.pdf p3",
+              "rerank_score": 0.983468770980835,
+              "dense_rank": 9,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 3,
+              "page": "gep-enrolment-survey-2015.pdf p1",
+              "rerank_score": 0.9829337000846863,
+              "dense_rank": 2,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 4,
+              "page": "gep-enrolment-survey-2015.pdf p3",
+              "rerank_score": 0.9573850631713867,
+              "dense_rank": 3,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2016.pdf p3",
+              "rerank_score": 0.9180608987808228,
+              "dense_rank": 8,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 6,
+              "page": "gep-enrolment-survey-2015.pdf p2",
+              "rerank_score": 0.8809102773666382,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2022.pdf p9",
+              "rerank_score": 0.7981494665145874,
+              "dense_rank": 5,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 8,
+              "page": "gep-donor-agreement-2019.pdf p1",
+              "rerank_score": 0.6746079921722412,
+              "dense_rank": 23,
+              "lexical_rank": 23
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p9",
+              "rerank_score": 0.46193212270736694,
+              "dense_rank": 6,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2020.pdf p8",
+              "rerank_score": 0.2661571800708771,
+              "dense_rank": 7,
+              "lexical_rank": 6
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "gep-enrolment-survey-2015.pdf p4",
+            "rerank_score": 0.99461829662323,
+            "dense_rank": 1,
+            "lexical_rank": 2
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D08",
+          "language": "en",
+          "kinds": [
+            "factual",
+            "numeric",
+            "english"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9790452718734741,
+          "cited": [
+            "gep-midterm-evaluation-2020.pdf p2"
+          ],
+          "expected": [
+            "gep-midterm-evaluation-2020.pdf p2"
+          ],
+          "server_ms": 46766,
+          "wall_ms": 46781,
+          "timings_ms": {
+            "embed": 137.0,
+            "retrieve": 18.0,
+            "rerank": 7875.0,
+            "first_token": 34952.0,
+            "generate": 38725.0,
+            "total": 46766.0
+          },
+          "answer": "About 2,400 girls were estimated to have followed the daily lessons broadcast on community radio [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "gep-midterm-evaluation-2020.pdf p2",
+              "rerank_score": 0.9790452718734741,
+              "dense_rank": 1,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 2,
+              "page": "gep-midterm-evaluation-2020.pdf p5",
+              "rerank_score": 0.2712550461292267,
+              "dense_rank": 3,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 3,
+              "page": "gep-midterm-evaluation-2020.pdf p6",
+              "rerank_score": 0.12385474145412445,
+              "dense_rank": 7,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2020.pdf p8",
+              "rerank_score": 0.109745554625988,
+              "dense_rank": 2,
+              "lexical_rank": 16
+            },
+            {
+              "rank": 5,
+              "page": "gep-midterm-evaluation-2020.pdf p4",
+              "rerank_score": 0.04787352681159973,
+              "dense_rank": 8,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 6,
+              "page": "gep-midterm-evaluation-2020.pdf p1",
+              "rerank_score": 0.02988847717642784,
+              "dense_rank": 17,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 7,
+              "page": "gep-donor-agreement-2019.pdf p1",
+              "rerank_score": 0.010227448306977749,
+              "dense_rank": null,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2020.pdf p2",
+              "rerank_score": 0.009913894347846508,
+              "dense_rank": 4,
+              "lexical_rank": 26
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p9",
+              "rerank_score": 0.008692685514688492,
+              "dense_rank": 6,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "gep-midterm-evaluation-2020.pdf p3",
+              "rerank_score": 0.005419433116912842,
+              "dense_rank": 9,
+              "lexical_rank": 2
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "gep-midterm-evaluation-2020.pdf p2",
+            "rerank_score": 0.9790452718734741,
+            "dense_rank": 1,
+            "lexical_rank": 3
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D09",
+          "language": "en",
+          "kinds": [
+            "factual",
+            "numeric",
+            "english",
+            "cross_lingual"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "low_confidence",
+          "band": "low_confidence",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 3,
+          "top_score": 0.2720824182033539,
+          "cited": [
+            "annual-report-2021.pdf p4",
+            "annual-report-2021.pdf p14"
+          ],
+          "expected": [
+            "annual-report-2021.pdf p4",
+            "annual-report-2021.pdf p14"
+          ],
+          "server_ms": 44183,
+          "wall_ms": 44191,
+          "timings_ms": {
+            "embed": 112.0,
+            "retrieve": 14.0,
+            "rerank": 8116.0,
+            "first_token": 32383.0,
+            "generate": 35932.0,
+            "total": 44183.0
+          },
+          "answer": "The total expenditures in 2021 were 4,180,000 US dollars [1][2].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2021.pdf p13",
+              "rerank_score": 0.2720824182033539,
+              "dense_rank": 7,
+              "lexical_rank": 40
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2023-en.pdf p3",
+              "rerank_score": 0.06183381751179695,
+              "dense_rank": 8,
+              "lexical_rank": 31
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2021.pdf p4",
+              "rerank_score": 0.05124817416071892,
+              "dense_rank": 5,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 4,
+              "page": "gep-midterm-evaluation-2020.pdf p2",
+              "rerank_score": 0.044826798141002655,
+              "dense_rank": 25,
+              "lexical_rank": 23
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2023-en.pdf p10",
+              "rerank_score": 0.014327889308333397,
+              "dense_rank": 14,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2021.pdf p14",
+              "rerank_score": 0.01428732555359602,
+              "dense_rank": 2,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2022.pdf p13",
+              "rerank_score": 0.013920504599809647,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2023-en.pdf p9",
+              "rerank_score": 0.004613855853676796,
+              "dense_rank": 1,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "board-minutes-2021-06.docx p3",
+              "rerank_score": 0.004590879660099745,
+              "dense_rank": 29,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2023-en.pdf p7",
+              "rerank_score": 0.004191480576992035,
+              "dense_rank": 27,
+              "lexical_rank": 9
+            }
+          ],
+          "expected_candidate": {
+            "rank": 3,
+            "page": "annual-report-2021.pdf p4",
+            "rerank_score": 0.05124817416071892,
+            "dense_rank": 5,
+            "lexical_rank": 12
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D10",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.713747501373291,
+          "cited": [
+            "board-minutes-2021-06.docx p2",
+            "annual-report-2020.pdf p4",
+            "annual-report-2020.pdf p11"
+          ],
+          "expected": [
+            "board-minutes-2021-06.docx p2",
+            "annual-report-2020.pdf p4",
+            "annual-report-2020.pdf p11"
+          ],
+          "server_ms": 35833,
+          "wall_ms": 35838,
+          "timings_ms": {
+            "embed": 137.0,
+            "retrieve": 15.0,
+            "rerank": 6251.0,
+            "first_token": 26415.0,
+            "generate": 29425.0,
+            "total": 35833.0
+          },
+          "answer": "إجمالي الإيرادات للمؤسسة لعام 2020 بلغ 3,560,000 دولار أمريكي [1][2][3]. وقد دقق مدقق الحسابات الخارجي المستقل هذه البيانات وأصدر رأيًا نظيفًا دون تحفظات [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "board-minutes-2021-06.docx p2",
+              "rerank_score": 0.713747501373291,
+              "dense_rank": 2,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2020.pdf p4",
+              "rerank_score": 0.3632614314556122,
+              "dense_rank": 1,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2020.pdf p11",
+              "rerank_score": 0.34273526072502136,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2020.pdf p10",
+              "rerank_score": 0.12718771398067474,
+              "dense_rank": 7,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2020.pdf p3",
+              "rerank_score": 0.09949853271245956,
+              "dense_rank": 21,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2021.pdf p13",
+              "rerank_score": 0.06482315063476562,
+              "dense_rank": 6,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2020.pdf p2",
+              "rerank_score": 0.03813136741518974,
+              "dense_rank": 9,
+              "lexical_rank": 21
+            },
+            {
+              "rank": 8,
+              "page": "board-minutes-2023-03.pdf p2",
+              "rerank_score": 0.032007183879613876,
+              "dense_rank": 8,
+              "lexical_rank": 30
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p15",
+              "rerank_score": 0.0233719851821661,
+              "dense_rank": 30,
+              "lexical_rank": 26
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2022.pdf p13",
+              "rerank_score": 0.013943635858595371,
+              "dense_rank": 5,
+              "lexical_rank": null
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "board-minutes-2021-06.docx p2",
+            "rerank_score": 0.713747501373291,
+            "dense_rank": 2,
+            "lexical_rank": 1
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D11",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9889174699783325,
+          "cited": [
+            "board-minutes-2017-11.txt p2"
+          ],
+          "expected": [
+            "board-minutes-2017-11.txt p2"
+          ],
+          "server_ms": 38944,
+          "wall_ms": 38948,
+          "timings_ms": {
+            "embed": 88.0,
+            "retrieve": 13.0,
+            "rerank": 6127.0,
+            "first_token": 27637.0,
+            "generate": 32711.0,
+            "total": 38944.0
+          },
+          "answer": "وافق المجلس على تقديم مقترح مشروع المياه والإصحاح البيئي في المناطق الريفية إلى صندوق سدرة الوادي للتنمية بمبلغ مطلوب قدره 1,200,000 دولار أمريكي [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "board-minutes-2017-11.txt p2",
+              "rerank_score": 0.9889174699783325,
+              "dense_rank": 3,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 2,
+              "page": "board-minutes-2017-11.txt p3",
+              "rerank_score": 0.8268474340438843,
+              "dense_rank": 2,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 3,
+              "page": "budget-2018.docx p1",
+              "rerank_score": 0.7094600200653076,
+              "dense_rank": 11,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 4,
+              "page": "wash-donor-agreement-2018.pdf p2",
+              "rerank_score": 0.7007010579109192,
+              "dense_rank": 9,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "budget-2018.docx p2",
+              "rerank_score": 0.5571897029876709,
+              "dense_rank": 1,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 6,
+              "page": "wash-donor-agreement-2018.pdf p5",
+              "rerank_score": 0.55156010389328,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "budget-2018.docx p3",
+              "rerank_score": 0.5190170407295227,
+              "dense_rank": 6,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 8,
+              "page": "wash-donor-agreement-2018.pdf p3",
+              "rerank_score": 0.40406766533851624,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "wash-donor-agreement-2018.pdf p1",
+              "rerank_score": 0.36277058720588684,
+              "dense_rank": 8,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 10,
+              "page": "wash-final-evaluation-2021.pdf p1",
+              "rerank_score": 0.3514987826347351,
+              "dense_rank": 20,
+              "lexical_rank": 12
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "board-minutes-2017-11.txt p2",
+            "rerank_score": 0.9889174699783325,
+            "dense_rank": 3,
+            "lexical_rank": 14
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D12",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.5769281387329102,
+          "cited": [
+            "annual-report-2021.pdf p6"
+          ],
+          "expected": [
+            "annual-report-2021.pdf p6"
+          ],
+          "server_ms": 34753,
+          "wall_ms": 34757,
+          "timings_ms": {
+            "embed": 77.0,
+            "retrieve": 11.0,
+            "rerank": 7172.0,
+            "first_token": 25939.0,
+            "generate": 27488.0,
+            "total": 34753.0
+          },
+          "answer": "شكلت الشابات 46% من المتدربين الذين أتموا برامج التدريب في عام 2021 [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2021.pdf p6",
+              "rerank_score": 0.5769281387329102,
+              "dense_rank": 5,
+              "lexical_rank": 28
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2023-en.pdf p5",
+              "rerank_score": 0.3816596269607544,
+              "dense_rank": 2,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "yep-final-evaluation-2022.pdf p7",
+              "rerank_score": 0.3498530983924866,
+              "dense_rank": 14,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "yep-final-evaluation-2022.pdf p4",
+              "rerank_score": 0.34340590238571167,
+              "dense_rank": 1,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2022.pdf p6",
+              "rerank_score": 0.22076815366744995,
+              "dense_rank": 9,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "yep-final-evaluation-2022.pdf p5",
+              "rerank_score": 0.19740405678749084,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "yep-grant-agreement-2021.pdf p4",
+              "rerank_score": 0.17461295425891876,
+              "dense_rank": 20,
+              "lexical_rank": 36
+            },
+            {
+              "rank": 8,
+              "page": "yep-annual-report-2024.pdf p2",
+              "rerank_score": 0.16311365365982056,
+              "dense_rank": 4,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p5",
+              "rerank_score": 0.1404402107000351,
+              "dense_rank": 26,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2022.pdf p7",
+              "rerank_score": 0.11531749367713928,
+              "dense_rank": 15,
+              "lexical_rank": 34
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2021.pdf p6",
+            "rerank_score": 0.5769281387329102,
+            "dense_rank": 5,
+            "lexical_rank": 28
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D13",
+          "language": "en",
+          "kinds": [
+            "factual",
+            "numeric",
+            "english",
+            "cross_lingual",
+            "cross_document"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 3,
+          "top_score": 0.9885284900665283,
+          "cited": [
+            "gep-enrolment-survey-2015.pdf p2",
+            "gep-midterm-evaluation-2020.pdf p3",
+            "gep-midterm-evaluation-2020.pdf p2"
+          ],
+          "expected": [
+            "gep-enrolment-survey-2015.pdf p2",
+            "gep-midterm-evaluation-2020.pdf p2",
+            "gep-midterm-evaluation-2020.pdf p4"
+          ],
+          "server_ms": 38474,
+          "wall_ms": 38478,
+          "timings_ms": {
+            "embed": 105.0,
+            "retrieve": 13.0,
+            "rerank": 6813.0,
+            "first_token": 28726.0,
+            "generate": 31539.0,
+            "total": 38474.0
+          },
+          "answer": "The net enrollment rate for girls in basic education in Sahl Al-Qamar in 2015 was 58% [1]. By October 2020, the girls' enrollment rate in the 30 target schools had risen to 68% [2][3].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "gep-midterm-evaluation-2020.pdf p3",
+              "rerank_score": 0.9885284900665283,
+              "dense_rank": 1,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 2,
+              "page": "gep-enrolment-survey-2015.pdf p4",
+              "rerank_score": 0.9488024115562439,
+              "dense_rank": 9,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "gep-enrolment-survey-2015.pdf p2",
+              "rerank_score": 0.8948687314987183,
+              "dense_rank": 12,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "gep-enrolment-survey-2015.pdf p1",
+              "rerank_score": 0.8093677163124084,
+              "dense_rank": 7,
+              "lexical_rank": 15
+            },
+            {
+              "rank": 5,
+              "page": "gep-midterm-evaluation-2020.pdf p4",
+              "rerank_score": 0.7669779658317566,
+              "dense_rank": 2,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 6,
+              "page": "gep-midterm-evaluation-2020.pdf p1",
+              "rerank_score": 0.7299004793167114,
+              "dense_rank": 3,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 7,
+              "page": "gep-donor-agreement-2019.pdf p1",
+              "rerank_score": 0.7103254199028015,
+              "dense_rank": 6,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 8,
+              "page": "gep-midterm-evaluation-2020.pdf p2",
+              "rerank_score": 0.6436111330986023,
+              "dense_rank": 4,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2023-en.pdf p6",
+              "rerank_score": 0.3585509657859802,
+              "dense_rank": 5,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2020.pdf p8",
+              "rerank_score": 0.3055449426174164,
+              "dense_rank": 11,
+              "lexical_rank": 21
+            }
+          ],
+          "expected_candidate": {
+            "rank": 3,
+            "page": "gep-enrolment-survey-2015.pdf p2",
+            "rerank_score": 0.8948687314987183,
+            "dense_rank": 12,
+            "lexical_rank": null
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D14",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric",
+            "temporal",
+            "cross_document"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9977176785469055,
+          "cited": [
+            "annual-report-2021.pdf p5",
+            "annual-report-2020.pdf p9"
+          ],
+          "expected": [
+            "annual-report-2021.pdf p5",
+            "annual-report-2020.pdf p5",
+            "annual-report-2020.pdf p9",
+            "annual-report-2021.pdf p11",
+            "annual-report-2022.pdf p5",
+            "chp-evaluation-2024.pdf p4"
+          ],
+          "server_ms": 31913,
+          "wall_ms": 31916,
+          "timings_ms": {
+            "embed": 57.0,
+            "retrieve": 12.0,
+            "rerank": 5425.0,
+            "first_token": 23773.0,
+            "generate": 26416.0,
+            "total": 31913.0
+          },
+          "answer": "عدد المستفيدين من برنامج الصحة المجتمعية في عام 2020 كان 3,370 شخصًا [1][2]. وفي عام 2021، ارتفع هذا العدد إلى 12,930 مستفيدًا [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2021.pdf p5",
+              "rerank_score": 0.9977176785469055,
+              "dense_rank": 1,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2020.pdf p4",
+              "rerank_score": 0.9882140159606934,
+              "dense_rank": 11,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2022.pdf p11",
+              "rerank_score": 0.9844623804092407,
+              "dense_rank": 2,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 4,
+              "page": "chp-evaluation-2024.pdf p4",
+              "rerank_score": 0.984013557434082,
+              "dense_rank": 3,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2020.pdf p9",
+              "rerank_score": 0.9756243228912354,
+              "dense_rank": 6,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 6,
+              "page": "chp-evaluation-2024.pdf p2",
+              "rerank_score": 0.9675355553627014,
+              "dense_rank": 5,
+              "lexical_rank": 27
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2022.pdf p4",
+              "rerank_score": 0.951230525970459,
+              "dense_rank": 9,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2021.pdf p4",
+              "rerank_score": 0.9333400130271912,
+              "dense_rank": 13,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p11",
+              "rerank_score": 0.9152452945709229,
+              "dense_rank": 4,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2022.pdf p5",
+              "rerank_score": 0.8821879625320435,
+              "dense_rank": 8,
+              "lexical_rank": 5
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2021.pdf p5",
+            "rerank_score": 0.9977176785469055,
+            "dense_rank": 1,
+            "lexical_rank": 1
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D15",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "diacritics"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "low_confidence",
+          "band": "low_confidence",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.2137371301651001,
+          "cited": [
+            "annual-report-2016.pdf p2",
+            "annual-report-2021.pdf p3",
+            "gep-enrolment-survey-2015.pdf p1"
+          ],
+          "expected": [
+            "annual-report-2021.pdf p3",
+            "annual-report-2021.pdf p2",
+            "gep-enrolment-survey-2015.pdf p1",
+            "board-minutes-2021-06.docx p3",
+            "annual-report-2016.pdf p2"
+          ],
+          "server_ms": 37334,
+          "wall_ms": 37337,
+          "timings_ms": {
+            "embed": 27.0,
+            "retrieve": 11.0,
+            "rerank": 5741.0,
+            "first_token": 28999.0,
+            "generate": 31550.0,
+            "total": 37334.0
+          },
+          "answer": "تأسست مؤسسة الر يحان للتنمية عام 2014م [1][2][3].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2016.pdf p2",
+              "rerank_score": 0.2137371301651001,
+              "dense_rank": 1,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2021.pdf p3",
+              "rerank_score": 0.11330973356962204,
+              "dense_rank": 2,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2016.pdf p1",
+              "rerank_score": 0.037278417497873306,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "gep-enrolment-survey-2015.pdf p1",
+              "rerank_score": 0.013533217832446098,
+              "dense_rank": 28,
+              "lexical_rank": 28
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2022.pdf p2",
+              "rerank_score": 0.008701091632246971,
+              "dense_rank": 15,
+              "lexical_rank": 39
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2020.pdf p3",
+              "rerank_score": 0.005402914248406887,
+              "dense_rank": 14,
+              "lexical_rank": 23
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2016.pdf p4",
+              "rerank_score": 0.005052739288657904,
+              "dense_rank": 3,
+              "lexical_rank": 21
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2021.pdf p11",
+              "rerank_score": 0.004506721626967192,
+              "dense_rank": 18,
+              "lexical_rank": 17
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p4",
+              "rerank_score": 0.004380888771265745,
+              "dense_rank": 27,
+              "lexical_rank": 16
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2020.pdf p6",
+              "rerank_score": 0.00408401433378458,
+              "dense_rank": 9,
+              "lexical_rank": 4
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2016.pdf p2",
+            "rerank_score": 0.2137371301651001,
+            "dense_rank": 1,
+            "lexical_rank": 1
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D16",
+          "language": "en",
+          "kinds": [
+            "factual",
+            "numeric",
+            "english",
+            "cross_lingual"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "low_confidence",
+          "band": "low_confidence",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 2,
+          "top_score": 0.47211140394210815,
+          "cited": [
+            "annual-report-2021.pdf p15",
+            "annual-report-2021.pdf p3"
+          ],
+          "expected": [
+            "annual-report-2021.pdf p3",
+            "annual-report-2021.pdf p4",
+            "annual-report-2021.pdf p15"
+          ],
+          "server_ms": 38020,
+          "wall_ms": 38028,
+          "timings_ms": {
+            "embed": 78.0,
+            "retrieve": 12.0,
+            "rerank": 6332.0,
+            "first_token": 27831.0,
+            "generate": 31587.0,
+            "total": 38020.0
+          },
+          "answer": "At the end of 2021, the number of employees was 71 [1][2]. Of these employees, 38 were women and 33 were men [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2023-en.pdf p3",
+              "rerank_score": 0.47211140394210815,
+              "dense_rank": 2,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2021.pdf p15",
+              "rerank_score": 0.2627573311328888,
+              "dense_rank": 1,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2021.pdf p3",
+              "rerank_score": 0.08497539162635803,
+              "dense_rank": 3,
+              "lexical_rank": 39
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2023-en.pdf p6",
+              "rerank_score": 0.04015748202800751,
+              "dense_rank": 25,
+              "lexical_rank": 29
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p13",
+              "rerank_score": 0.02693602815270424,
+              "dense_rank": 11,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2023-en.pdf p7",
+              "rerank_score": 0.018893953412771225,
+              "dense_rank": 12,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2021.pdf p4",
+              "rerank_score": 0.01560986414551735,
+              "dense_rank": 4,
+              "lexical_rank": 15
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2023-en.pdf p5",
+              "rerank_score": 0.014370201155543327,
+              "dense_rank": 36,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2023-en.pdf p1",
+              "rerank_score": 0.00963514018803835,
+              "dense_rank": 26,
+              "lexical_rank": 36
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2023-en.pdf p10",
+              "rerank_score": 0.009021762758493423,
+              "dense_rank": 9,
+              "lexical_rank": 14
+            }
+          ],
+          "expected_candidate": {
+            "rank": 2,
+            "page": "annual-report-2021.pdf p15",
+            "rerank_score": 0.2627573311328888,
+            "dense_rank": 1,
+            "lexical_rank": 12
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D17",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric",
+            "tatweel"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 2,
+          "top_score": 0.9990713596343994,
+          "cited": [
+            "annual-report-2021.pdf p11"
+          ],
+          "expected": [
+            "annual-report-2021.pdf p11",
+            "chp-evaluation-2024.pdf p4"
+          ],
+          "server_ms": 36658,
+          "wall_ms": 36665,
+          "timings_ms": {
+            "embed": 106.0,
+            "retrieve": 13.0,
+            "rerank": 6168.0,
+            "first_token": 27461.0,
+            "generate": 30357.0,
+            "total": 36658.0
+          },
+          "answer": "قدمت العيادات المتنقلة 21,450 استشارة طبية في الرعاية الأولية وصحة الأم والطفل خلال عام 2021 [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "chp-evaluation-2024.pdf p2",
+              "rerank_score": 0.9990713596343994,
+              "dense_rank": 1,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2021.pdf p11",
+              "rerank_score": 0.9973788857460022,
+              "dense_rank": 3,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 3,
+              "page": "chp-evaluation-2024.pdf p4",
+              "rerank_score": 0.9957966804504395,
+              "dense_rank": 2,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2022.pdf p11",
+              "rerank_score": 0.9798912405967712,
+              "dense_rank": 4,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p4",
+              "rerank_score": 0.8499512076377869,
+              "dense_rank": 6,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2023-en.pdf p7",
+              "rerank_score": 0.5697975158691406,
+              "dense_rank": 15,
+              "lexical_rank": 28
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2016.pdf p4",
+              "rerank_score": 0.413861483335495,
+              "dense_rank": 18,
+              "lexical_rank": 33
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2021.pdf p5",
+              "rerank_score": 0.35084035992622375,
+              "dense_rank": 8,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 9,
+              "page": "chp-evaluation-2024.pdf p6",
+              "rerank_score": 0.2987396717071533,
+              "dense_rank": 14,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "chp-household-survey-2021.pdf p5",
+              "rerank_score": 0.2300788015127182,
+              "dense_rank": 5,
+              "lexical_rank": 4
+            }
+          ],
+          "expected_candidate": {
+            "rank": 2,
+            "page": "annual-report-2021.pdf p11",
+            "rerank_score": 0.9973788857460022,
+            "dense_rank": 3,
+            "lexical_rank": 3
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D18",
+          "language": "ar",
+          "kinds": [
+            "unanswerable",
+            "near_miss"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.953946590423584,
+          "cited": [],
+          "expected": [],
+          "server_ms": 36051,
+          "wall_ms": 36057,
+          "timings_ms": {
+            "embed": 95.0,
+            "retrieve": 11.0,
+            "rerank": 5754.0,
+            "first_token": 29918.0,
+            "generate": 30179.0,
+            "total": 36051.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2021.pdf p9",
+              "rerank_score": 0.953946590423584,
+              "dense_rank": 4,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2022.pdf p9",
+              "rerank_score": 0.9450643658638,
+              "dense_rank": 2,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2020.pdf p8",
+              "rerank_score": 0.9215928912162781,
+              "dense_rank": 7,
+              "lexical_rank": 21
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2022.pdf p5",
+              "rerank_score": 0.8181626200675964,
+              "dense_rank": 29,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p5",
+              "rerank_score": 0.7398959994316101,
+              "dense_rank": 25,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 6,
+              "page": "gep-midterm-evaluation-2020.pdf p4",
+              "rerank_score": 0.7247447967529297,
+              "dense_rank": 9,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "gep-midterm-evaluation-2020.pdf p2",
+              "rerank_score": 0.7144718170166016,
+              "dense_rank": 6,
+              "lexical_rank": null
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2020.pdf p11",
+              "rerank_score": 0.7071439027786255,
+              "dense_rank": 32,
+              "lexical_rank": 16
+            },
+            {
+              "rank": 9,
+              "page": "budget-2018.docx p3",
+              "rerank_score": 0.6825854182243347,
+              "dense_rank": 5,
+              "lexical_rank": 27
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2022.pdf p13",
+              "rerank_score": 0.6738194227218628,
+              "dense_rank": 26,
+              "lexical_rank": 15
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D19",
+          "language": "ar",
+          "kinds": [
+            "unanswerable",
+            "near_miss"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.7230387926101685,
+          "cited": [],
+          "expected": [],
+          "server_ms": 36978,
+          "wall_ms": 36984,
+          "timings_ms": {
+            "embed": 104.0,
+            "retrieve": 12.0,
+            "rerank": 6261.0,
+            "first_token": 30375.0,
+            "generate": 30597.0,
+            "total": 36978.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "yep-tracer-survey-2023.pdf p4",
+              "rerank_score": 0.7230387926101685,
+              "dense_rank": 1,
+              "lexical_rank": 38
+            },
+            {
+              "rank": 2,
+              "page": "yep-final-evaluation-2022.pdf p5",
+              "rerank_score": 0.7117636799812317,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "yep-final-evaluation-2022.pdf p2",
+              "rerank_score": 0.5532925128936768,
+              "dense_rank": 2,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "yep-tracer-survey-2023.pdf p2",
+              "rerank_score": 0.4855465590953827,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "yep-tracer-survey-2023.pdf p1",
+              "rerank_score": 0.4699799716472626,
+              "dense_rank": 6,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2020.pdf p6",
+              "rerank_score": 0.4092639982700348,
+              "dense_rank": 28,
+              "lexical_rank": 19
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2022.pdf p6",
+              "rerank_score": 0.37294960021972656,
+              "dense_rank": 14,
+              "lexical_rank": 29
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2021.pdf p6",
+              "rerank_score": 0.34947526454925537,
+              "dense_rank": 12,
+              "lexical_rank": 18
+            },
+            {
+              "rank": 9,
+              "page": "budget-2024-final.pdf p4",
+              "rerank_score": 0.1769058108329773,
+              "dense_rank": 29,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 10,
+              "page": "yep-tracer-survey-2023.pdf p5",
+              "rerank_score": 0.17206960916519165,
+              "dense_rank": 8,
+              "lexical_rank": null
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D20",
+          "language": "en",
+          "kinds": [
+            "unanswerable",
+            "english"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "refuse",
+          "refusal_reason": "gate",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.006488198880106211,
+          "cited": [],
+          "expected": [],
+          "server_ms": 6057,
+          "wall_ms": 6061,
+          "timings_ms": {
+            "embed": 119.0,
+            "retrieve": 15.0,
+            "rerank": 5917.0,
+            "total": 6057.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2023-en.pdf p3",
+              "rerank_score": 0.006488198880106211,
+              "dense_rank": 6,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2023-en.pdf p1",
+              "rerank_score": 0.005371271166950464,
+              "dense_rank": 30,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 3,
+              "page": "gep-midterm-evaluation-2020.pdf p1",
+              "rerank_score": 0.004625904839485884,
+              "dense_rank": 5,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2023-en.pdf p10",
+              "rerank_score": 0.004017583094537258,
+              "dense_rank": 20,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 5,
+              "page": "yep-grant-agreement-2021.pdf p6",
+              "rerank_score": 0.003993013873696327,
+              "dense_rank": 9,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 6,
+              "page": "gep-donor-agreement-2019.pdf p6",
+              "rerank_score": 0.002955357078462839,
+              "dense_rank": 8,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 7,
+              "page": "wlp-market-assessment-2025.pdf p4",
+              "rerank_score": 0.0029020910151302814,
+              "dense_rank": 18,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2023-en.pdf p5",
+              "rerank_score": 0.0026871138252317905,
+              "dense_rank": null,
+              "lexical_rank": 16
+            },
+            {
+              "rank": 9,
+              "page": "gep-donor-agreement-2019.pdf p1",
+              "rerank_score": 0.0020249506924301386,
+              "dense_rank": 22,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 10,
+              "page": "gep-midterm-evaluation-2020.pdf p3",
+              "rerank_score": 0.0018581482581794262,
+              "dense_rank": 15,
+              "lexical_rank": 5
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D21",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric",
+            "version"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9934148192405701,
+          "cited": [
+            "budget-2024-final.pdf p1",
+            "annual-report-2023-en.pdf p10",
+            "budget-2024-final.pdf p2",
+            "board-minutes-2023-12.pdf p2"
+          ],
+          "expected": [
+            "budget-2024-final.pdf p1",
+            "budget-2024-final.pdf p2",
+            "budget-2024-final.pdf p3",
+            "budget-2024-final.pdf p5",
+            "board-minutes-2023-12.pdf p2",
+            "annual-report-2023-en.pdf p10"
+          ],
+          "server_ms": 41015,
+          "wall_ms": 41020,
+          "timings_ms": {
+            "embed": 63.0,
+            "retrieve": 9.0,
+            "rerank": 5520.0,
+            "first_token": 26670.0,
+            "generate": 35414.0,
+            "total": 41015.0
+          },
+          "answer": "يبلغ إجمالي الموازنة المعتمدة لعام 2024 ما مقداره 5,480,000 دولار أمريكي [1][2][3][4]. وقد اعتمد مجلس الإدارة هذه الموازنة في اجتماعه رقم 4/2023 بتاريخ 21 كانون الأول/ديسمبر 2023 [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "budget-2024-final.pdf p1",
+              "rerank_score": 0.9934148192405701,
+              "dense_rank": 1,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2023-en.pdf p10",
+              "rerank_score": 0.9361514449119568,
+              "dense_rank": 6,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 3,
+              "page": "budget-2024-final.pdf p2",
+              "rerank_score": 0.8954638242721558,
+              "dense_rank": 8,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "budget-2024-final.pdf p5",
+              "rerank_score": 0.8882388472557068,
+              "dense_rank": 7,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "board-minutes-2023-12.pdf p2",
+              "rerank_score": 0.8737033009529114,
+              "dense_rank": 3,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 6,
+              "page": "budget-2024-final.pdf p3",
+              "rerank_score": 0.8167490363121033,
+              "dense_rank": 2,
+              "lexical_rank": 34
+            },
+            {
+              "rank": 7,
+              "page": "yep-annual-report-2024.pdf p5",
+              "rerank_score": 0.4134780764579773,
+              "dense_rank": 11,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 8,
+              "page": "budget-2024-final.pdf p4",
+              "rerank_score": 0.24901564419269562,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2022.pdf p13",
+              "rerank_score": 0.192471444606781,
+              "dense_rank": 21,
+              "lexical_rank": 19
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2023-en.pdf p9",
+              "rerank_score": 0.11914388090372086,
+              "dense_rank": 5,
+              "lexical_rank": null
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "budget-2024-final.pdf p1",
+            "rerank_score": 0.9934148192405701,
+            "dense_rank": 1,
+            "lexical_rank": 3
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D22",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "temporal"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "low_confidence",
+          "band": "low_confidence",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.43536776304244995,
+          "cited": [
+            "annual-report-2022.pdf p2"
+          ],
+          "expected": [
+            "annual-report-2022.pdf p2"
+          ],
+          "server_ms": 44861,
+          "wall_ms": 44868,
+          "timings_ms": {
+            "embed": 93.0,
+            "retrieve": 15.0,
+            "rerank": 6576.0,
+            "first_token": 31042.0,
+            "generate": 38170.0,
+            "total": 44861.0
+          },
+          "answer": "د. كريم العطار هو المدير التنفيذي للمؤسسة [1]. تسلم مهامه في الأول من كانون الثاني/يناير، 2022 [1]. لقد خلف الأستاذة ليلى الزين (اسم مستعار) التي أسست المؤسسة وقادتها ثماني سنوات [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2022.pdf p2",
+              "rerank_score": 0.43536776304244995,
+              "dense_rank": 2,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2021.pdf p15",
+              "rerank_score": 0.04387711361050606,
+              "dense_rank": 1,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2022.pdf p14",
+              "rerank_score": 0.03195362538099289,
+              "dense_rank": 3,
+              "lexical_rank": 25
+            },
+            {
+              "rank": 4,
+              "page": "board-minutes-2023-03.pdf p1",
+              "rerank_score": 0.021457690745592117,
+              "dense_rank": 9,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p16",
+              "rerank_score": 0.013346279039978981,
+              "dense_rank": 7,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "board-minutes-2021-06.docx p1",
+              "rerank_score": 0.012156397104263306,
+              "dense_rank": 8,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2021.pdf p3",
+              "rerank_score": 0.010673577897250652,
+              "dense_rank": 10,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 8,
+              "page": "yep-final-evaluation-2022.pdf p1",
+              "rerank_score": 0.008112716488540173,
+              "dense_rank": null,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 9,
+              "page": "board-minutes-2023-12.pdf p1",
+              "rerank_score": 0.00761156203225255,
+              "dense_rank": 13,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2016.pdf p2",
+              "rerank_score": 0.005695984698832035,
+              "dense_rank": 19,
+              "lexical_rank": 24
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2022.pdf p2",
+            "rerank_score": 0.43536776304244995,
+            "dense_rank": 2,
+            "lexical_rank": 14
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D23",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 2,
+          "top_score": 0.9990689158439636,
+          "cited": [
+            "gep-enrolment-survey-2015.pdf p3"
+          ],
+          "expected": [
+            "gep-enrolment-survey-2015.pdf p3"
+          ],
+          "server_ms": 40303,
+          "wall_ms": 40308,
+          "timings_ms": {
+            "embed": 98.0,
+            "retrieve": 12.0,
+            "rerank": 6608.0,
+            "first_token": 30945.0,
+            "generate": 33579.0,
+            "total": 40303.0
+          },
+          "answer": "السبب الرئيسي لانقطاع الفتيات عن الدراسة في سهل القمر هو بُعد المدرسة عن مكان السكن وصعوبة الطريق، بنسبة 37% [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "gep-midterm-evaluation-2020.pdf p3",
+              "rerank_score": 0.9990689158439636,
+              "dense_rank": 7,
+              "lexical_rank": 17
+            },
+            {
+              "rank": 2,
+              "page": "gep-enrolment-survey-2015.pdf p3",
+              "rerank_score": 0.9983088970184326,
+              "dense_rank": 2,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 3,
+              "page": "gep-enrolment-survey-2015.pdf p4",
+              "rerank_score": 0.9962702393531799,
+              "dense_rank": 1,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 4,
+              "page": "gep-enrolment-survey-2015.pdf p2",
+              "rerank_score": 0.9939616918563843,
+              "dense_rank": 4,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 5,
+              "page": "gep-enrolment-survey-2015.pdf p1",
+              "rerank_score": 0.991394579410553,
+              "dense_rank": 3,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 6,
+              "page": "gep-donor-agreement-2019.pdf p1",
+              "rerank_score": 0.9856756925582886,
+              "dense_rank": 12,
+              "lexical_rank": 32
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2016.pdf p3",
+              "rerank_score": 0.3892308175563812,
+              "dense_rank": 9,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2021.pdf p9",
+              "rerank_score": 0.07289360463619232,
+              "dense_rank": 5,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2022.pdf p9",
+              "rerank_score": 0.07123677432537079,
+              "dense_rank": 6,
+              "lexical_rank": 13
+            },
+            {
+              "rank": 10,
+              "page": "gep-midterm-evaluation-2020.pdf p4",
+              "rerank_score": 0.06392740458250046,
+              "dense_rank": 10,
+              "lexical_rank": 21
+            }
+          ],
+          "expected_candidate": {
+            "rank": 2,
+            "page": "gep-enrolment-survey-2015.pdf p3",
+            "rerank_score": 0.9983088970184326,
+            "dense_rank": 2,
+            "lexical_rank": 14
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D24",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9927734732627869,
+          "cited": [
+            "wlp-evaluation-2023.docx p3",
+            "wlp-evaluation-2023.docx p4",
+            "board-minutes-2023-12.pdf p3"
+          ],
+          "expected": [
+            "wlp-evaluation-2023.docx p3",
+            "wlp-evaluation-2023.docx p4",
+            "board-minutes-2023-12.pdf p3"
+          ],
+          "server_ms": 41288,
+          "wall_ms": 41294,
+          "timings_ms": {
+            "embed": 88.0,
+            "retrieve": 13.0,
+            "rerank": 6402.0,
+            "first_token": 29755.0,
+            "generate": 34780.0,
+            "total": 41288.0
+          },
+          "answer": "نسبة المشاريع الصغيرة التي بقيت قائمة بعد 12 شهرًا من تأسيسها هي 74% [1][2][3]. هذا يعني أن 334 مشروعًا من أصل 450 مشروعًا كانت لا تزال قائمة [1][2].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "wlp-evaluation-2023.docx p3",
+              "rerank_score": 0.9927734732627869,
+              "dense_rank": 1,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 2,
+              "page": "wlp-evaluation-2023.docx p1",
+              "rerank_score": 0.9446568489074707,
+              "dense_rank": 10,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 3,
+              "page": "wlp-evaluation-2023.docx p4",
+              "rerank_score": 0.9310186505317688,
+              "dense_rank": 2,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 4,
+              "page": "board-minutes-2023-12.pdf p3",
+              "rerank_score": 0.8803825974464417,
+              "dense_rank": 15,
+              "lexical_rank": 27
+            },
+            {
+              "rank": 5,
+              "page": "board-minutes-2017-11.txt p2",
+              "rerank_score": 0.7318987846374512,
+              "dense_rank": 37,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2021.pdf p10",
+              "rerank_score": 0.6727654933929443,
+              "dense_rank": 3,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 7,
+              "page": "wlp-evaluation-2023.docx p2",
+              "rerank_score": 0.6696166396141052,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2020.pdf p5",
+              "rerank_score": 0.5631400942802429,
+              "dense_rank": null,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2020.pdf p9",
+              "rerank_score": 0.5144811868667603,
+              "dense_rank": 5,
+              "lexical_rank": 35
+            },
+            {
+              "rank": 10,
+              "page": "wlp-evaluation-2023.docx p5",
+              "rerank_score": 0.35564637184143066,
+              "dense_rank": 9,
+              "lexical_rank": 21
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "wlp-evaluation-2023.docx p3",
+            "rerank_score": 0.9927734732627869,
+            "dense_rank": 1,
+            "lexical_rank": 4
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D25",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric",
+            "mixed_content"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9980126619338989,
+          "cited": [
+            "yep-grant-agreement-2021.pdf p3",
+            "board-minutes-2021-06.docx p3"
+          ],
+          "expected": [
+            "yep-grant-agreement-2021.pdf p3",
+            "yep-grant-agreement-2021.pdf p5",
+            "board-minutes-2021-06.docx p3"
+          ],
+          "server_ms": 37881,
+          "wall_ms": 37888,
+          "timings_ms": {
+            "embed": 96.0,
+            "retrieve": 268.0,
+            "rerank": 6336.0,
+            "first_token": 27083.0,
+            "generate": 31177.0,
+            "total": 37881.0
+          },
+          "answer": "تبلغ القيمة الإجمالية للمنحة 450,000 دولار أمريكي [1][2]. تم صرف هذه القيمة على ثلاث دفعات [1].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "yep-grant-agreement-2021.pdf p3",
+              "rerank_score": 0.9980126619338989,
+              "dense_rank": 2,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 2,
+              "page": "board-minutes-2021-06.docx p3",
+              "rerank_score": 0.9973645210266113,
+              "dense_rank": 4,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 3,
+              "page": "yep-grant-agreement-2021.pdf p5",
+              "rerank_score": 0.9595283269882202,
+              "dense_rank": 6,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "yep-grant-agreement-2021.pdf p2",
+              "rerank_score": 0.9416610598564148,
+              "dense_rank": 3,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 5,
+              "page": "yep-grant-agreement-2021.pdf p4",
+              "rerank_score": 0.793579638004303,
+              "dense_rank": 7,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "yep-grant-agreement-2021.pdf p1",
+              "rerank_score": 0.7683676481246948,
+              "dense_rank": 1,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2022.pdf p6",
+              "rerank_score": 0.7446262240409851,
+              "dense_rank": 31,
+              "lexical_rank": 26
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2023-en.pdf p5",
+              "rerank_score": 0.7048419117927551,
+              "dense_rank": 10,
+              "lexical_rank": 34
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p6",
+              "rerank_score": 0.6772350072860718,
+              "dense_rank": 20,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 10,
+              "page": "yep-grant-agreement-2021.pdf p6",
+              "rerank_score": 0.43507885932922363,
+              "dense_rank": 5,
+              "lexical_rank": 12
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "yep-grant-agreement-2021.pdf p3",
+            "rerank_score": 0.9980126619338989,
+            "dense_rank": 2,
+            "lexical_rank": 24
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D26",
+          "language": "ar",
+          "kinds": [
+            "factual",
+            "numeric"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9231709241867065,
+          "cited": [
+            "wash-final-evaluation-2021.pdf p2",
+            "annual-report-2021.pdf p8",
+            "wash-baseline-survey-2017.pdf p5"
+          ],
+          "expected": [
+            "wash-final-evaluation-2021.pdf p2",
+            "wash-final-evaluation-2021.pdf p5",
+            "annual-report-2021.pdf p8"
+          ],
+          "server_ms": 40092,
+          "wall_ms": 40098,
+          "timings_ms": {
+            "embed": 95.0,
+            "retrieve": 10.0,
+            "rerank": 6185.0,
+            "first_token": 30564.0,
+            "generate": 33792.0,
+            "total": 40092.0
+          },
+          "answer": "بُني 2,950 وحدة صرف صحي منزلية محّسنة في قرى الهضبة الشرقية [1][2]. كان الهدف المستهدف هو بناء 3,000 مرحاض منزلي محّسن [3].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "wash-final-evaluation-2021.pdf p5",
+              "rerank_score": 0.9231709241867065,
+              "dense_rank": 4,
+              "lexical_rank": 25
+            },
+            {
+              "rank": 2,
+              "page": "wash-baseline-survey-2017.pdf p5",
+              "rerank_score": 0.8810083270072937,
+              "dense_rank": 2,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 3,
+              "page": "wash-final-evaluation-2021.pdf p2",
+              "rerank_score": 0.8000378608703613,
+              "dense_rank": 6,
+              "lexical_rank": 32
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2021.pdf p8",
+              "rerank_score": 0.7384679317474365,
+              "dense_rank": 3,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2020.pdf p7",
+              "rerank_score": 0.5531997084617615,
+              "dense_rank": 1,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 6,
+              "page": "wash-final-evaluation-2021.pdf p4",
+              "rerank_score": 0.4580722153186798,
+              "dense_rank": 14,
+              "lexical_rank": 26
+            },
+            {
+              "rank": 7,
+              "page": "wash-donor-agreement-2018.pdf p2",
+              "rerank_score": 0.3836697041988373,
+              "dense_rank": 9,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 8,
+              "page": "wash-baseline-survey-2017.pdf p1",
+              "rerank_score": 0.28819751739501953,
+              "dense_rank": 5,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 9,
+              "page": "wash-baseline-survey-2017.pdf p4",
+              "rerank_score": 0.28619712591171265,
+              "dense_rank": 18,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "wash-final-evaluation-2021.pdf p3",
+              "rerank_score": 0.27884262800216675,
+              "dense_rank": 8,
+              "lexical_rank": 17
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "wash-final-evaluation-2021.pdf p5",
+            "rerank_score": 0.9231709241867065,
+            "dense_rank": 4,
+            "lexical_rank": 25
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D27",
+          "language": "ar",
+          "kinds": [
+            "cross_document",
+            "temporal",
+            "numeric",
+            "cross_lingual"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.9858232736587524,
+          "cited": [
+            "annual-report-2016.pdf p2",
+            "annual-report-2023-en.pdf p3"
+          ],
+          "expected": [
+            "annual-report-2016.pdf p2",
+            "annual-report-2023-en.pdf p3",
+            "annual-report-2023-en.pdf p2"
+          ],
+          "server_ms": 31355,
+          "wall_ms": 31360,
+          "timings_ms": {
+            "embed": 95.0,
+            "retrieve": 14.0,
+            "rerank": 5647.0,
+            "first_token": 23731.0,
+            "generate": 25591.0,
+            "total": 31355.0
+          },
+          "answer": "عدد موظفي المؤسسة في عام 2016 كان 23 موظفًا [1]. وفي نهاية عام 2023، وظفت المؤسسة 85 شخصًا [2].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2023-en.pdf p3",
+              "rerank_score": 0.9858232736587524,
+              "dense_rank": 1,
+              "lexical_rank": 15
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2016.pdf p2",
+              "rerank_score": 0.9017670154571533,
+              "dense_rank": 3,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2023-en.pdf p2",
+              "rerank_score": 0.4153549075126648,
+              "dense_rank": 7,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2020.pdf p4",
+              "rerank_score": 0.3613819181919098,
+              "dense_rank": 10,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2023-en.pdf p6",
+              "rerank_score": 0.34210941195487976,
+              "dense_rank": 13,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2021.pdf p3",
+              "rerank_score": 0.22978217899799347,
+              "dense_rank": 9,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2023-en.pdf p4",
+              "rerank_score": 0.2178221046924591,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2022.pdf p4",
+              "rerank_score": 0.16165977716445923,
+              "dense_rank": 8,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2023-en.pdf p7",
+              "rerank_score": 0.13472150266170502,
+              "dense_rank": 11,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 10,
+              "page": "board-minutes-2017-11.txt p3",
+              "rerank_score": 0.10133956372737885,
+              "dense_rank": 12,
+              "lexical_rank": 32
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2023-en.pdf p3",
+            "rerank_score": 0.9858232736587524,
+            "dense_rank": 1,
+            "lexical_rank": 15
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D28",
+          "language": "en",
+          "kinds": [
+            "factual",
+            "numeric",
+            "english",
+            "cross_lingual"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 2,
+          "top_score": 0.7174649238586426,
+          "cited": [
+            "wash-final-evaluation-2021.pdf p2",
+            "annual-report-2021.pdf p8"
+          ],
+          "expected": [
+            "wash-final-evaluation-2021.pdf p2",
+            "wash-final-evaluation-2021.pdf p3",
+            "wash-final-evaluation-2021.pdf p5",
+            "annual-report-2021.pdf p8",
+            "annual-report-2022.pdf p8"
+          ],
+          "server_ms": 33615,
+          "wall_ms": 33621,
+          "timings_ms": {
+            "embed": 97.0,
+            "retrieve": 11.0,
+            "rerank": 5579.0,
+            "first_token": 26222.0,
+            "generate": 27922.0,
+            "total": 33615.0
+          },
+          "answer": "22 safe water points were completed out of 24 planned [1][2]. Two sites were excluded because the groundwater level in them was low [1][2].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2023-en.pdf p6",
+              "rerank_score": 0.7174649238586426,
+              "dense_rank": 2,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "wash-final-evaluation-2021.pdf p2",
+              "rerank_score": 0.29406699538230896,
+              "dense_rank": 1,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2023-en.pdf p4",
+              "rerank_score": 0.1543295532464981,
+              "dense_rank": 14,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 4,
+              "page": "wash-final-evaluation-2021.pdf p5",
+              "rerank_score": 0.09274134784936905,
+              "dense_rank": 4,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2022.pdf p8",
+              "rerank_score": 0.07687602192163467,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2021.pdf p8",
+              "rerank_score": 0.03980236500501633,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "wash-baseline-survey-2017.pdf p5",
+              "rerank_score": 0.03601551800966263,
+              "dense_rank": 9,
+              "lexical_rank": null
+            },
+            {
+              "rank": 8,
+              "page": "wash-final-evaluation-2021.pdf p3",
+              "rerank_score": 0.029547499492764473,
+              "dense_rank": 8,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2020.pdf p7",
+              "rerank_score": 0.026418613269925117,
+              "dense_rank": 6,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2023-en.pdf p10",
+              "rerank_score": 0.017425959929823875,
+              "dense_rank": null,
+              "lexical_rank": 15
+            }
+          ],
+          "expected_candidate": {
+            "rank": 2,
+            "page": "wash-final-evaluation-2021.pdf p2",
+            "rerank_score": 0.29406699538230896,
+            "dense_rank": 1,
+            "lexical_rank": null
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D29",
+          "language": "ar",
+          "kinds": [
+            "unanswerable",
+            "near_miss"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.8672738671302795,
+          "cited": [],
+          "expected": [],
+          "server_ms": 30826,
+          "wall_ms": 30829,
+          "timings_ms": {
+            "embed": 88.0,
+            "retrieve": 11.0,
+            "rerank": 5661.0,
+            "first_token": 24775.0,
+            "generate": 25063.0,
+            "total": 30826.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2021.pdf p8",
+              "rerank_score": 0.8672738671302795,
+              "dense_rank": 8,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "wash-final-evaluation-2021.pdf p2",
+              "rerank_score": 0.5045623779296875,
+              "dense_rank": 1,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 3,
+              "page": "wash-final-evaluation-2021.pdf p4",
+              "rerank_score": 0.3962286412715912,
+              "dense_rank": 3,
+              "lexical_rank": 25
+            },
+            {
+              "rank": 4,
+              "page": "wash-donor-agreement-2018.pdf p4",
+              "rerank_score": 0.3923189640045166,
+              "dense_rank": 4,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 5,
+              "page": "wash-final-evaluation-2021.pdf p3",
+              "rerank_score": 0.25478729605674744,
+              "dense_rank": 10,
+              "lexical_rank": 17
+            },
+            {
+              "rank": 6,
+              "page": "wash-donor-agreement-2018.pdf p1",
+              "rerank_score": 0.24409858882427216,
+              "dense_rank": 29,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2020.pdf p5",
+              "rerank_score": 0.21699713170528412,
+              "dense_rank": 22,
+              "lexical_rank": 21
+            },
+            {
+              "rank": 8,
+              "page": "wash-baseline-survey-2017.pdf p3",
+              "rerank_score": 0.1970680207014084,
+              "dense_rank": 5,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 9,
+              "page": "wash-final-evaluation-2021.pdf p6",
+              "rerank_score": 0.15131674706935883,
+              "dense_rank": 9,
+              "lexical_rank": 33
+            },
+            {
+              "rank": 10,
+              "page": "board-minutes-2017-11.txt p2",
+              "rerank_score": 0.1427086889743805,
+              "dense_rank": 19,
+              "lexical_rank": 15
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D30",
+          "language": "ar",
+          "kinds": [
+            "unanswerable",
+            "near_miss"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "refuse",
+          "refusal_reason": "gate",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.015203378163278103,
+          "cited": [],
+          "expected": [],
+          "server_ms": 4983,
+          "wall_ms": 4986,
+          "timings_ms": {
+            "embed": 63.0,
+            "retrieve": 10.0,
+            "rerank": 4906.0,
+            "total": 4983.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "budget-2018.docx p4",
+              "rerank_score": 0.015203378163278103,
+              "dense_rank": 2,
+              "lexical_rank": null
+            },
+            {
+              "rank": 2,
+              "page": "budget-2024-final.pdf p4",
+              "rerank_score": 0.012688321061432362,
+              "dense_rank": 1,
+              "lexical_rank": null
+            },
+            {
+              "rank": 3,
+              "page": "wlp-donor-agreement-2022.pdf p3",
+              "rerank_score": 0.002334733959287405,
+              "dense_rank": 6,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2022.pdf p4",
+              "rerank_score": 0.0023086799774318933,
+              "dense_rank": 7,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 5,
+              "page": "board-minutes-2021-06.docx p2",
+              "rerank_score": 0.0012903049355372787,
+              "dense_rank": 40,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2021.pdf p15",
+              "rerank_score": 0.0006927743670530617,
+              "dense_rank": null,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 7,
+              "page": "board-minutes-2023-03.pdf p2",
+              "rerank_score": 0.0006397762335836887,
+              "dense_rank": 38,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2023-en.pdf p3",
+              "rerank_score": 0.0003797409881372005,
+              "dense_rank": 15,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "yep-grant-agreement-2021.pdf p5",
+              "rerank_score": 0.0003189374110661447,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "yep-annual-report-2024.pdf p5",
+              "rerank_score": 0.0003015929542016238,
+              "dense_rank": 9,
+              "lexical_rank": null
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D31",
+          "language": "ar",
+          "kinds": [
+            "overview",
+            "colloquial",
+            "cross_document"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "low_confidence",
+          "band": "low_confidence",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.23505467176437378,
+          "cited": [
+            "annual-report-2016.pdf p4",
+            "annual-report-2020.pdf p9",
+            "annual-report-2022.pdf p11"
+          ],
+          "expected": [
+            "chp-household-survey-2021.pdf p1",
+            "chp-household-survey-2021.pdf p2",
+            "chp-household-survey-2021.pdf p3",
+            "chp-household-survey-2021.pdf p4",
+            "chp-household-survey-2021.pdf p5",
+            "chp-evaluation-2024.pdf p1",
+            "chp-evaluation-2024.pdf p2",
+            "chp-evaluation-2024.pdf p3",
+            "chp-evaluation-2024.pdf p4",
+            "chp-evaluation-2024.pdf p5",
+            "chp-evaluation-2024.pdf p6",
+            "annual-report-2016.pdf p4",
+            "annual-report-2016.pdf p5",
+            "annual-report-2020.pdf p2",
+            "annual-report-2020.pdf p3",
+            "annual-report-2020.pdf p4",
+            "annual-report-2020.pdf p5",
+            "annual-report-2020.pdf p9",
+            "annual-report-2020.pdf p11",
+            "annual-report-2021.pdf p5",
+            "annual-report-2021.pdf p11",
+            "annual-report-2021.pdf p14",
+            "annual-report-2021.pdf p16",
+            "annual-report-2022.pdf p3",
+            "annual-report-2022.pdf p4",
+            "annual-report-2022.pdf p5",
+            "annual-report-2022.pdf p11",
+            "annual-report-2022.pdf p13",
+            "annual-report-2023-en.pdf p3",
+            "annual-report-2023-en.pdf p4",
+            "annual-report-2023-en.pdf p7",
+            "annual-report-2023-en.pdf p9",
+            "annual-report-2023-en.pdf p10"
+          ],
+          "server_ms": 41206,
+          "wall_ms": 41213,
+          "timings_ms": {
+            "embed": 41.0,
+            "retrieve": 12.0,
+            "rerank": 5516.0,
+            "first_token": 23958.0,
+            "generate": 35626.0,
+            "total": 41206.0
+          },
+          "answer": "أُطلق برنامج الصحة المجتمعية في حزيران/يونيو 2016 بعيادتين متنقلتين [1]. كان البرنامج يقدم الرعاية الأولية وخدمات صحة الأم والطفل والتثقيف الصحي في تجمعات سهول النخيل البعيدة عن المراكز الصحية [1]. في عام 2020، اقتصر عدد المستفيدين من البرنامج على 3,370 شخصًا بسبب تأثر البرنامج بالجائحة [2]. خلال فترة التعليق، تابع متطوعو الصحة المجتمعية الحوامل والأطفال حديثي الولادة عبر الهاتف وأحالوا الحالات الطارئة إلى أقرب مركز صحي [2]. في عام 2022، وصل عدد المستفيدين إلى 15,200 مستفيد ومستفيدة وقدمت العيادات المتنقلة 26,800 استشارة طبية [3].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2020.pdf p9",
+              "rerank_score": 0.23505467176437378,
+              "dense_rank": 22,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 2,
+              "page": "chp-evaluation-2024.pdf p2",
+              "rerank_score": 0.14609982073307037,
+              "dense_rank": 2,
+              "lexical_rank": 21
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2016.pdf p4",
+              "rerank_score": 0.12814390659332275,
+              "dense_rank": 7,
+              "lexical_rank": 10
+            },
+            {
+              "rank": 4,
+              "page": "chp-evaluation-2024.pdf p4",
+              "rerank_score": 0.12733939290046692,
+              "dense_rank": 4,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p5",
+              "rerank_score": 0.10359340906143188,
+              "dense_rank": 6,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2022.pdf p4",
+              "rerank_score": 0.08617167919874191,
+              "dense_rank": null,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2022.pdf p11",
+              "rerank_score": 0.0797567069530487,
+              "dense_rank": 12,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 8,
+              "page": "chp-evaluation-2024.pdf p5",
+              "rerank_score": 0.07756365090608597,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "budget-2024-final.pdf p3",
+              "rerank_score": 0.07535476982593536,
+              "dense_rank": null,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 10,
+              "page": "chp-evaluation-2024.pdf p6",
+              "rerank_score": 0.059547461569309235,
+              "dense_rank": 1,
+              "lexical_rank": 14
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2020.pdf p9",
+            "rerank_score": 0.23505467176437378,
+            "dense_rank": 22,
+            "lexical_rank": 2
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D32",
+          "language": "en",
+          "kinds": [
+            "overview",
+            "colloquial",
+            "cross_document",
+            "cross_lingual"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "low_confidence",
+          "band": "low_confidence",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.4877146780490875,
+          "cited": [
+            "annual-report-2016.pdf p4",
+            "annual-report-2020.pdf p9",
+            "annual-report-2021.pdf p5",
+            "chp-evaluation-2024.pdf p4",
+            "chp-evaluation-2024.pdf p2"
+          ],
+          "expected": [
+            "chp-household-survey-2021.pdf p1",
+            "chp-household-survey-2021.pdf p2",
+            "chp-household-survey-2021.pdf p3",
+            "chp-household-survey-2021.pdf p4",
+            "chp-household-survey-2021.pdf p5",
+            "chp-evaluation-2024.pdf p1",
+            "chp-evaluation-2024.pdf p2",
+            "chp-evaluation-2024.pdf p3",
+            "chp-evaluation-2024.pdf p4",
+            "chp-evaluation-2024.pdf p5",
+            "chp-evaluation-2024.pdf p6",
+            "annual-report-2016.pdf p4",
+            "annual-report-2016.pdf p5",
+            "annual-report-2020.pdf p2",
+            "annual-report-2020.pdf p3",
+            "annual-report-2020.pdf p4",
+            "annual-report-2020.pdf p5",
+            "annual-report-2020.pdf p9",
+            "annual-report-2020.pdf p11",
+            "annual-report-2021.pdf p5",
+            "annual-report-2021.pdf p11",
+            "annual-report-2021.pdf p14",
+            "annual-report-2021.pdf p16",
+            "annual-report-2022.pdf p3",
+            "annual-report-2022.pdf p4",
+            "annual-report-2022.pdf p5",
+            "annual-report-2022.pdf p11",
+            "annual-report-2022.pdf p13",
+            "annual-report-2023-en.pdf p3",
+            "annual-report-2023-en.pdf p4",
+            "annual-report-2023-en.pdf p7",
+            "annual-report-2023-en.pdf p9",
+            "annual-report-2023-en.pdf p10"
+          ],
+          "server_ms": 39069,
+          "wall_ms": 39077,
+          "timings_ms": {
+            "embed": 88.0,
+            "retrieve": 13.0,
+            "rerank": 5445.0,
+            "first_token": 24596.0,
+            "generate": 33471.0,
+            "total": 39069.0
+          },
+          "answer": "The Community Health Program launched in June 2016 with two mobile clinics visiting remote palm plain communities [1]. In 2020, the Community Health Program was heavily affected by the pandemic, causing the four mobile clinics to suspend operations for four months [2]. In 2021, the number of beneficiaries for the Community Health Program was 12,930 [3]. Over the three years from 2021 to 2023, the mobile clinics provided a total of 78,350 medical consultations [4][5]. The program has seen an increase in mobile clinics from 4 to 6, and the number of community health volunteers has risen from 46 to 76 [4][5].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2016.pdf p4",
+              "rerank_score": 0.4877146780490875,
+              "dense_rank": 3,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 2,
+              "page": "chp-evaluation-2024.pdf p4",
+              "rerank_score": 0.48358288407325745,
+              "dense_rank": 10,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 3,
+              "page": "chp-evaluation-2024.pdf p2",
+              "rerank_score": 0.4748493432998657,
+              "dense_rank": 7,
+              "lexical_rank": 18
+            },
+            {
+              "rank": 4,
+              "page": "chp-evaluation-2024.pdf p6",
+              "rerank_score": 0.4132387638092041,
+              "dense_rank": 8,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p5",
+              "rerank_score": 0.31429535150527954,
+              "dense_rank": 11,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2022.pdf p11",
+              "rerank_score": 0.31074029207229614,
+              "dense_rank": 1,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2020.pdf p9",
+              "rerank_score": 0.30028679966926575,
+              "dense_rank": 20,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 8,
+              "page": "chp-evaluation-2024.pdf p5",
+              "rerank_score": 0.2491501271724701,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2022.pdf p4",
+              "rerank_score": 0.22018392384052277,
+              "dense_rank": 17,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 10,
+              "page": "chp-evaluation-2024.pdf p1",
+              "rerank_score": 0.21802978217601776,
+              "dense_rank": 6,
+              "lexical_rank": 28
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2016.pdf p4",
+            "rerank_score": 0.4877146780490875,
+            "dense_rank": 3,
+            "lexical_rank": 8
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D33",
+          "language": "ar",
+          "kinds": [
+            "overview",
+            "colloquial",
+            "cross_document"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.7610656023025513,
+          "cited": [
+            "annual-report-2021.pdf p8",
+            "wash-final-evaluation-2021.pdf p2"
+          ],
+          "expected": [
+            "wash-baseline-survey-2017.pdf p1",
+            "wash-baseline-survey-2017.pdf p2",
+            "wash-baseline-survey-2017.pdf p3",
+            "wash-baseline-survey-2017.pdf p4",
+            "wash-baseline-survey-2017.pdf p5",
+            "wash-donor-agreement-2018.pdf p1",
+            "wash-donor-agreement-2018.pdf p2",
+            "wash-donor-agreement-2018.pdf p3",
+            "wash-donor-agreement-2018.pdf p4",
+            "wash-donor-agreement-2018.pdf p5",
+            "wash-donor-agreement-2018.pdf p6",
+            "wash-final-evaluation-2021.pdf p1",
+            "wash-final-evaluation-2021.pdf p2",
+            "wash-final-evaluation-2021.pdf p3",
+            "wash-final-evaluation-2021.pdf p4",
+            "wash-final-evaluation-2021.pdf p5",
+            "wash-final-evaluation-2021.pdf p6",
+            "wash-final-evaluation-2021.pdf p7",
+            "annual-report-2020.pdf p5",
+            "annual-report-2020.pdf p7",
+            "annual-report-2020.pdf p11",
+            "annual-report-2021.pdf p5",
+            "annual-report-2021.pdf p8",
+            "annual-report-2021.pdf p14",
+            "annual-report-2022.pdf p5",
+            "annual-report-2022.pdf p8",
+            "annual-report-2022.pdf p13",
+            "annual-report-2023-en.pdf p2",
+            "annual-report-2023-en.pdf p4",
+            "annual-report-2023-en.pdf p9"
+          ],
+          "server_ms": 39699,
+          "wall_ms": 39710,
+          "timings_ms": {
+            "embed": 105.0,
+            "retrieve": 14.0,
+            "rerank": 6129.0,
+            "first_token": 27916.0,
+            "generate": 33445.0,
+            "total": 39699.0
+          },
+          "answer": "في عام 2021، استفاد نحو 26,400 شخص من أنشطة مشروع المياه والإصحاح البيئي في المناطق الريفية في محافظتي الهضبة الشرقية وسهول النخيل [1]. غطى المشروع 18 قرية في الهضبة الشرقية [1]. تم بناء 2,950 وحدة صرف صحي منزلية محّسنة [1][2]. كما تم إنجاز 22 نقطة مياه من أصل 24 نقطة مخطط لها [1][2].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2021.pdf p8",
+              "rerank_score": 0.7610656023025513,
+              "dense_rank": 1,
+              "lexical_rank": 13
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2022.pdf p8",
+              "rerank_score": 0.7097908854484558,
+              "dense_rank": 4,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2020.pdf p7",
+              "rerank_score": 0.6994157433509827,
+              "dense_rank": 6,
+              "lexical_rank": 18
+            },
+            {
+              "rank": 4,
+              "page": "wash-final-evaluation-2021.pdf p2",
+              "rerank_score": 0.5750594139099121,
+              "dense_rank": 11,
+              "lexical_rank": 37
+            },
+            {
+              "rank": 5,
+              "page": "board-minutes-2017-11.txt p2",
+              "rerank_score": 0.41143158078193665,
+              "dense_rank": 17,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 6,
+              "page": "wash-final-evaluation-2021.pdf p6",
+              "rerank_score": 0.3717208504676819,
+              "dense_rank": 10,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 7,
+              "page": "wash-final-evaluation-2021.pdf p7",
+              "rerank_score": 0.3282877802848816,
+              "dense_rank": 3,
+              "lexical_rank": 30
+            },
+            {
+              "rank": 8,
+              "page": "wash-final-evaluation-2021.pdf p3",
+              "rerank_score": 0.3200650215148926,
+              "dense_rank": 16,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 9,
+              "page": "wash-baseline-survey-2017.pdf p1",
+              "rerank_score": 0.2646811306476593,
+              "dense_rank": 2,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2020.pdf p5",
+              "rerank_score": 0.25931665301322937,
+              "dense_rank": 22,
+              "lexical_rank": 6
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "annual-report-2021.pdf p8",
+            "rerank_score": 0.7610656023025513,
+            "dense_rank": 1,
+            "lexical_rank": 13
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D34",
+          "language": "en",
+          "kinds": [
+            "overview",
+            "english",
+            "cross_document"
+          ],
+          "page_split": false,
+          "expected_outcome": "answered",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": true,
+          "retrieved": true,
+          "expected_rank": 1,
+          "top_score": 0.978805422782898,
+          "cited": [
+            "gep-midterm-evaluation-2020.pdf p2",
+            "gep-midterm-evaluation-2020.pdf p4"
+          ],
+          "expected": [
+            "gep-enrolment-survey-2015.pdf p1",
+            "gep-enrolment-survey-2015.pdf p2",
+            "gep-enrolment-survey-2015.pdf p3",
+            "gep-enrolment-survey-2015.pdf p4",
+            "gep-donor-agreement-2019.pdf p1",
+            "gep-donor-agreement-2019.pdf p2",
+            "gep-donor-agreement-2019.pdf p3",
+            "gep-donor-agreement-2019.pdf p4",
+            "gep-donor-agreement-2019.pdf p5",
+            "gep-donor-agreement-2019.pdf p6",
+            "gep-midterm-evaluation-2020.pdf p1",
+            "gep-midterm-evaluation-2020.pdf p2",
+            "gep-midterm-evaluation-2020.pdf p3",
+            "gep-midterm-evaluation-2020.pdf p4",
+            "gep-midterm-evaluation-2020.pdf p5",
+            "gep-midterm-evaluation-2020.pdf p6",
+            "annual-report-2016.pdf p3",
+            "annual-report-2016.pdf p5",
+            "annual-report-2016.pdf p6",
+            "annual-report-2020.pdf p5",
+            "annual-report-2020.pdf p8",
+            "annual-report-2020.pdf p11",
+            "annual-report-2021.pdf p5",
+            "annual-report-2021.pdf p14",
+            "annual-report-2022.pdf p5",
+            "annual-report-2022.pdf p9",
+            "annual-report-2022.pdf p13",
+            "annual-report-2023-en.pdf p4",
+            "annual-report-2023-en.pdf p9"
+          ],
+          "server_ms": 41181,
+          "wall_ms": 41189,
+          "timings_ms": {
+            "embed": 91.0,
+            "retrieve": 12.0,
+            "rerank": 6215.0,
+            "first_token": 26799.0,
+            "generate": 34853.0,
+            "total": 41181.0
+          },
+          "answer": "The Girls' Basic Education Support Programme (GEP-2019-02) has seen a rise in girls' enrolment in target schools, which increased from 61% at baseline in September 2019 to 68% in October 2020 [1][2]. Regarding outputs, 3,150 girls received a full school kit out of the 3,600 planned [1][2]. Of the planned 150 teachers, 96 have completed the inclusive teaching course [1][2]. Furthermore, 18 of the 30 girl-friendly latrine blocks are finished [1][2]. In 21 schools, mothers' councils are meeting at least once a month and have followed up with families of girls at risk of leaving school [2].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "gep-midterm-evaluation-2020.pdf p6",
+              "rerank_score": 0.978805422782898,
+              "dense_rank": 6,
+              "lexical_rank": 4
+            },
+            {
+              "rank": 2,
+              "page": "gep-midterm-evaluation-2020.pdf p2",
+              "rerank_score": 0.9354632496833801,
+              "dense_rank": 1,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 3,
+              "page": "gep-midterm-evaluation-2020.pdf p4",
+              "rerank_score": 0.8913359642028809,
+              "dense_rank": 9,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2016.pdf p3",
+              "rerank_score": 0.817855715751648,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 5,
+              "page": "gep-midterm-evaluation-2020.pdf p3",
+              "rerank_score": 0.8049920797348022,
+              "dense_rank": 8,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 6,
+              "page": "gep-midterm-evaluation-2020.pdf p5",
+              "rerank_score": 0.7049117088317871,
+              "dense_rank": 18,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 7,
+              "page": "gep-donor-agreement-2019.pdf p1",
+              "rerank_score": 0.6750888824462891,
+              "dense_rank": 11,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2022.pdf p9",
+              "rerank_score": 0.6581776142120361,
+              "dense_rank": 2,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2021.pdf p9",
+              "rerank_score": 0.6089724898338318,
+              "dense_rank": 5,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2020.pdf p8",
+              "rerank_score": 0.42270609736442566,
+              "dense_rank": 7,
+              "lexical_rank": null
+            }
+          ],
+          "expected_candidate": {
+            "rank": 1,
+            "page": "gep-midterm-evaluation-2020.pdf p6",
+            "rerank_score": 0.978805422782898,
+            "dense_rank": 6,
+            "lexical_rank": 4
+          },
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D35",
+          "language": "ar",
+          "kinds": [
+            "unanswerable",
+            "overview",
+            "colloquial"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "refuse",
+          "refusal_reason": "gate",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.0017378836637362838,
+          "cited": [],
+          "expected": [],
+          "server_ms": 5065,
+          "wall_ms": 5070,
+          "timings_ms": {
+            "embed": 87.0,
+            "retrieve": 10.0,
+            "rerank": 4966.0,
+            "total": 5065.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2021.pdf p10",
+              "rerank_score": 0.0017378836637362838,
+              "dense_rank": 11,
+              "lexical_rank": null
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2020.pdf p6",
+              "rerank_score": 0.0017279940657317638,
+              "dense_rank": 10,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 3,
+              "page": "board-minutes-2023-03.pdf p3",
+              "rerank_score": 0.0013643053825944662,
+              "dense_rank": 8,
+              "lexical_rank": null
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2020.pdf p11",
+              "rerank_score": 0.0012368472525849938,
+              "dense_rank": 23,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2021.pdf p1",
+              "rerank_score": 0.001081145484931767,
+              "dense_rank": null,
+              "lexical_rank": 5
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2022.pdf p13",
+              "rerank_score": 0.0009108814992941916,
+              "dense_rank": 15,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 7,
+              "page": "yep-annual-report-2024.pdf p4",
+              "rerank_score": 0.0008698371821083128,
+              "dense_rank": 16,
+              "lexical_rank": 37
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2020.pdf p4",
+              "rerank_score": 0.0007806947687640786,
+              "dense_rank": 24,
+              "lexical_rank": 25
+            },
+            {
+              "rank": 9,
+              "page": "budget-2018.docx p3",
+              "rerank_score": 0.0007304974133148789,
+              "dense_rank": null,
+              "lexical_rank": 13
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2022.pdf p12",
+              "rerank_score": 0.0007014450384303927,
+              "dense_rank": 36,
+              "lexical_rank": 39
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D36",
+          "language": "en",
+          "kinds": [
+            "unanswerable",
+            "overview"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "refuse",
+          "refusal_reason": "gate",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.004351136274635792,
+          "cited": [],
+          "expected": [],
+          "server_ms": 5534,
+          "wall_ms": 5537,
+          "timings_ms": {
+            "embed": 52.0,
+            "retrieve": 9.0,
+            "rerank": 5470.0,
+            "total": 5534.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2023-en.pdf p10",
+              "rerank_score": 0.004351136274635792,
+              "dense_rank": 13,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "wlp-market-assessment-2025.pdf p5",
+              "rerank_score": 0.0033477654214948416,
+              "dense_rank": 8,
+              "lexical_rank": 12
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2023-en.pdf p6",
+              "rerank_score": 0.0028060832992196083,
+              "dense_rank": null,
+              "lexical_rank": 14
+            },
+            {
+              "rank": 4,
+              "page": "annual-report-2023-en.pdf p3",
+              "rerank_score": 0.0024982732720673084,
+              "dense_rank": 9,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 5,
+              "page": "wlp-market-assessment-2025.pdf p4",
+              "rerank_score": 0.002232788596302271,
+              "dense_rank": null,
+              "lexical_rank": 17
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2023-en.pdf p1",
+              "rerank_score": 0.0015895344549790025,
+              "dense_rank": null,
+              "lexical_rank": 18
+            },
+            {
+              "rank": 7,
+              "page": "wlp-market-assessment-2025.pdf p1",
+              "rerank_score": 0.001494789612479508,
+              "dense_rank": 5,
+              "lexical_rank": 8
+            },
+            {
+              "rank": 8,
+              "page": "yep-grant-agreement-2021.pdf p6",
+              "rerank_score": 0.0010620548855513334,
+              "dense_rank": 21,
+              "lexical_rank": 7
+            },
+            {
+              "rank": 9,
+              "page": "gep-midterm-evaluation-2020.pdf p3",
+              "rerank_score": 0.0009419798734597862,
+              "dense_rank": null,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 10,
+              "page": "gep-midterm-evaluation-2020.pdf p1",
+              "rerank_score": 0.0007789543597027659,
+              "dense_rank": 4,
+              "lexical_rank": 3
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D37",
+          "language": "en",
+          "kinds": [
+            "unanswerable",
+            "near_miss",
+            "english"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "answered",
+          "band": "answer",
+          "refusal_reason": null,
+          "error_code": null,
+          "correct": false,
+          "category": "invented_answer",
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.9988073110580444,
+          "cited": [
+            "annual-report-2023-en.pdf p8",
+            "spc-donor-agreement-2023.docx p2",
+            "spc-donor-agreement-2023.docx p3"
+          ],
+          "expected": [],
+          "server_ms": 36912,
+          "wall_ms": 36917,
+          "timings_ms": {
+            "embed": 58.0,
+            "retrieve": 12.0,
+            "rerank": 5606.0,
+            "first_token": 24944.0,
+            "generate": 31228.0,
+            "total": 36912.0
+          },
+          "answer": "The SPC-2023-01 agreement aims to reach 2,600 households over two years [1]. The project targets 2,600 households from the poorest families in the governorates of Marj Al-Zafarana and Al-Sanabel [2]. The grant is for 24 months, from May 1, 2023, to April 30, 2025 [1]. The budget for cash transfers for 2,600 households at USD 75 per month for 6 months is USD 1,170,000 [3].",
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "annual-report-2023-en.pdf p8",
+              "rerank_score": 0.9988073110580444,
+              "dense_rank": 1,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 2,
+              "page": "annual-report-2023-en.pdf p4",
+              "rerank_score": 0.9595109820365906,
+              "dense_rank": 2,
+              "lexical_rank": 2
+            },
+            {
+              "rank": 3,
+              "page": "spc-donor-agreement-2023.docx p1",
+              "rerank_score": 0.867547869682312,
+              "dense_rank": 8,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 4,
+              "page": "board-minutes-2023-12.pdf p4",
+              "rerank_score": 0.8096746802330017,
+              "dense_rank": 6,
+              "lexical_rank": 23
+            },
+            {
+              "rank": 5,
+              "page": "spc-donor-agreement-2023.docx p3",
+              "rerank_score": 0.6696473956108093,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "spc-donor-agreement-2023.docx p2",
+              "rerank_score": 0.6694625020027161,
+              "dense_rank": 10,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "spc-satisfaction-survey-2024.txt p1",
+              "rerank_score": 0.65781170129776,
+              "dense_rank": 5,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 8,
+              "page": "board-minutes-2023-03.pdf p3",
+              "rerank_score": 0.5408198833465576,
+              "dense_rank": 9,
+              "lexical_rank": 26
+            },
+            {
+              "rank": 9,
+              "page": "board-minutes-2023-03.pdf p2",
+              "rerank_score": 0.46094265580177307,
+              "dense_rank": 25,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 10,
+              "page": "board-minutes-2023-03.pdf p1",
+              "rerank_score": 0.3593498468399048,
+              "dense_rank": null,
+              "lexical_rank": 15
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D38",
+          "language": "ar",
+          "kinds": [
+            "unanswerable",
+            "near_miss"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.9975848197937012,
+          "cited": [],
+          "expected": [],
+          "server_ms": 30193,
+          "wall_ms": 30197,
+          "timings_ms": {
+            "embed": 80.0,
+            "retrieve": 15.0,
+            "rerank": 6344.0,
+            "first_token": 23625.0,
+            "generate": 23749.0,
+            "total": 30193.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "wlp-evaluation-2023.docx p3",
+              "rerank_score": 0.9975848197937012,
+              "dense_rank": 2,
+              "lexical_rank": 9
+            },
+            {
+              "rank": 2,
+              "page": "wlp-evaluation-2023.docx p1",
+              "rerank_score": 0.9972350597381592,
+              "dense_rank": 5,
+              "lexical_rank": 1
+            },
+            {
+              "rank": 3,
+              "page": "wlp-evaluation-2023.docx p2",
+              "rerank_score": 0.9852708578109741,
+              "dense_rank": 1,
+              "lexical_rank": 27
+            },
+            {
+              "rank": 4,
+              "page": "board-minutes-2023-12.pdf p3",
+              "rerank_score": 0.9850627183914185,
+              "dense_rank": 12,
+              "lexical_rank": 24
+            },
+            {
+              "rank": 5,
+              "page": "wlp-evaluation-2023.docx p4",
+              "rerank_score": 0.9633617997169495,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 6,
+              "page": "annual-report-2023-en.pdf p7",
+              "rerank_score": 0.8800581097602844,
+              "dense_rank": 8,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2020.pdf p5",
+              "rerank_score": 0.6795832514762878,
+              "dense_rank": 15,
+              "lexical_rank": 15
+            },
+            {
+              "rank": 8,
+              "page": "annual-report-2023-en.pdf p4",
+              "rerank_score": 0.6632381677627563,
+              "dense_rank": 11,
+              "lexical_rank": null
+            },
+            {
+              "rank": 9,
+              "page": "wlp-evaluation-2023.docx p5",
+              "rerank_score": 0.5906684398651123,
+              "dense_rank": 6,
+              "lexical_rank": null
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2023-en.pdf p3",
+              "rerank_score": 0.5028479099273682,
+              "dense_rank": 9,
+              "lexical_rank": null
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        },
+        {
+          "id": "D39",
+          "language": "ar",
+          "kinds": [
+            "unanswerable",
+            "near_miss"
+          ],
+          "page_split": false,
+          "expected_outcome": "no_answer",
+          "outcome": "no_answer",
+          "band": "answer",
+          "refusal_reason": "sentinel",
+          "error_code": null,
+          "correct": true,
+          "category": null,
+          "missing_facts": [],
+          "citation_ok": false,
+          "retrieved": null,
+          "expected_rank": null,
+          "top_score": 0.9993746876716614,
+          "cited": [],
+          "expected": [],
+          "server_ms": 29260,
+          "wall_ms": 29266,
+          "timings_ms": {
+            "embed": 72.0,
+            "retrieve": 11.0,
+            "rerank": 5108.0,
+            "first_token": 23939.0,
+            "generate": 24061.0,
+            "total": 29260.0
+          },
+          "answer": null,
+          "candidates": [
+            {
+              "rank": 1,
+              "page": "chp-evaluation-2024.pdf p6",
+              "rerank_score": 0.9993746876716614,
+              "dense_rank": 2,
+              "lexical_rank": 38
+            },
+            {
+              "rank": 2,
+              "page": "budget-2024-final.pdf p3",
+              "rerank_score": 0.9924165606498718,
+              "dense_rank": 1,
+              "lexical_rank": 3
+            },
+            {
+              "rank": 3,
+              "page": "annual-report-2022.pdf p4",
+              "rerank_score": 0.9865614175796509,
+              "dense_rank": 18,
+              "lexical_rank": 17
+            },
+            {
+              "rank": 4,
+              "page": "yep-annual-report-2024.pdf p5",
+              "rerank_score": 0.9753955006599426,
+              "dense_rank": 9,
+              "lexical_rank": 29
+            },
+            {
+              "rank": 5,
+              "page": "annual-report-2022.pdf p13",
+              "rerank_score": 0.9617159366607666,
+              "dense_rank": 27,
+              "lexical_rank": 11
+            },
+            {
+              "rank": 6,
+              "page": "chp-evaluation-2024.pdf p2",
+              "rerank_score": 0.9533982276916504,
+              "dense_rank": 3,
+              "lexical_rank": null
+            },
+            {
+              "rank": 7,
+              "page": "annual-report-2020.pdf p11",
+              "rerank_score": 0.9451615810394287,
+              "dense_rank": 28,
+              "lexical_rank": 6
+            },
+            {
+              "rank": 8,
+              "page": "chp-evaluation-2024.pdf p4",
+              "rerank_score": 0.9451331496238708,
+              "dense_rank": 8,
+              "lexical_rank": 20
+            },
+            {
+              "rank": 9,
+              "page": "annual-report-2020.pdf p4",
+              "rerank_score": 0.8812311291694641,
+              "dense_rank": 24,
+              "lexical_rank": 23
+            },
+            {
+              "rank": 10,
+              "page": "annual-report-2021.pdf p14",
+              "rerank_score": 0.7811269760131836,
+              "dense_rank": 19,
+              "lexical_rank": 7
+            }
+          ],
+          "expected_candidate": null,
+          "llm_model": "sanad-gemma4-e4b-text"
+        }
+      ]
+    }
+  ]
+}
