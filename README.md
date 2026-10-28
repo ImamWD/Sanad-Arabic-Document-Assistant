@@ -608,3 +608,5 @@ pdf.js, and the IBM Plex Sans Arabic, Amiri and Noto fonts.
 
 **Sample data:** the documents in `seed/` are synthetic. The organisation, people, IDs and
 figures are invented.
+
+<!-- CI1 scratch: docs-only timing run, never merged. -->
