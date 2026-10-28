@@ -288,7 +288,7 @@ test("the guest's history holds only this session's questions, and never flashes
   await expect(panel.getByRole('button', { name: new RegExp(QUESTION) })).toBeVisible();
 
   // Sign out, then sign in as guest again: a new session, with its list held back a moment.
-  await page.getByRole('button', { name: GUEST.name }).click();
+  await page.getByRole('button', { name: en.roles.guest, exact: true }).click();
   await page.getByRole('menuitem', { name: en.shell.user.signOut }).click();
   let release: () => void = () => undefined;
   holdHistory = new Promise<void>((resolve) => {
