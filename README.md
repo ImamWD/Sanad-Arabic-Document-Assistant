@@ -502,6 +502,10 @@ Two of the four are the model misreading a passage it was given (T12, T13). One 
 trade-off (T14). One is the failure the refusal gate exists to prevent (T23), and it is listed
 here, not hidden.
 
+On the RTX 5080 run, the larger model (`gemma4:26b-a4b-it-qat`) refused both T23 and D37, and
+scored 12 / 15 with no invented answer
+([PR #30](https://github.com/ImamWD/Sanad-Arabic-Document-Assistant/pull/30)).
+
 ## Deferred to v2
 
 These were designed and then cut to fit two weeks. They are listed so nobody thinks they exist.
@@ -513,7 +517,9 @@ These were designed and then cut to fit two weeks. They are listed so nobody thi
 - **The detailed usage log for Admins:** who asked what, the refused / low-confidence /
   answered counts over time, and the 12-month automatic deletion.
 - **Bulk upload of a whole archive:** the build has a simple multi-file upload.
-- **Everything GPU:** hardware choice, GPU benchmarks and measured GPU answer times.
+- **GPU sizing and benchmarking:** which GPU to choose, how to size a GPU host, and benchmarks
+  across GPUs. One GPU run was measured (an RTX 5080, in [Results](#results)); it is a single
+  data point, not a sizing guide.
 - **Switching to a hosted model in production:** the provider abstraction and the override file
   exist for synthetic benchmarks only. The build ships local only.
 
@@ -534,6 +540,9 @@ These were designed and then cut to fit two weeks. They are listed so nobody thi
   sample corpus, 97% of words come out exactly as written.
 - **One answer at a time.** On a CPU the model handles one question at a time. Others wait, and
   the screen shows their place in the queue.
+- **On a GPU host the reranker becomes the slowest stage.** It still runs on the CPU: about
+  4.5 s of an answer's 7 s on the RTX 5080 run
+  ([PR #30](https://github.com/ImamWD/Sanad-Arabic-Document-Assistant/pull/30)).
 - **The Ask screen has no filter controls yet.** The API accepts programme, year and category
   filters; the screen doesn't offer them.
 
