@@ -75,6 +75,39 @@ def test_api_llm_override_is_the_only_way_out_for_api() -> None:
     assert "ollama" not in dev["services"]
 
 
+# Service keys that could connect a container to a network, publish it or give it host data.
+AIR_GAP_KEYS = {
+    "networks",
+    "network_mode",
+    "ports",
+    "expose",
+    "volumes",
+    "volumes_from",
+    "extra_hosts",
+    "links",
+    "external_links",
+}
+
+
+def test_gpu_override_only_gives_ollama_the_gpu(base: dict[str, Any]) -> None:
+    """docker-compose.gpu.yml may add a GPU reservation to `ollama` and nothing that changes
+    networks, ports or volumes, so loading it can never open the air gap of the base file."""
+    gpu = load("docker-compose.gpu.yml")
+    assert set(gpu) == {"services"}, "no top-level networks or volumes in the GPU override"
+    assert set(gpu["services"]) == {"ollama"}
+    ollama = gpu["services"]["ollama"]
+    assert AIR_GAP_KEYS.isdisjoint(ollama), sorted(AIR_GAP_KEYS & set(ollama))
+    devices = ollama["deploy"]["resources"]["reservations"]["devices"]
+    assert [d["capabilities"] for d in devices] == [["gpu"]]
+    assert base["services"]["ollama"]["networks"] == ["backend"]
+
+
+def test_ollama_cloud_features_are_off(base: dict[str, Any]) -> None:
+    """Ollama 0.40 calls ollama.com on its own (recommendations, cloud tags) unless told not to."""
+    for name in ("ollama", "ollama-init"):
+        assert base["services"][name]["environment"]["OLLAMA_NO_CLOUD"] == "1", name
+
+
 def test_nginx_does_not_buffer_the_answer_stream() -> None:
     conf = (REPO / "deploy" / "nginx.conf").read_text(encoding="utf-8")
     block = conf.split("location = /api/ask/stream {", 1)[1].split("}", 1)[0]
