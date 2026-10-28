@@ -1,3 +1,4 @@
+// CI1 scratch: frontend-only timing run, never merged.
 import type { Language } from '../app/i18n';
 
 /**
