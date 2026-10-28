@@ -126,8 +126,10 @@ downloading. **Measured** with [scripts/cleantest.sh](scripts/cleantest.sh) (a f
 `.env`, an empty model volume) on an Apple Silicon Mac with 10 CPUs and 15.6 GiB for Docker:
 10 minutes 11 seconds from start to the guest's first answer with a citation, 9 minutes 9 seconds
 of it the model download. That Mac already had the base images and the build cache, so the
-image downloads and builds are not in that time. Peak memory was 5.8 GiB. After the first
-start, Sanad runs offline and starts in under a minute.
+image downloads and builds are not in that time. Peak memory was 5.8 GiB. On an x86-64 Windows
+PC (WSL2, 12 CPUs and 23.5 GiB for Docker) with nothing cached, image downloads and builds
+included, it took 26 minutes 44 seconds, 9 minutes 39 seconds of it the model download, with a
+peak of 7.4 GiB. After the first start, Sanad runs offline and starts in under a minute.
 
 ### Memory
 
@@ -464,7 +466,7 @@ changed because of them. All answers come from the synthetic corpus described in
 | Model | Role | Hardware | Score | Invented answers | Median / p90 answer time | Date |
 |---|---|---|---|---|---|---|
 | `gemma4:e4b-it-qat`, text-only | Shipped default (CPU) | Apple M5 (10 cores), 24 GB RAM, Docker VM 16 GB, CPU only | **11 / 15** in all 6 runs | 1 (T23) | 33 to 35 s / 36 to 41 s | 2026-10-27 |
-| `gemma4:26b-a4b-it-qat` | Optional, for GPU hosts | TBD | TBD / 15 | TBD | TBD | TBD |
+| `gemma4:26b-a4b-it-qat` | Optional, for GPU hosts (v2, measured once) | Intel Core i9-14900KF, 32 GB RAM, RTX 5080 16 GB, Windows 11 with WSL2, 12 CPUs and 23.5 GiB for Docker, GPU (containerised Ollama, `docker-compose.gpu.yml`) | 12 / 15 (all three runs) | 0 | 6.6 s / 7.8 s (three runs: medians 6.5 to 7.1 s, p90 7.3 to 8.0 s) | 2026-10-27 |
 
 How the CPU row was measured, on commit `80eac66`:
 

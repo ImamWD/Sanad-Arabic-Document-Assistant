@@ -1,0 +1,21 @@
+# Sanad GPU override (v2, optional): gives the bundled `ollama` service the host's NVIDIA GPU.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build --wait
+#
+# It changes no network, port or volume. `ollama` stays on the internal `backend` network
+# only, so the isolation of docker-compose.yml (and its egress test) holds unchanged. Only
+# `ollama` gets the GPU; ollama-init, api, worker, ml and db are as in the base file.
+#
+# Needs the NVIDIA driver and the NVIDIA Container Toolkit on the host (on Windows: Docker
+# Desktop with the WSL2 backend). A GPU host can also run the larger model, by setting
+# LLM_MODEL=gemma4:26b-a4b-it-qat in .env (README, Results).
+
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
