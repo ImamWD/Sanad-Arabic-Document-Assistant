@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Nightly and manual runs do everything, like a push to main.
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -14,10 +18,82 @@ concurrency:
   cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
-  lint-test:
+  # What this run needs. A pull request runs only what its changed files need. Every other
+  # event (push to main, nightly, manual) runs everything, whatever changed.
+  scope:
     runs-on: ubuntu-24.04
-    # The live tests generate answers on the runner's CPU (see their step).
-    timeout-minutes: 75
+    timeout-minutes: 5
+    outputs:
+      stack: ${{ steps.scope.outputs.stack }}
+      live: ${{ steps.scope.outputs.live }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # A pull request is checked out as its merge commit: parent 1 is the base branch.
+          fetch-depth: 2
+
+      # Rules, first match per file wins; the strongest need over all files decides:
+      #   backend/ ml/ deploy/ eval/ seed/ .github/workflows/ docker-compose*.yml: everything
+      #   frontend/: the stack and e2e, without the live generation tests
+      #   README.md, docs/, any other *.md, LICENSE: lint and unit tests only
+      #   anything else (Makefile, scripts/, tools/, .env.example, ...): everything
+      - name: Decide what to run from the changed files
+        id: scope
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          stack=false
+          live=false
+          why="docs only"
+          if [ "$EVENT" != pull_request ]; then
+            stack=true
+            live=true
+            why="$EVENT event: everything"
+          else
+            if ! git rev-parse --verify -q 'HEAD^2' >/dev/null; then
+              echo "expected the pull request's merge commit" >&2
+              exit 1
+            fi
+            # --no-renames: a file moved out of backend/ counts at its old path too.
+            changed=$(git diff --no-renames --name-only 'HEAD^1' HEAD)
+            while IFS= read -r file; do
+              case "$file" in
+                "") ;;
+                backend/* | ml/* | deploy/* | eval/* | seed/* | .github/workflows/* | docker-compose*.yml)
+                  stack=true
+                  live=true
+                  why="$file"
+                  break
+                  ;;
+                frontend/*)
+                  if [ "$stack" = false ]; then
+                    why="$file (frontend: e2e without the live tests)"
+                  fi
+                  stack=true
+                  ;;
+                README.md | docs/* | *.md | LICENSE) ;;
+                *)
+                  stack=true
+                  live=true
+                  why="$file (neither docs nor frontend)"
+                  break
+                  ;;
+              esac
+            done <<< "$changed"
+          fi
+          if [ "$EVENT" != pull_request ] && [ "$live" != true ]; then
+            echo "a $EVENT run must run everything" >&2
+            exit 1
+          fi
+          echo "stack=$stack" >> "$GITHUB_OUTPUT"
+          echo "live=$live" >> "$GITHUB_OUTPUT"
+          echo "Scope: stack=$stack, live tests=$live. Decided by: $why" | tee -a "$GITHUB_STEP_SUMMARY"
+
+  # Every run, every event: quick feedback, in parallel with the stack job.
+  fast:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -28,6 +104,17 @@ jobs:
 
       - name: API types are up to date
         run: make check-api-types
+
+  stack:
+    needs: scope
+    if: needs.scope.outputs.stack == 'true'
+    runs-on: ubuntu-24.04
+    # The live tests generate answers on the runner's CPU (see their step).
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Runner disk and memory
         run: |
@@ -72,7 +159,8 @@ jobs:
             fi
           done
 
-      # `make up --wait` doesn't wait for the worker. The retrieval live tests need the corpus.
+      # `make up --wait` doesn't wait for the worker. The retrieval live tests need the corpus,
+      # and e2e sees the same corpus on every path.
       - name: Seed corpus ingested
         timeout-minutes: 20
         run: |
@@ -91,10 +179,17 @@ jobs:
             sleep 5
           done
 
+      # Before the split, `make lint test` built it in this same job. Only the live tests need it.
+      - name: Tools image for the live tests
+        if: needs.scope.outputs.live == 'true'
+        run: docker compose --profile tools build backend-dev
+
       # Every test of the real embedding, reranking and generation path. SANAD_REQUIRE_LIVE=1
       # turns "the stack isn't reachable" into a failure instead of a skip (tests/conftest.py),
-      # and the step fails if no live test passed. Runs before e2e, which uploads documents.
+      # and the step fails if any live test skipped or none passed. Runs before e2e, which
+      # uploads documents.
       - name: Live tests (real ml service and local LLM)
+        if: needs.scope.outputs.live == 'true'
         timeout-minutes: 45
         run: |
           set +e
@@ -119,8 +214,14 @@ jobs:
               summary.write(line + "\n")
           if passed == 0:
               sys.exit("no live test passed")
+          if skipped:
+              sys.exit("a live test skipped")
           sys.exit(int(sys.argv[1]))
           EOF
+
+      # Before the split, `make lint` installed these in this same job.
+      - name: Frontend dependencies for e2e
+        run: docker compose run --rm -T node sh -c 'sh scripts/ensure-deps.sh'
 
       - name: End-to-end (lang / dir)
         run: make test-e2e
