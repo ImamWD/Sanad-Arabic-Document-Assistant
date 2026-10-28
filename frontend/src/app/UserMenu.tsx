@@ -10,7 +10,7 @@ export function UserMenu() {
   const { t } = useTranslation();
   const user = useCurrentUser();
   const logout = useLogout();
-  const role = user.is_guest ? t('roles.guest') : t(`roles.${user.role}`);
+  const role = t(`roles.${user.role}`);
 
   // Clearing the session is enough: <RequireAuth> then sends the browser to /login.
   const signOut = () => {
@@ -23,15 +23,27 @@ export function UserMenu() {
     <DropdownMenu.Root modal={false}>
       <DropdownMenu.Trigger className={styles.trigger}>
         <Icon name="user" />
-        <Bidi className={styles.name} text={user.name} />
+        {/* The guest is one shared account: it is called by its role, in the UI language,
+            not by the server's account name. Real users keep their own name. */}
+        {user.is_guest ? (
+          <span className={styles.name}>{t('roles.guest')}</span>
+        ) : (
+          <Bidi className={styles.name} text={user.name} />
+        )}
         <Icon name="chevronDown" />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
         <DropdownMenu.Content className={styles.content} align="end" sideOffset={6}>
           <DropdownMenu.Label className={styles.label}>
-            <Bidi as="div" className={styles.labelName} text={user.name} />
-            {!user.is_guest && <Bidi as="div" className={styles.labelMeta} text={user.email} />}
-            <div className={styles.labelMeta}>{role}</div>
+            {user.is_guest ? (
+              <div className={styles.labelName}>{t('roles.guest')}</div>
+            ) : (
+              <>
+                <Bidi as="div" className={styles.labelName} text={user.name} />
+                <Bidi as="div" className={styles.labelMeta} text={user.email} />
+                <div className={styles.labelMeta}>{role}</div>
+              </>
+            )}
           </DropdownMenu.Label>
           <DropdownMenu.Separator className={styles.separator} />
           <DropdownMenu.Item className={styles.item} onSelect={signOut}>

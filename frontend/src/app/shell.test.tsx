@@ -234,7 +234,7 @@ describe('header', () => {
   it('labels a guest as a guest', async () => {
     const actor = userEvent.setup();
     await renderApp({ path: '/ask', user: GUEST });
-    await actor.click(await screen.findByRole('button', { name: GUEST.name }));
+    await actor.click(await screen.findByRole('button', { name: ar.roles.guest }));
     expect(within(await screen.findByRole('menu')).getByText(ar.roles.guest)).toBeDefined();
   });
 });
