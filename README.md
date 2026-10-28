@@ -426,7 +426,7 @@ Describe your own machine in `--hardware`. The runner signs in as the demo edito
 question over the HTTP API, through the same pipeline the browser uses, and prints
 `Score: X/15` last. It writes a
 Markdown and a JSON report to `eval/results/`, with the model, hardware, Ollama version, commit
-and date. `make eval-dev` runs the 30 tuning questions. `--help` lists every option.
+and date. `make eval-dev` runs the 39 tuning questions. `--help` lists every option.
 
 ### How it is scored
 
@@ -453,25 +453,54 @@ other 10 moved to the tuning set. Fifteen still covers what matters:
   exists
 
 The thresholds, prompts and retrieval settings are tuned only on the **dev** set
-(`eval/dev_questions.yaml`, 30 questions). The 15 **headline** questions
+(`eval/dev_questions.yaml`, 39 questions). The 15 **headline** questions
 (`eval/questions.yaml`) are never used for tuning, and the two sets share no question and no
-answer fact. So the headline score is not fitted to its own questions. All answers come from
-the synthetic corpus described in [seed/README.md](seed/README.md).
+answer fact. So the headline score is not fitted to its own questions. During development the
+headline set was run twice, to check that a prompt change broke nothing (both runs are in
+[PR #19](https://github.com/ImamWD/Sanad-Arabic-Document-Assistant/pull/19)), and nothing was
+changed because of them. All answers come from the synthetic corpus described in
+[seed/README.md](seed/README.md).
 
 ### Results
 
 | Model | Role | Hardware | Score | Invented answers | Median / p90 answer time | Date |
 |---|---|---|---|---|---|---|
-| `gemma4:e4b-it-qat`, text-only | Shipped default (CPU) | TBD | TBD / 15 | TBD | TBD | TBD |
+| `gemma4:e4b-it-qat`, text-only | Shipped default (CPU) | Apple M5 (10 cores), 24 GB RAM, Docker VM 16 GB, CPU only | **11 / 15** in all 6 runs | 1 (T23) | 33 to 35 s / 36 to 41 s | 2026-10-27 |
 | `gemma4:26b-a4b-it-qat` | Optional, for GPU hosts (v2, measured once) | Intel Core i9-14900KF, 32 GB RAM, RTX 5080 16 GB, Windows 11 with WSL2, 12 CPUs and 23.5 GiB for Docker, GPU (containerised Ollama, `docker-compose.gpu.yml`) | 12 / 15 (all three runs) | 0 | 6.6 s / 7.8 s (three runs: medians 6.5 to 7.1 s, p90 7.3 to 8.0 s) | 2026-10-27 |
+
+How the CPU row was measured, on commit `80eac66`:
+
+- **Score:** the 15 questions were run 6 times, and every run scored 11. The model runs at
+  temperature 0, so the same question gets the same answer. In every run 9 of the 12
+  answerable questions were right, 2 of the 3 unanswerable ones were refused, no answerable
+  question was refused, and an expected page was in the top 5 candidates for all 12.
+- **Time:** three of those runs each started after a fresh Docker restart, and the time range
+  in the table is theirs. Ollama caches the prompt of a question it has just answered, so a
+  repeated question comes back in about 9 seconds. A new question doesn't, and that is the
+  number shown.
+- **Where the time goes:** about 26 seconds pass before the first word appears, because the
+  model reads 8 excerpts on the CPU. The reranker takes about 6 seconds. A question refused at
+  the gate returns in about 6 seconds, because the model is never called.
+- **Reports:** the [repeated run](eval/results/20261027T013305Z-test-gemma4-e4b-it-qat-text-only-sanad-gemma4-e4b-text-final-headline-run.md)
+  and the timing runs
+  [1](eval/results/20261027T014819Z-test-gemma4-e4b-it-qat-text-only-sanad-gemma4-e4b-text-final-timing-run-1-of-3.md),
+  [2](eval/results/20261027T015806Z-test-gemma4-e4b-it-qat-text-only-sanad-gemma4-e4b-text-final-timing-run-2-of-3.md) and
+  [3](eval/results/20261027T020737Z-test-gemma4-e4b-it-qat-text-only-sanad-gemma4-e4b-text-final-timing-run-3-of-3.md).
 
 ### Questions it fails and why
 
-TBD after the final run.
+The same four questions failed in every run.
 
 | ID | Kind | Cause | Why |
 |---|---|---|---|
-| TBD | TBD | TBD | TBD |
+| T12 | Arabic, a number | Generation | The question asks for «حصة» (the share) of general and administrative costs in the 2018 budget. The answer gives the share as a percentage (8.5%, which the budget states) but not the amount the item expects (140,000). «حصة» can mean either, and the item wants the amount. The answer carried the amber banner (top score 0.25). |
+| T13 | Arabic dialect, a number | Generation | The tracer survey gives 64% of the 2022 graduates in work, and 70% for «الشبان» (young men) in its breakdown by gender. The question names «برنامج الشباب» (the youth programme). The two words differ by one letter, and the model took the young men's figure. |
+| T14 | Arabic, page split | Page split | The figure (1,840) sits in a paragraph that a page break cuts in two. Chunks never cross a page, so that every citation names one page. Neither half holds the whole statement, and the model refuses rather than guess. This is the price of page-level citations. |
+| T23 | English, near miss | Invented answer | The documents give the 61% baseline, the 68% mid-term figure and the 75% target, but not the final rate, because the final evaluation was delayed to 2023. The answer states the target and the delay, all cited, but never says that the final rate is missing, so a reader could take 75% as the result. It counts as invented. The passage is highly relevant (top score 0.998), so the gate lets it through, and the 4B model doesn't refuse. A prompt rule against this changed nothing ([PR #26](https://github.com/ImamWD/Sanad-Arabic-Document-Assistant/pull/26); dev item D37 shows the same pattern). |
+
+Two of the four are the model misreading a passage it was given (T12, T13). One is a deliberate
+trade-off (T14). One is the failure the refusal gate exists to prevent (T23), and it is listed
+here, not hidden.
 
 ## Deferred to v2
 
