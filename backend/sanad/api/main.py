@@ -43,7 +43,7 @@ def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(
         title="Sanad API",
-        version="0.1.0",
+        version="1.0.0",
         lifespan=lifespan,
         openapi_url=f"{API_PREFIX}/openapi.json",
         docs_url=None,

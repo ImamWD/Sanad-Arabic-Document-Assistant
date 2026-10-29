@@ -1,6 +1,6 @@
 [project]
 name = "sanad-ml"
-version = "0.1.0"
+version = "1.0.0"
 description = "Sanad embedding, rerank and tokenizer service (bge-m3, bge-reranker-v2-m3; int8 ONNX)"
 requires-python = "==3.12.*"
 # Direct dependencies are pinned exactly; uv.lock pins the full tree.
