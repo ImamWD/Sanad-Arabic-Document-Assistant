@@ -47,6 +47,7 @@ frontend/blob-report/
 
 # --- tool output ---
 tools/render/out/
+frontend/.shots/
 
 # --- local review material (PDF exports, client drafts; never committed) ---
 review/

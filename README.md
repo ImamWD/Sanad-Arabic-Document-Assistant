@@ -46,19 +46,35 @@ Click **Continue as guest**. The guest reads the synthetic sample documents only
 **Language toggle (15 seconds).** Clip to come: `docs/assets/toggle.gif`.
 <!-- ![The language toggle mirrors the whole interface](docs/assets/toggle.gif) -->
 
-**Screenshots.** To come, in `docs/assets/`:
+**Screenshots.** These come from the running stack as the guest, with real answers from the
+shipped CPU model, not mock-ups.
+[scripts/readme-screenshots.mjs](scripts/readme-screenshots.mjs) takes them again.
 
-| Screen | File |
-|---|---|
-| Ask, with an answer and its citations | `docs/assets/ask-citations.png` |
-| The refusal state | `docs/assets/refusal.png` |
-| The Library, in Arabic | `docs/assets/library-ar.png` |
-| The document viewer at a cited page | `docs/assets/viewer.png` |
+An English question, answered with a citation that opens the source page:
 
-<!-- ![Ask, with citations](docs/assets/ask-citations.png) -->
-<!-- ![The refusal state](docs/assets/refusal.png) -->
-<!-- ![The Library in Arabic](docs/assets/library-ar.png) -->
-<!-- ![The viewer at a cited page](docs/assets/viewer.png) -->
+![An English answer with its citation card](docs/assets/ask-citations.png)
+
+The same answer after switching the interface to Arabic. The layout mirrors, the English answer
+keeps its own direction, and nothing is lost:
+
+![The same answer with the interface in Arabic](docs/assets/language-switch.png)
+
+An Arabic question, answered from two documents:
+
+![An Arabic answer citing two documents](docs/assets/answer-ar.png)
+
+The document viewer, opened at the cited page:
+
+![The viewer at the cited page](docs/assets/viewer.png)
+
+A question the documents can't answer (a programme that doesn't exist, asked in Levantine
+dialect). Sanad refuses and suggests documents to check:
+
+![A refusal with suggested documents](docs/assets/refusal.png)
+
+The Library, in Arabic:
+
+![The Library in Arabic](docs/assets/library-ar.png)
 
 ## Quick start
 
