@@ -1,6 +1,6 @@
 [project]
 name = "sanad"
-version = "0.1.0"
+version = "1.0.0"
 description = "Sanad API and ingestion worker"
 requires-python = "==3.12.*"
 # Direct dependencies are pinned exactly; uv.lock pins the full tree.
