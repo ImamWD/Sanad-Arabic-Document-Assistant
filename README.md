@@ -44,8 +44,8 @@ Click **Continue as guest**. The guest reads the synthetic sample documents only
 4. Switch the language in the header. The interface mirrors and keeps your answer on screen.
 
 **Language toggle.** One click mirrors the whole interface, and the answer stays on screen.
-[scripts/record-demo.mjs](scripts/record-demo.mjs) records this clip, and a one-minute demo video,
-from the running stack.
+[scripts/record-demo.mjs](scripts/record-demo.mjs) records this clip, and a short captioned demo
+video, from the running stack.
 
 ![The language toggle mirrors the whole interface](docs/assets/toggle.gif)
 
