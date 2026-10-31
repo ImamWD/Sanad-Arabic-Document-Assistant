@@ -43,8 +43,11 @@ Click **Continue as guest**. The guest reads the synthetic sample documents only
    documents don't cover it, so Sanad refuses and suggests documents you may want to check.
 4. Switch the language in the header. The interface mirrors and keeps your answer on screen.
 
-**Language toggle (15 seconds).** Clip to come: `docs/assets/toggle.gif`.
-<!-- ![The language toggle mirrors the whole interface](docs/assets/toggle.gif) -->
+**Language toggle.** One click mirrors the whole interface, and the answer stays on screen.
+[scripts/record-demo.mjs](scripts/record-demo.mjs) records this clip, and a one-minute demo video,
+from the running stack.
+
+![The language toggle mirrors the whole interface](docs/assets/toggle.gif)
 
 **Screenshots.** These come from the running stack as the guest, with real answers from the
 shipped CPU model, not mock-ups.
@@ -408,7 +411,8 @@ docker compose exec -T api python -c "import socket; socket.create_connection(('
 
 It prints `OSError: [Errno 101] Network is unreachable`. If it ever prints
 `REACHED THE INTERNET`, isolation is broken. The same command works for `worker` and `ml`. CI
-runs a probe like it on every pull request.
+runs a probe like it on every pull request that changes code, on every push to `main`, and
+every night.
 
 ## Data handling rule
 
